@@ -5,6 +5,8 @@ import TheVault from "@/components/home/TheVault";
 import LensTech from "@/components/home/LensTech";
 import BrandShowcase from "@/components/home/BrandShowcase";
 import CTASection from "@/components/home/CTASection";
+import ProductsShowcase from "@/components/home/ProductsShowcase";
+import OrderLookup from "@/components/home/OrderLookup";
 
 export default function Home() {
   return (
@@ -18,19 +20,25 @@ export default function Home() {
       {/* 3. Lens Teknolojisi — Before/After Slider */}
       <LensTech />
 
-      {/* 4. VIP Özel Sunum Concierge — Glassmorphism Anket */}
+      {/* 4. Vitrin Ürünleri — Panelden Yıldızlananlar */}
+      <ProductsShowcase />
+
+      {/* 5. VIP Özel Sunum Concierge — Glassmorphism Anket */}
       <VIPConcierge />
 
-      {/* Marka Vitrini — Infinite Carousel (Varolan Lüks Öğeler Korundu) */}
+      {/* Marka Vitrini — Infinite Carousel */}
       <BrandShowcase />
 
-      {/* 5. The Vault — Basılı Tutarak Kasa Açma Efekti (Gizli Koleksiyon) */}
+      {/* 6. Sipariş Sorgulama — Müşteri Takip Sistemi */}
+      <OrderLookup />
+
+      {/* 7. The Vault — Basılı Tutarak Kasa Açma Efekti (Gizli Koleksiyon) */}
       <TheVault />
 
       {/* Altın Çizgi Ayırıcı */}
       <div className="divider-gold" />
 
-      {/* 6. CTA — WhatsApp İletişim */}
+      {/* 8. CTA — WhatsApp İletişim */}
       <CTASection />
     </>
   );
