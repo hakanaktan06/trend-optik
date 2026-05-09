@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { motion } from "framer-motion";
 import { MessageCircle, ArrowRight, Loader2 } from "lucide-react";
@@ -14,8 +14,7 @@ interface Product {
   price: string | number;
   img: string;
   category: string;
-  isFeatured?: any; // Esnek tip (bool veya string)
-  vitrin?: any;     // Esnek tip (bool veya string)
+  isFeatured?: boolean;
 }
 
 export default function ProductsShowcase() {
@@ -26,25 +25,18 @@ export default function ProductsShowcase() {
     const fetchAndFilter = async () => {
       setLoading(true);
       try {
-        // BYPASS: Firestore filtresini kaldır, tüm ürünleri çek
-        // Bu sayede indeks hatalarından ve veri tipi uyuşmazlıklarından kurtuluruz.
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        const snap = await getDocs(q);
+        // BYPASS: Sorguda where veya orderBy kullanmıyoruz (Missing Index hatasını önlemek için)
+        const snap = await getDocs(collection(db, "products"));
         
         const allItems: Product[] = [];
         snap.forEach((doc) => {
           allItems.push({ id: doc.id, ...doc.data() } as Product);
         });
 
-        // JAVASCRIPT FILTRELEME: isFeatured veya vitrin alanlarını hem bool hem string olarak kontrol et
-        const filtered = allItems.filter(p => 
-          p.isFeatured === true || 
-          p.isFeatured === "true" || 
-          p.vitrin === true || 
-          p.vitrin === "true"
-        ).slice(0, 6); // Sadece ilk 6 vitrin ürününü al
+        // JAVASCRIPT FILTRELEME: Sadece isFeatured olanları ön yüzde ayıkla
+        const vitrinUrunleri = allItems.filter(p => p.isFeatured === true);
 
-        setProducts(filtered);
+        setProducts(vitrinUrunleri);
       } catch (e) {
         console.error("Vitrin fetch bypass error:", e);
       } finally {
@@ -66,14 +58,14 @@ export default function ProductsShowcase() {
               whileInView={{ opacity: 1, x: 0 }}
               className="text-[var(--accent-gold)] text-[10px] tracking-[0.4em] uppercase mb-4 block font-bold"
             >
-              Elite Selection
+              Exclusive Selection
             </motion.span>
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               className="text-3xl md:text-5xl font-bold text-white tracking-tighter"
             >
-              Vitrindeki <span className="text-white/30 font-light italic">Yıldızlar</span>
+              Sezonun <span className="text-white/30 font-light italic">Yıldızları</span>
             </motion.h2>
           </div>
           <Link href="/katalog" className="group flex items-center gap-2 text-white/30 hover:text-[var(--accent-gold)] transition-colors text-[10px] tracking-widest uppercase font-bold">
@@ -84,10 +76,7 @@ export default function ProductsShowcase() {
         {loading ? (
           /* Loading State */
           <div className="flex justify-center py-24">
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="w-10 h-10 text-[var(--accent-gold)] animate-spin" />
-              <p className="text-[10px] text-white/20 tracking-[0.3em] uppercase">Vitrin Hazırlanıyor...</p>
-            </div>
+            <Loader2 className="w-10 h-10 text-[var(--accent-gold)] animate-spin" />
           </div>
         ) : products.length > 0 ? (
           /* Ürün Listesi - Mobil Yatay Kaydırma / Masaüstü Grid */
@@ -99,7 +88,7 @@ export default function ProductsShowcase() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1, duration: 0.8 }}
                 viewport={{ once: true }}
-                className="relative min-w-[85vw] flex-shrink-0 snap-center md:min-w-0 md:w-auto overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] group"
+                className="relative min-w-[85vw] flex-shrink-0 snap-center md:min-w-0 md:w-auto overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] hover:scale-105 transition-transform duration-300 group"
               >
                 <Link href={`/product/${product.id}`} className="block">
                   <div className="relative aspect-[4/5] overflow-hidden p-8 md:p-12">
@@ -107,17 +96,17 @@ export default function ProductsShowcase() {
                       src={product.img || "/images/placeholder.jpg"} 
                       alt={product.name}
                       fill
-                      className="object-contain p-8 md:p-12 group-hover:scale-105 transition-transform duration-700 ease-out"
+                      className="object-contain p-8 md:p-12"
                     />
                   </div>
 
-                  <div className="p-8 pt-0 space-y-3">
+                  <div className="p-8 pt-0 space-y-3 text-left">
                     <div className="flex justify-between items-start">
                       <div>
-                        <span className="text-[9px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block text-left">
+                        <span className="text-[9px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block">
                           {product.category}
                         </span>
-                        <h3 className="text-lg md:text-xl font-light text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors text-left">
+                        <h3 className="text-lg md:text-xl font-light text-white tracking-tight">
                           {product.name}
                         </h3>
                       </div>
@@ -146,9 +135,9 @@ export default function ProductsShowcase() {
           </div>
         ) : (
           /* Boş State */
-          <div className="text-center py-24 border border-dashed border-white/10 rounded-[3rem] mx-6">
-            <p className="text-white/20 italic font-light tracking-widest text-[10px] uppercase">
-              Şu an vitrinde ürün bulunmuyor. <br/> Panelden vitrin/yıldız seçimi yapınız.
+          <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem] mx-6">
+            <p className="text-white/20 italic font-light tracking-widest text-xs uppercase">
+              Şu an vitrinde ürün bulunmuyor.
             </p>
           </div>
         )}
