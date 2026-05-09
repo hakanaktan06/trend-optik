@@ -71,7 +71,7 @@ export default function AdminPanel() {
           className="w-full max-w-md"
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-white mb-2">Trend Optik</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">Trend Optik Mersin</h2>
             <p className="text-white/40 tracking-[0.2em] uppercase text-xs">Yönetim Paneli</p>
           </div>
 

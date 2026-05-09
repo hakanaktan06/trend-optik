@@ -17,11 +17,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Trend Optik — Premium Gözlük Koleksiyonu",
+  title: "Trend Optik Mersin — Premium Gözlük Koleksiyonu",
   description:
     "Dünyanın en prestijli markalarından seçilmiş premium gözlük koleksiyonları. Ray-Ban, Gucci, Prada, Tom Ford ve daha fazlası. Orijinal garantili, profesyonel göz sağlığı hizmetleri.",
   keywords: [
-    "trend optik",
+    "trend optik mersin",
     "gözlük",
     "güneş gözlüğü",
     "numaralı gözlük",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     "lens",
   ],
   openGraph: {
-    title: "Trend Optik — Premium Gözlük Koleksiyonu",
+    title: "Trend Optik Mersin — Premium Gözlük Koleksiyonu",
     description:
       "Dünyanın en prestijli markalarından seçilmiş premium gözlük koleksiyonları.",
     type: "website",

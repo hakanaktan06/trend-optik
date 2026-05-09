@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 
 // Instagram icon — Lucide React'te trademark nedeniyle yok, inline SVG
@@ -19,6 +20,8 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/panel")) return null;
   return (
     <footer className="relative bg-[var(--background)] border-t border-white/[0.04]">
       {/* Gold Divider */}
@@ -33,11 +36,11 @@ export default function Footer() {
                 <span className="text-[#050505] font-bold text-sm">T</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-semibold tracking-tight text-white leading-none">
-                  TREND
+                <span className="text-base font-semibold tracking-tight text-white leading-none">
+                  TREND OPTİK
                 </span>
-                <span className="text-[9px] font-medium tracking-[0.3em] text-[var(--accent-gold)] uppercase leading-none mt-0.5">
-                  OPTİK
+                <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-0.5">
+                  MERSİN
                 </span>
               </div>
             </div>

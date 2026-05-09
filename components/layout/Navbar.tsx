@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,8 +16,12 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Don't show navbar in admin panel
+  if (pathname?.startsWith("/panel")) return null;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,10 +64,10 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-base font-semibold tracking-tight text-white leading-none">
-                TREND
+                TREND OPTİK
               </span>
               <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-0.5">
-                OPTİK
+                MERSİN
               </span>
             </div>
           </Link>
