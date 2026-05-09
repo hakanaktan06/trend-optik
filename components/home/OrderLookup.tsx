@@ -28,7 +28,6 @@ export default function OrderLookup() {
       const q = query(
         collection(db, "orders"),
         where("phone", "==", phone),
-        orderBy("createdAt", "desc"),
         limit(5)
       );
       const snap = await getDocs(q);
@@ -54,7 +53,7 @@ export default function OrderLookup() {
   };
 
   return (
-    <section className="py-32 bg-[#0a0a0a] relative overflow-hidden">
+    <section id="takip" className="py-32 bg-[#0a0a0a] relative overflow-hidden">
       <div className="container-premium relative z-10">
         <div className="max-w-4xl mx-auto">
           

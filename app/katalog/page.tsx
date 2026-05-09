@@ -16,6 +16,8 @@ interface Product {
   isFeatured: boolean;
 }
 
+import OrderLookup from "@/components/home/OrderLookup";
+
 export default function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
@@ -105,7 +107,7 @@ export default function CatalogPage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
           {loading ? (
             Array(8).fill(0).map((_, i) => (
               <div key={i} className="animate-pulse">
@@ -167,6 +169,9 @@ export default function CatalogPage() {
           </div>
         )}
       </div>
+
+      <OrderLookup />
     </main>
   );
 }
+
