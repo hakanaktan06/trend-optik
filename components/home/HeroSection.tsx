@@ -146,12 +146,7 @@ export default function HeroSection() {
           />
         </div>
 
-        {/* Loading Indicator for Frames */}
-        {!imagesPreloaded && (
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 text-[10px] text-[var(--accent-gold)] uppercase tracking-widest font-mono animate-pulse bg-black/50 px-4 py-1.5 rounded-full backdrop-blur-md border border-[var(--accent-gold)]/20">
-            Premium Assets Loading...
-          </div>
-        )}
+
 
         {/* Badge */}
         <motion.div
