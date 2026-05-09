@@ -89,7 +89,7 @@ export default function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href="tel:+905551234567"
+              href="tel:+905312075818"
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors duration-300"
             >
               <Phone size={14} className="text-[var(--accent-gold)]" />
@@ -160,9 +160,9 @@ export default function Navbar() {
               >
                 <div className="h-px bg-white/10 w-full" />
                 <div className="space-y-4">
-                  <a href="tel:+905551234567" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
+                  <a href="tel:+905312075818" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
                     <Phone size={16} className="text-[var(--accent-gold)]" />
-                    <span className="text-sm font-medium">0555 123 45 67</span>
+                    <span className="text-sm font-medium">0531 207 58 18</span>
                   </a>
                   <a href="#" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
                     <MapPin size={16} className="text-[var(--accent-gold)]" />

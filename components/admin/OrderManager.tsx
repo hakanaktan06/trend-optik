@@ -109,7 +109,7 @@ export default function OrderManager() {
               </div>
               <div>
                 <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Telefon (Sorgu İçin)</label>
-                <input type="text" value={oPhone} onChange={e => setOPhone(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="0555 123 4567" />
+                <input type="text" value={oPhone} onChange={e => setOPhone(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="0531 207 58 18" />
               </div>
               <div>
                 <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Hangi Ürün / Cam?</label>

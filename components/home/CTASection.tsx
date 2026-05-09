@@ -42,7 +42,7 @@ export default function CTASection() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 md:mt-10">
             <a
-              href="https://wa.me/905551234567?text=Merhaba%2C%20Trend%20Optik%27ten%20bilgi%20almak%20istiyorum."
+              href="https://wa.me/905312075818?text=Merhaba%2C%20Trend%20Optik%20Mersin%27den%20bilgi%20almak%20istiyorum."
               target="_blank"
               rel="noopener noreferrer"
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-2xl md:rounded-full hover:shadow-xl hover:shadow-[var(--accent-gold)]/20 transition-all duration-500 active:scale-[0.97]"
@@ -51,7 +51,7 @@ export default function CTASection() {
               WhatsApp ile Ulaşın
             </a>
             <a
-              href="tel:+905551234567"
+              href="tel:+905312075818"
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 text-sm font-medium text-white/70 hover:text-white rounded-2xl md:rounded-full bg-white/[0.03] border border-white/[0.05] backdrop-blur-md transition-all duration-300"
             >
               <Calendar size={18} className="text-[var(--accent-gold)]" />

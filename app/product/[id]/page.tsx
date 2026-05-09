@@ -78,7 +78,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const whatsappLink = `https://wa.me/905551234567?text=Merhaba%2C%20${encodeURIComponent(product.name)}%20modeli%20hakkında%20bilgi%20almak%20istiyorum.`;
+  const whatsappLink = `https://wa.me/905312075818?text=Merhaba, ${encodeURIComponent(product.name)} modeli hakkında bilgi alabilir miyim?`;
 
   return (
     <main className="min-h-screen bg-[#050505] pt-32 pb-20 overflow-hidden">

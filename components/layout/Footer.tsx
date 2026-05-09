@@ -15,8 +15,8 @@ function InstagramIcon({ size = 16, className = "" }: { size?: number; className
 }
 
 const socialLinks = [
-  { icon: InstagramIcon, href: "https://instagram.com/trendoptik", label: "Instagram" },
-  { icon: MessageCircle, href: "https://wa.me/905551234567", label: "WhatsApp" },
+  { icon: InstagramIcon, href: "https://instagram.com/trendoptikmersin", label: "Instagram" },
+  { icon: MessageCircle, href: "https://wa.me/905312075818", label: "WhatsApp" },
 ];
 
 export default function Footer() {
@@ -98,22 +98,22 @@ export default function Footer() {
             </h4>
             <div className="flex flex-col gap-3">
               <a
-                href="tel:+905551234567"
+                href="tel:+905312075818"
                 className="flex items-center gap-3 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
               >
                 <Phone size={14} className="text-[var(--accent-gold)]/50" />
-                0555 123 45 67
+                0531 207 58 18
               </a>
               <a
-                href="mailto:info@trendoptik.com"
+                href="mailto:info@trendoptikmersin.com"
                 className="flex items-center gap-3 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
               >
                 <Mail size={14} className="text-[var(--accent-gold)]/50" />
-                info@trendoptik.com
+                info@trendoptikmersin.com
               </a>
               <div className="flex items-start gap-3 text-sm text-white/25 font-light">
                 <MapPin size={14} className="text-[var(--accent-gold)]/50 mt-0.5 flex-shrink-0" />
-                <span>İstanbul, Türkiye</span>
+                <span>Mersin, Türkiye</span>
               </div>
             </div>
           </div>
