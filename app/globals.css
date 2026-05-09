@@ -1,26 +1,293 @@
 @import "tailwindcss";
 
+/* ============================================
+   TREND OPTİK — Premium Design System
+   Dark-first, mobile-first, luxury-grade
+   ============================================ */
+/* Fontlar next/font/google ile layout.tsx'te yükleniyor */
+
+
+/* --- Design Tokens --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors — Luxury Dark Palette */
+  --background: #050505;
+  --background-secondary: #0a0a0a;
+  --background-elevated: #111111;
+  --background-glass: rgba(255, 255, 255, 0.03);
+
+  --foreground: #fafafa;
+  --foreground-secondary: #a1a1aa;
+  --foreground-muted: #52525b;
+
+  /* Gold Accent — Signature Trend Optik */
+  --accent-gold: #c9a96e;
+  --accent-gold-light: #d4af37;
+  --accent-gold-dark: #b8941f;
+  --accent-gold-glow: rgba(201, 169, 110, 0.15);
+  --accent-gold-subtle: rgba(201, 169, 110, 0.08);
+
+  /* Borders */
+  --border-primary: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --border-gold: rgba(201, 169, 110, 0.3);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.7);
+  --shadow-gold: 0 0 40px rgba(201, 169, 110, 0.1);
+  --shadow-gold-intense: 0 0 80px rgba(201, 169, 110, 0.15);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 20px;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  /* Spacing */
+  --section-padding: clamp(4rem, 10vh, 8rem);
+  --container-max: 1280px;
+  --container-padding: clamp(1rem, 4vw, 2rem);
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --duration-fast: 200ms;
+  --duration-normal: 400ms;
+  --duration-slow: 800ms;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
 }
 
+/* --- Tailwind v4 Theme Integration --- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-gold: var(--accent-gold);
+  --color-gold-light: var(--accent-gold-light);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* --- Base Styles --- */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gold) transparent;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-gold);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold-light);
+}
+
+/* --- Selection --- */
+::selection {
+  background: var(--accent-gold);
+  color: var(--background);
+}
+
+/* --- Glassmorphism Utility --- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+.glass-hover:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--border-hover);
+}
+
+/* --- Gold Gradient Text --- */
+.text-gradient-gold {
+  background: linear-gradient(135deg, var(--accent-gold-light), var(--accent-gold), var(--accent-gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Gold Shimmer Animation --- */
+.shimmer-gold {
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(201, 169, 110, 0.08) 40%,
+    rgba(201, 169, 110, 0.15) 50%,
+    rgba(201, 169, 110, 0.08) 60%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* --- Fade In Up Animation --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s var(--ease-out-expo) forwards;
+}
+
+/* --- Subtle Float Animation --- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(0.5deg); }
+  50% { transform: translateY(-5px) rotate(0deg); }
+  75% { transform: translateY(-15px) rotate(-0.5deg); }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* --- Pulse Glow --- */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(201, 169, 110, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(201, 169, 110, 0.25); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* --- Grain Texture Overlay --- */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* --- Hero Section Specific --- */
+.hero-gradient {
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(201, 169, 110, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+.hero-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 300vh;
+}
+
+.hero-canvas-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* --- Line Reveal Animation --- */
+.line-reveal {
+  overflow: hidden;
+}
+.line-reveal > * {
+  transform: translateY(105%);
+  transition: transform 1s var(--ease-out-expo);
+}
+.line-reveal.revealed > * {
+  transform: translateY(0);
+}
+
+/* --- Noise Background Pattern --- */
+.bg-noise {
+  position: relative;
+}
+.bg-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* --- Container --- */
+.container-premium {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* --- Infinite Scroll (Brand Carousel) --- */
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-left {
+  animation: scrollLeft 30s linear infinite;
+}
+
+/* --- Divider with Gold Accent --- */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-gold) 50%,
+    transparent
+  );
+  opacity: 0.3;
 }
