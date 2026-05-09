@@ -1,27 +1,36 @@
 import HeroSection from "@/components/home/HeroSection";
-import FeaturedProducts from "@/components/home/FeaturedProducts";
+import Craftsmanship from "@/components/home/Craftsmanship";
+import VIPConcierge from "@/components/home/VIPConcierge";
+import TheVault from "@/components/home/TheVault";
+import LensTech from "@/components/home/LensTech";
 import BrandShowcase from "@/components/home/BrandShowcase";
 import CTASection from "@/components/home/CTASection";
 
 export default function Home() {
   return (
     <>
-      {/* Hero — GSAP Scroll-Driven Animasyon */}
+      {/* 1. Hero — Apple Style Canvas Scroll Animasyon */}
       <HeroSection />
 
-      {/* Altın Çizgi Ayırıcı */}
-      <div className="divider-gold" />
+      {/* 2. Zanaatkarlık ve Materyaller — Parallax & Hover Glow */}
+      <Craftsmanship />
 
-      {/* Hizmetler / Öne Çıkan Ürünler */}
-      <FeaturedProducts />
+      {/* 3. Lens Teknolojisi — Before/After Slider */}
+      <LensTech />
 
-      {/* Marka Vitrini — Infinite Carousel */}
+      {/* 4. VIP Özel Sunum Concierge — Glassmorphism Anket */}
+      <VIPConcierge />
+
+      {/* Marka Vitrini — Infinite Carousel (Varolan Lüks Öğeler Korundu) */}
       <BrandShowcase />
 
+      {/* 5. The Vault — Basılı Tutarak Kasa Açma Efekti (Gizli Koleksiyon) */}
+      <TheVault />
+
       {/* Altın Çizgi Ayırıcı */}
       <div className="divider-gold" />
 
-      {/* CTA — WhatsApp & Randevu */}
+      {/* 6. CTA — WhatsApp İletişim */}
       <CTASection />
     </>
   );
