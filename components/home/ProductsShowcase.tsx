@@ -6,7 +6,6 @@ import { db } from "@/lib/firebase";
 import { motion } from "framer-motion";
 import { MessageCircle, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 interface Product {
   id: string;
@@ -25,7 +24,7 @@ export default function ProductsShowcase() {
     const fetchAndFilter = async () => {
       setLoading(true);
       try {
-        // BYPASS: Sorguda where veya orderBy kullanmıyoruz (Missing Index hatasını önlemek için)
+        // BYPASS: Tüm koleksiyonu çekiyoruz
         const snap = await getDocs(collection(db, "products"));
         
         const allItems: Product[] = [];
@@ -33,10 +32,9 @@ export default function ProductsShowcase() {
           allItems.push({ id: doc.id, ...doc.data() } as Product);
         });
 
-        // JAVASCRIPT FILTRELEME: Sadece isFeatured olanları ön yüzde ayıkla
-        const vitrinUrunleri = allItems.filter(p => p.isFeatured === true);
-
-        setProducts(vitrinUrunleri);
+        // JAVASCRIPT FILTRELEME: Sadece isFeatured olanları ayıkla
+        const vitrinler = allItems.filter(p => p.isFeatured === true);
+        setProducts(vitrinler);
       } catch (e) {
         console.error("Vitrin fetch bypass error:", e);
       } finally {
@@ -58,7 +56,7 @@ export default function ProductsShowcase() {
               whileInView={{ opacity: 1, x: 0 }}
               className="text-[var(--accent-gold)] text-[10px] tracking-[0.4em] uppercase mb-4 block font-bold"
             >
-              Exclusive Selection
+              Elite Selection
             </motion.span>
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
@@ -74,12 +72,11 @@ export default function ProductsShowcase() {
         </div>
 
         {loading ? (
-          /* Loading State */
           <div className="flex justify-center py-24">
             <Loader2 className="w-10 h-10 text-[var(--accent-gold)] animate-spin" />
           </div>
         ) : products.length > 0 ? (
-          /* Ürün Listesi - Mobil Yatay Kaydırma / Masaüstü Grid */
+          /* Ürün Listesi - Mobil Yatay Kaydırma (Horizontal Snap) */
           <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
             {products.map((product, idx) => (
               <motion.div
@@ -88,29 +85,29 @@ export default function ProductsShowcase() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1, duration: 0.8 }}
                 viewport={{ once: true }}
-                className="relative min-w-[85vw] flex-shrink-0 snap-center md:min-w-0 md:w-auto overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] hover:scale-105 transition-transform duration-300 group"
+                className="relative min-w-[85vw] flex-shrink-0 snap-center md:min-w-0 md:w-auto overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] group"
               >
                 <Link href={`/product/${product.id}`} className="block">
-                  <div className="relative aspect-[4/5] overflow-hidden p-8 md:p-12">
-                    <Image 
-                      src={product.img || "/images/placeholder.jpg"} 
+                  <div className="relative aspect-[4/5] overflow-hidden p-8 md:p-12 flex items-center justify-center">
+                    {/* Standart <img> Etiketi Kullanımı (Next.js Image Yasak!) */}
+                    <img 
+                      src={product.img} 
                       alt={product.name}
-                      fill
-                      className="object-contain p-8 md:p-12"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                   </div>
 
-                  <div className="p-8 pt-0 space-y-3 text-left">
-                    <div className="flex justify-between items-start">
+                  <div className="p-8 pt-0 space-y-3">
+                    <div className="flex justify-between items-start text-left">
                       <div>
                         <span className="text-[9px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block">
                           {product.category}
                         </span>
-                        <h3 className="text-lg md:text-xl font-light text-white tracking-tight">
+                        <h3 className="text-lg md:text-xl font-light text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors">
                           {product.name}
                         </h3>
                       </div>
-                      <p className="text-white/40 font-light tracking-wider text-sm md:text-base">
+                      <p className="text-white/40 font-light tracking-wider text-sm md:text-base whitespace-nowrap">
                         {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
                       </p>
                     </div>
@@ -134,7 +131,6 @@ export default function ProductsShowcase() {
             ))}
           </div>
         ) : (
-          /* Boş State */
           <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem] mx-6">
             <p className="text-white/20 italic font-light tracking-widest text-xs uppercase">
               Şu an vitrinde ürün bulunmuyor.
