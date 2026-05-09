@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
@@ -13,39 +14,56 @@ if (typeof window !== "undefined") {
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const sublineRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const glassesRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       // ===================================
-      // 3D Glasses Rotation on Scroll
-      // Apple AirPods tarzı scroll-driven
+      // Premium Glasses Image — 3D Parallax on Scroll
       // ===================================
       if (glassesRef.current) {
         gsap.fromTo(
           glassesRef.current,
           {
-            rotateY: -30,
-            rotateX: 15,
-            scale: 0.8,
-            opacity: 0.3,
+            scale: 0.85,
+            opacity: 0.4,
+            y: 40,
           },
           {
-            rotateY: 30,
-            rotateX: -5,
-            scale: 1,
+            scale: 1.1,
             opacity: 1,
+            y: -60,
             ease: "none",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top top",
               end: "bottom top",
               scrub: 1.5,
+            },
+          }
+        );
+      }
+
+      // ===================================
+      // Background Parallax — Slow zoom
+      // ===================================
+      if (bgRef.current) {
+        gsap.fromTo(
+          bgRef.current,
+          { scale: 1 },
+          {
+            scale: 1.15,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: 2,
             },
           }
         );
@@ -105,48 +123,6 @@ export default function HeroSection() {
           });
         });
       }
-
-      // ===================================
-      // Canvas Frame Animation Setup
-      // (Gerçek frame'ler eklendiğinde aktif edilecek)
-      // ===================================
-      /*
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext("2d");
-        const frameCount = 60;
-        const images: HTMLImageElement[] = [];
-        
-        for (let i = 0; i < frameCount; i++) {
-          const img = new Image();
-          img.src = `/frames/glasses_${i.toString().padStart(4, '0')}.webp`;
-          images.push(img);
-        }
-
-        const render = (index: number) => {
-          if (context && images[index]?.complete) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(images[index], 0, 0, canvas.width, canvas.height);
-          }
-        };
-
-        const obj = { frame: 0 };
-        gsap.to(obj, {
-          frame: frameCount - 1,
-          snap: "frame",
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 0.5,
-          },
-          onUpdate: () => render(Math.round(obj.frame)),
-        });
-
-        images[0].onload = () => render(0);
-      }
-      */
     }, sectionRef);
 
     return () => ctx.revert();
@@ -160,22 +136,41 @@ export default function HeroSection() {
     >
       {/* Sticky Container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
+        {/* Background Image — Cinematic */}
+        <div
+          ref={bgRef}
+          className="absolute inset-0 z-0"
+        >
+          <Image
+            src="/hero-bg.png"
+            alt="Luxury atmosphere"
+            fill
+            priority
+            className="object-cover opacity-40"
+            sizes="100vw"
+            quality={90}
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/60 via-transparent to-[#050505]/80" />
+        </div>
+
         {/* Background Gradient Orb */}
-        <div className="absolute inset-0 hero-gradient" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px] rounded-full bg-[var(--accent-gold)] opacity-[0.015] blur-[150px]" />
+        <div className="absolute inset-0 hero-gradient z-[1]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px] rounded-full bg-[var(--accent-gold)] opacity-[0.02] blur-[150px] z-[1]" />
 
         {/* Floating Particles */}
-        <div ref={particlesRef} className="absolute inset-0 pointer-events-none">
-          {[...Array(6)].map((_, i) => (
+        <div ref={particlesRef} className="absolute inset-0 pointer-events-none z-[2]">
+          {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="particle absolute w-1 h-1 rounded-full bg-[var(--accent-gold)]"
+              className="particle absolute rounded-full bg-[var(--accent-gold)]"
               style={{
-                left: `${15 + i * 15}%`,
-                top: `${20 + (i % 3) * 25}%`,
-                opacity: 0.2 + (i * 0.05),
-                width: `${2 + i}px`,
-                height: `${2 + i}px`,
+                left: `${10 + i * 12}%`,
+                top: `${15 + (i % 4) * 20}%`,
+                opacity: 0.15 + (i * 0.04),
+                width: `${2 + i * 0.5}px`,
+                height: `${2 + i * 0.5}px`,
+                filter: `blur(${i > 4 ? 1 : 0}px)`,
               }}
             />
           ))}
@@ -187,9 +182,9 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mb-8 md:mb-10"
+          className="mb-8 md:mb-10 z-10"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xs md:text-sm font-medium text-[var(--accent-gold)] tracking-wide">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-xs md:text-sm font-medium text-[var(--accent-gold)] tracking-wide">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-pulse" />
             Premium Gözlük Koleksiyonu 2025
           </div>
@@ -209,13 +204,36 @@ export default function HeroSection() {
           </motion.h1>
         </div>
 
+        {/* Premium Glasses Image — Floating */}
+        <motion.div
+          ref={glassesRef}
+          initial={{ opacity: 0, scale: 0.8, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px] pointer-events-none z-[3]"
+        >
+          <div className="relative w-full h-full animate-float">
+            <Image
+              src="/hero-glasses.png"
+              alt="Premium designer sunglasses"
+              fill
+              priority
+              className="object-contain drop-shadow-[0_20px_60px_rgba(201,169,110,0.25)]"
+              sizes="(max-width: 640px) 320px, (max-width: 768px) 450px, (max-width: 1024px) 600px, 700px"
+              quality={95}
+            />
+            {/* Glow effect behind glasses */}
+            <div className="absolute inset-0 -z-10 bg-[var(--accent-gold)] opacity-[0.06] blur-[80px] rounded-full scale-75" />
+          </div>
+        </motion.div>
+
         {/* Subline */}
         <div ref={sublineRef} className="text-center px-4 z-10 mt-6 md:mt-8">
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm sm:text-base md:text-lg text-white/40 max-w-lg mx-auto font-light leading-relaxed"
+            className="text-sm sm:text-base md:text-lg text-white/50 max-w-lg mx-auto font-light leading-relaxed"
           >
             Dünyanın en prestijli markalarından seçilmiş,
             <br className="hidden sm:block" />
@@ -247,55 +265,6 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* 3D Glasses Element — Placeholder */}
-        <div
-          ref={glassesRef}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[550px] md:h-[550px] pointer-events-none"
-          style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
-        >
-          {/* SVG Glasses Silhouette */}
-          <svg
-            viewBox="0 0 800 400"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-full opacity-10"
-            style={{ filter: "drop-shadow(0 0 60px rgba(201, 169, 110, 0.15))" }}
-          >
-            {/* Left Lens */}
-            <ellipse cx="250" cy="200" rx="160" ry="130" stroke="url(#goldGrad)" strokeWidth="3" fill="none" />
-            {/* Right Lens */}
-            <ellipse cx="550" cy="200" rx="160" ry="130" stroke="url(#goldGrad)" strokeWidth="3" fill="none" />
-            {/* Bridge */}
-            <path d="M390 200 C400 170 400 170 410 200" stroke="url(#goldGrad)" strokeWidth="3" fill="none" />
-            {/* Left Temple */}
-            <path d="M90 170 C50 165 20 160 5 155" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            {/* Right Temple */}
-            <path d="M710 170 C750 165 780 160 795 155" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            {/* Lens Reflection — Premium Touch */}
-            <ellipse cx="230" cy="180" rx="60" ry="40" fill="url(#lensReflect)" opacity="0.3" />
-            <ellipse cx="530" cy="180" rx="60" ry="40" fill="url(#lensReflect)" opacity="0.3" />
-            <defs>
-              <linearGradient id="goldGrad" x1="0" y1="0" x2="800" y2="400">
-                <stop offset="0%" stopColor="#d4af37" />
-                <stop offset="50%" stopColor="#c9a96e" />
-                <stop offset="100%" stopColor="#b8941f" />
-              </linearGradient>
-              <radialGradient id="lensReflect" cx="0.3" cy="0.3">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* Hidden Canvas for future frame animation */}
-        <canvas
-          ref={canvasRef}
-          width={1920}
-          height={1080}
-          className="absolute inset-0 w-full h-full object-contain pointer-events-none hidden"
-        />
-
         {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -315,7 +284,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Bottom Gradient Fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent z-[4]" />
       </div>
     </section>
   );
