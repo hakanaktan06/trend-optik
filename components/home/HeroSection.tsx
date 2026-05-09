@@ -1,102 +1,62 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const FRAME_COUNT = 240;
+
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const sublineRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
-  const particlesRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // ===================================
-      // Scroll-Bound Video Setup
-      // ===================================
-      const video = videoRef.current;
-      if (video) {
-        const setupVideoScrub = () => {
-          // Playback scrubbing
-          ScrollTrigger.create({
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top", // section is 250vh
-            scrub: 1.5, // 1.5s smoothing
-            onUpdate: (self) => {
-              if (video.duration) {
-                video.currentTime = Math.min(
-                  video.duration * self.progress,
-                  video.duration - 0.05
-                );
-              }
-            },
-          });
+    // 1. Preload images for buttery smooth scrolling
+    const images: HTMLImageElement[] = [];
+    let loadedCount = 0;
 
-          // Parallax and Scale effect for the video
-          gsap.fromTo(
-            video,
-            { scale: 0.9, opacity: 0, y: 50 },
-            {
-              scale: 1.3,
-              opacity: 1,
-              y: -50,
-              ease: "none",
-              scrollTrigger: {
-                trigger: sectionRef.current,
-                start: "top top",
-                end: "bottom top",
-                scrub: 1.5,
-              },
-            }
-          );
-        };
-
-        if (video.readyState >= 1) {
-          setupVideoScrub();
-        } else {
-          video.addEventListener("loadedmetadata", setupVideoScrub);
+    for (let i = 1; i <= FRAME_COUNT; i++) {
+      const img = new Image();
+      const paddedIndex = i.toString().padStart(4, "0");
+      img.src = `/frames/frame_${paddedIndex}.webp`;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === FRAME_COUNT) {
+          setImagesPreloaded(true);
         }
+      };
+      images.push(img);
+    }
+
+    // 2. Setup GSAP Canvas Scrubbing
+    const ctx = gsap.context(() => {
+      if (!canvasRef.current) return;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      if (!context) return;
+
+      // Draw first frame immediately once loaded
+      if (images[0]) {
+        images[0].onload = () => {
+          context.drawImage(images[0], 0, 0, canvas.width, canvas.height);
+        };
       }
 
-      // ===================================
-      // Background Parallax
-      // ===================================
-      if (bgRef.current) {
-        gsap.fromTo(
-          bgRef.current,
-          { scale: 1 },
-          {
-            scale: 1.15,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "bottom top",
-              scrub: 2,
-            },
-          }
-        );
-      }
-
-      // ===================================
-      // Headline Parallax
-      // ===================================
+      // Parallax text animations
       if (headlineRef.current) {
         gsap.to(headlineRef.current, {
-          y: -80,
+          y: -120,
           opacity: 0,
           ease: "none",
           scrollTrigger: {
@@ -108,12 +68,9 @@ export default function HeroSection() {
         });
       }
 
-      // ===================================
-      // Subline Parallax
-      // ===================================
       if (sublineRef.current) {
         gsap.to(sublineRef.current, {
-          y: -40,
+          y: -60,
           opacity: 0,
           ease: "none",
           scrollTrigger: {
@@ -125,26 +82,44 @@ export default function HeroSection() {
         });
       }
 
-      // ===================================
-      // Floating Particles
-      // ===================================
-      if (particlesRef.current) {
-        const particles = particlesRef.current.querySelectorAll(".particle");
-        particles.forEach((particle, i) => {
-          gsap.to(particle, {
-            y: -100 - i * 30,
-            x: (i % 2 === 0 ? 1 : -1) * 50,
-            opacity: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "60% top",
-              scrub: 1 + i * 0.2,
-            },
-          });
-        });
-      }
+      // The Magic Frame Scrubber
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom top", // section is 300vh, gives lots of scroll space
+        scrub: 0.5, // 0.5s smoothing
+        onUpdate: (self) => {
+          // Progress from 0 to 1 -> map to frame 0 to 239
+          const frameIndex = Math.min(
+            FRAME_COUNT - 1,
+            Math.max(0, Math.floor(self.progress * FRAME_COUNT))
+          );
+          
+          if (images[frameIndex] && images[frameIndex].complete) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(images[frameIndex], 0, 0, canvas.width, canvas.height);
+          }
+        },
+      });
+
+      // Canvas Scale/Parallax effect
+      gsap.fromTo(
+        canvas,
+        { scale: 0.85, y: 50, opacity: 0 },
+        {
+          scale: 1.15,
+          y: -50,
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1.5,
+          },
+        }
+      );
+
     }, sectionRef);
 
     return () => ctx.revert();
@@ -154,59 +129,29 @@ export default function HeroSection() {
     <section
       id="hero"
       ref={sectionRef}
-      className="relative min-h-[250vh] bg-[var(--background)]"
+      className="relative min-h-[300vh] bg-[var(--background)]"
     >
-      {/* Sticky Container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
-        {/* Background Image — Cinematic */}
-        <div ref={bgRef} className="absolute inset-0 z-0">
-          <Image
-            src="/hero-bg.png"
-            alt="Luxury atmosphere"
-            fill
-            priority
-            className="object-cover opacity-40"
-            sizes="100vw"
-            quality={90}
-          />
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/60 via-transparent to-[#050505]/80" />
-        </div>
-
-        {/* Background Gradient Orb */}
-        <div className="absolute inset-0 hero-gradient z-[1]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px] rounded-full bg-[var(--accent-gold)] opacity-[0.02] blur-[150px] z-[1]" />
-
-        {/* Floating Particles */}
-        <div ref={particlesRef} className="absolute inset-0 pointer-events-none z-[2]">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="particle absolute rounded-full bg-[var(--accent-gold)]"
-              style={{
-                left: `${10 + i * 12}%`,
-                top: `${15 + (i % 4) * 20}%`,
-                opacity: 0.15 + (i * 0.04),
-                width: `${2 + i * 0.5}px`,
-                height: `${2 + i * 0.5}px`,
-                filter: `blur(${i > 4 ? 1 : 0}px)`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Scroll-Bound Video */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] aspect-square pointer-events-none z-[3] flex items-center justify-center mix-blend-screen">
-          <video
-            ref={videoRef}
-            src="/hero-video.mp4"
-            className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(201,169,110,0.25)]"
-            muted
-            playsInline
-            preload="auto"
-            style={{ opacity: 0 }} // Starts invisible, handled by GSAP
+        
+        {/* Subtle Background Gradient to blend with video background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--background-secondary)]/5 to-[var(--background)]/90 z-[1]" />
+        
+        {/* Apple-style Canvas */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1200px] aspect-[16/9] sm:aspect-video pointer-events-none z-[2] flex items-center justify-center mix-blend-screen">
+          <canvas
+            ref={canvasRef}
+            width={1080}
+            height={608}
+            className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
           />
         </div>
+
+        {/* Loading Indicator for Frames */}
+        {!imagesPreloaded && (
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 text-[10px] text-[var(--accent-gold)] uppercase tracking-widest font-mono animate-pulse bg-black/50 px-4 py-1.5 rounded-full backdrop-blur-md border border-[var(--accent-gold)]/20">
+            Premium Assets Loading...
+          </div>
+        )}
 
         {/* Badge */}
         <motion.div
@@ -236,20 +181,19 @@ export default function HeroSection() {
           </motion.h1>
         </div>
 
-        {/* Subline */}
+        {/* Subline & CTA */}
         <div ref={sublineRef} className="text-center px-4 z-10 mt-6 md:mt-8">
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm sm:text-base md:text-lg text-white/50 max-w-lg mx-auto font-light leading-relaxed"
+            className="text-sm sm:text-base md:text-lg text-white/60 max-w-lg mx-auto font-light leading-relaxed"
           >
             Dünyanın en prestijli markalarından seçilmiş,
             <br className="hidden sm:block" />
             size özel gözlük koleksiyonları.
           </motion.p>
 
-          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -262,14 +206,6 @@ export default function HeroSection() {
             >
               Koleksiyonu Keşfet
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </a>
-            <a
-              href="https://wa.me/905551234567"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-7 py-3.5 text-sm font-medium text-white/70 hover:text-white rounded-full glass glass-hover transition-all duration-300"
-            >
-              WhatsApp İletişim
             </a>
           </motion.div>
         </div>
@@ -292,7 +228,6 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
 
-        {/* Bottom Gradient Fade */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent z-[4]" />
       </div>
     </section>
