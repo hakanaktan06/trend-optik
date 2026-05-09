@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Package, Truck, Target, Award, Eye, Settings2 } from "lucide-react";
-import { toast, Toaster } from "sonner"; // Assuming sonner is installed, if not we will install or replace.
 // Actually, to be safe, I'll use simple inline states or native alerts if Sonner is not installed. 
 // Let's use simple window.alert for now to mimic trendAlert, or build a quick toast.
 // For the sake of premium look, I'll build a quick custom Toast function or use standard browser features. Let's just use simple state for now.

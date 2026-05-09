@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, ListFilter, Star, Trash2, Pencil, QrCode, Link2, Loader2, Sparkles } from "lucide-react";
+import { Plus, ListFilter, Star, Trash2, Pencil, QrCode, Link2, Loader2, Sparkles, Glasses } from "lucide-react";
 
 interface Product {
   id: string;

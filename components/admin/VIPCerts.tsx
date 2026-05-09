@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Award, Plus, Trash2, Link2, Loader2, PatchCheck } from "lucide-react";
+import { Award, Plus, Trash2, Link2, Loader2, BadgeCheck } from "lucide-react";
 
 interface Certificate {
   id: string;
@@ -93,7 +93,7 @@ export default function VIPCerts() {
         <div className="lg:col-span-1">
           <div className="glass p-6 rounded-3xl sticky top-6 border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.1)]">
             <h3 className="text-xl font-bold text-purple-400 mb-6 flex items-center gap-2">
-              <PatchCheck className="w-5 h-5"/> Sertifika Oluştur
+              <BadgeCheck className="w-5 h-5"/> Sertifika Oluştur
             </h3>
             
             <div className="space-y-4">
