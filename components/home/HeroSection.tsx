@@ -17,40 +17,62 @@ export default function HeroSection() {
   const headlineRef = useRef<HTMLDivElement>(null);
   const sublineRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
-  const glassesRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       // ===================================
-      // Premium Glasses Image — 3D Parallax on Scroll
+      // Scroll-Bound Video Setup
       // ===================================
-      if (glassesRef.current) {
-        gsap.fromTo(
-          glassesRef.current,
-          {
-            scale: 0.85,
-            opacity: 0.4,
-            y: 40,
-          },
-          {
-            scale: 1.1,
-            opacity: 1,
-            y: -60,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "bottom top",
-              scrub: 1.5,
+      const video = videoRef.current;
+      if (video) {
+        const setupVideoScrub = () => {
+          // Playback scrubbing
+          ScrollTrigger.create({
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top", // section is 250vh
+            scrub: 1.5, // 1.5s smoothing
+            onUpdate: (self) => {
+              if (video.duration) {
+                video.currentTime = Math.min(
+                  video.duration * self.progress,
+                  video.duration - 0.05
+                );
+              }
             },
-          }
-        );
+          });
+
+          // Parallax and Scale effect for the video
+          gsap.fromTo(
+            video,
+            { scale: 0.9, opacity: 0, y: 50 },
+            {
+              scale: 1.3,
+              opacity: 1,
+              y: -50,
+              ease: "none",
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: 1.5,
+              },
+            }
+          );
+        };
+
+        if (video.readyState >= 1) {
+          setupVideoScrub();
+        } else {
+          video.addEventListener("loadedmetadata", setupVideoScrub);
+        }
       }
 
       // ===================================
-      // Background Parallax — Slow zoom
+      // Background Parallax
       // ===================================
       if (bgRef.current) {
         gsap.fromTo(
@@ -70,7 +92,7 @@ export default function HeroSection() {
       }
 
       // ===================================
-      // Headline Parallax — Scroll ile yukarı kayma
+      // Headline Parallax
       // ===================================
       if (headlineRef.current) {
         gsap.to(headlineRef.current, {
@@ -87,7 +109,7 @@ export default function HeroSection() {
       }
 
       // ===================================
-      // Subline Parallax — Daha yavaş kayma
+      // Subline Parallax
       // ===================================
       if (sublineRef.current) {
         gsap.to(sublineRef.current, {
@@ -104,7 +126,7 @@ export default function HeroSection() {
       }
 
       // ===================================
-      // Floating Particles Parallax
+      // Floating Particles
       // ===================================
       if (particlesRef.current) {
         const particles = particlesRef.current.querySelectorAll(".particle");
@@ -132,15 +154,12 @@ export default function HeroSection() {
     <section
       id="hero"
       ref={sectionRef}
-      className="relative min-h-[200vh] bg-[var(--background)]"
+      className="relative min-h-[250vh] bg-[var(--background)]"
     >
       {/* Sticky Container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
         {/* Background Image — Cinematic */}
-        <div
-          ref={bgRef}
-          className="absolute inset-0 z-0"
-        >
+        <div ref={bgRef} className="absolute inset-0 z-0">
           <Image
             src="/hero-bg.png"
             alt="Luxury atmosphere"
@@ -176,6 +195,19 @@ export default function HeroSection() {
           ))}
         </div>
 
+        {/* Scroll-Bound Video */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] aspect-square pointer-events-none z-[3] flex items-center justify-center mix-blend-screen">
+          <video
+            ref={videoRef}
+            src="/hero-video.mp4"
+            className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(201,169,110,0.25)]"
+            muted
+            playsInline
+            preload="auto"
+            style={{ opacity: 0 }} // Starts invisible, handled by GSAP
+          />
+        </div>
+
         {/* Badge */}
         <motion.div
           ref={badgeRef}
@@ -204,29 +236,6 @@ export default function HeroSection() {
           </motion.h1>
         </div>
 
-        {/* Premium Glasses Image — Floating */}
-        <motion.div
-          ref={glassesRef}
-          initial={{ opacity: 0, scale: 0.8, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px] pointer-events-none z-[3]"
-        >
-          <div className="relative w-full h-full animate-float">
-            <Image
-              src="/hero-glasses.png"
-              alt="Premium designer sunglasses"
-              fill
-              priority
-              className="object-contain drop-shadow-[0_20px_60px_rgba(201,169,110,0.25)]"
-              sizes="(max-width: 640px) 320px, (max-width: 768px) 450px, (max-width: 1024px) 600px, 700px"
-              quality={95}
-            />
-            {/* Glow effect behind glasses */}
-            <div className="absolute inset-0 -z-10 bg-[var(--accent-gold)] opacity-[0.06] blur-[80px] rounded-full scale-75" />
-          </div>
-        </motion.div>
-
         {/* Subline */}
         <div ref={sublineRef} className="text-center px-4 z-10 mt-6 md:mt-8">
           <motion.p
@@ -245,7 +254,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1, duration: 0.8 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 md:mt-10"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 md:mt-10 pointer-events-auto"
           >
             <a
               href="#koleksiyon"
