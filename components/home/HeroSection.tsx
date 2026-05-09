@@ -131,7 +131,7 @@ export default function HeroSection() {
       ref={sectionRef}
       className="relative min-h-[300vh] bg-[var(--background)]"
     >
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
+      <div className="sticky top-0 h-[100svh] flex flex-col items-center justify-center overflow-hidden">
         
         {/* Subtle Background Gradient to blend with video background */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--background-secondary)]/5 to-[var(--background)]/90 z-[1]" />
@@ -146,29 +146,27 @@ export default function HeroSection() {
           />
         </div>
 
-
-
         {/* Badge */}
         <motion.div
           ref={badgeRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mb-8 md:mb-10 z-10"
+          className="mb-6 md:mb-10 z-10"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-xs md:text-sm font-medium text-[var(--accent-gold)] tracking-wide">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-[10px] md:text-sm font-medium text-[var(--accent-gold)] tracking-wide">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-pulse" />
             Premium Gözlük Koleksiyonu 2025
           </div>
         </motion.div>
 
         {/* Headline */}
-        <div ref={headlineRef} className="text-center px-4 z-10">
+        <div ref={headlineRef} className="text-center px-6 z-10">
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[0.95]"
+            className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white leading-[0.95]"
           >
             Lüksü Yeniden
             <br />
@@ -177,12 +175,12 @@ export default function HeroSection() {
         </div>
 
         {/* Subline & CTA */}
-        <div ref={sublineRef} className="text-center px-4 z-10 mt-6 md:mt-8">
+        <div ref={sublineRef} className="text-center px-6 z-10 mt-6 md:mt-8">
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm sm:text-base md:text-lg text-white/60 max-w-lg mx-auto font-light leading-relaxed"
+            className="text-sm md:text-lg text-white/60 max-w-lg mx-auto font-light leading-relaxed"
           >
             Dünyanın en prestijli markalarından seçilmiş,
             <br className="hidden sm:block" />

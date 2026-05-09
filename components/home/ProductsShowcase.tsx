@@ -45,12 +45,12 @@ export default function ProductsShowcase() {
   if (loading) return null; // Or a skeleton
 
   return (
-    <section id="koleksiyon" className="py-24 bg-[#050505] relative overflow-hidden">
+    <section id="koleksiyon" className="py-16 md:py-32 bg-[#050505] relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[var(--accent-gold)] opacity-[0.03] blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container-premium relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 px-4 md:px-0">
           <div>
             <motion.span 
               initial={{ opacity: 0, x: -20 }}
@@ -62,7 +62,7 @@ export default function ProductsShowcase() {
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl font-bold text-white tracking-tight"
+              className="text-3xl md:text-5xl font-bold text-white tracking-tighter"
             >
               Vitrindeki <span className="text-white/40">Yıldızlar</span>
             </motion.h2>
@@ -72,7 +72,7 @@ export default function ProductsShowcase() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-6 sm:px-0">
           {products.map((product, idx) => (
             <motion.div
               key={product.id}
@@ -83,7 +83,7 @@ export default function ProductsShowcase() {
               className="group relative"
             >
               <Link href={`/product/${product.id}`}>
-                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group-hover:border-[var(--accent-gold)]/30 transition-all duration-500">
+                <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-white/[0.03] border border-white/[0.05] backdrop-blur-md group-hover:border-[var(--accent-gold)]/30 transition-all duration-500">
                   {/* Product Image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
@@ -113,7 +113,7 @@ export default function ProductsShowcase() {
                   <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[var(--accent-gold)] transition-colors">
                     {product.name}
                   </h3>
-                  <p className="text-white/40 font-medium tracking-wider">
+                  <p className="text-white/40 font-medium tracking-wider text-sm">
                     {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
                   </p>
                 </div>

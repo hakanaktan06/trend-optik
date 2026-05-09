@@ -12,9 +12,9 @@ export default function CTASection() {
     <section
       id="iletisim"
       ref={ref}
-      className="relative py-[var(--section-padding)] bg-[var(--background)]"
+      className="relative py-16 md:py-32 bg-[var(--background)]"
     >
-      <div className="container-premium relative z-10">
+      <div className="container-premium relative z-10 px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -28,7 +28,7 @@ export default function CTASection() {
             Bir Adım Uzağınızdayız
           </span>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.05]">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white leading-[1.05]">
             Mükemmel Görüşün
             <br />
             <span className="text-gradient-gold">Hikayeniz</span> Burada Başlıyor
@@ -45,18 +45,14 @@ export default function CTASection() {
               href="https://wa.me/905551234567?text=Merhaba%2C%20Trend%20Optik%27ten%20bilgi%20almak%20istiyorum."
               target="_blank"
               rel="noopener noreferrer"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-full hover:shadow-xl hover:shadow-[var(--accent-gold)]/20 transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-2xl md:rounded-full hover:shadow-xl hover:shadow-[var(--accent-gold)]/20 transition-all duration-500 active:scale-[0.97]"
             >
               <MessageCircle size={18} />
               WhatsApp ile Ulaşın
-              <ArrowRight
-                size={16}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
             </a>
             <a
               href="tel:+905551234567"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 text-sm font-medium text-white/70 hover:text-white rounded-full glass glass-hover transition-all duration-300"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 text-sm font-medium text-white/70 hover:text-white rounded-2xl md:rounded-full bg-white/[0.03] border border-white/[0.05] backdrop-blur-md transition-all duration-300"
             >
               <Calendar size={18} className="text-[var(--accent-gold)]" />
               Randevu Al

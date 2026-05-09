@@ -53,11 +53,11 @@ export default function OrderLookup() {
   };
 
   return (
-    <section id="takip" className="py-32 bg-[#0a0a0a] relative overflow-hidden">
+    <section id="takip" className="py-16 md:py-32 bg-[#0a0a0a] relative overflow-hidden">
       <div className="container-premium relative z-10">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto px-4 md:px-0">
           
-          <div className="text-center mb-16">
+          <div className="text-center mb-12 md:mb-16">
             <motion.span 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -68,17 +68,17 @@ export default function OrderLookup() {
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl font-bold text-white mb-6"
+              className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tighter"
             >
               Siparişinizin <span className="text-white/30 italic">Yolculuğu</span>
             </motion.h2>
-            <p className="text-white/40 max-w-xl mx-auto font-light">
+            <p className="text-white/40 max-w-xl mx-auto font-light text-base md:text-lg">
               Gözlüğünüzün durumunu anlık olarak takip edin. Telefon numaranızı girerek hazırlık ve teslimat sürecini görebilirsiniz.
             </p>
           </div>
 
           {/* Search Bar */}
-          <div className="glass p-1.5 md:p-2 rounded-2xl md:rounded-full border border-white/5 max-w-xl mx-auto mb-16 flex flex-col md:flex-row items-center gap-2 pr-1.5 md:pr-2">
+          <div className="rounded-[2rem] bg-white/[0.03] border border-white/[0.05] backdrop-blur-md p-1.5 md:p-2 max-w-xl mx-auto mb-16 flex flex-col md:flex-row items-center gap-2 pr-1.5 md:pr-2">
             <form onSubmit={handleSearch} className="flex-1 flex items-center px-4 md:px-6 w-full py-3 md:py-0">
               <Search className="w-5 h-5 text-white/20 mr-4" />
               <input 
@@ -92,7 +92,7 @@ export default function OrderLookup() {
             <button 
               onClick={handleSearch}
               disabled={loading}
-              className="w-full md:w-auto bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] text-black px-8 py-3.5 md:py-3 rounded-xl md:rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(201,169,110,0.3)]"
+              className="w-full md:w-auto bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] text-black px-8 py-3.5 md:py-3 rounded-[1.5rem] md:rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(201,169,110,0.3)]"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sorgula"}
             </button>
@@ -109,7 +109,7 @@ export default function OrderLookup() {
               >
                 {results && results.length > 0 ? (
                   results.map((order) => (
-                    <div key={order.id} className="glass p-8 rounded-3xl border border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-[var(--accent-gold)]/20 transition-colors">
+                    <div key={order.id} className="rounded-[2rem] bg-white/[0.03] border border-white/[0.05] backdrop-blur-md p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-[var(--accent-gold)]/20 transition-colors">
                       <div className="flex items-center gap-6">
                         <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                           {getStatusIcon(order.status)}

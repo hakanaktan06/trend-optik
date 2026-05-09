@@ -21,18 +21,18 @@ export default function LensTech() {
   const onTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientX);
 
   return (
-    <section ref={containerRef} className="py-32 relative bg-[var(--background-secondary)] overflow-hidden">
-      <div className="container mx-auto px-6">
+    <section ref={containerRef} className="py-16 md:py-32 relative bg-[var(--background-secondary)] overflow-hidden">
+      <div className="container-premium">
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
           {/* Left Text */}
-          <div className="max-w-xl order-2 lg:order-1">
+          <div className="max-w-xl order-2 lg:order-1 px-4 md:px-0">
             <motion.span 
               initial={{ opacity: 0, x: -20 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6 }}
-              className="text-[var(--accent-gold)] text-sm tracking-[0.3em] uppercase mb-4 block font-medium"
+              className="text-[var(--accent-gold)] text-xs md:text-sm tracking-[0.3em] uppercase mb-4 block font-medium"
             >
               Alman Mühendisliği
             </motion.span>
@@ -40,7 +40,7 @@ export default function LensTech() {
               initial={{ opacity: 0, x: -20 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight leading-tight"
+              className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tighter leading-tight"
             >
               Kusursuz Netlik, <br/>
               <span className="text-white/40 font-light">Sıfır Yansıma</span>
@@ -49,7 +49,7 @@ export default function LensTech() {
               initial={{ opacity: 0, x: -20 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-white/60 text-lg font-light leading-relaxed mb-8"
+              className="text-white/60 text-base md:text-lg font-light leading-relaxed mb-8"
             >
               Dünyanın önde gelen optik üreticilerinin (Zeiss, Leica) son teknoloji camları ile tanışın. Geleneksel camlardaki parlama, bulanıklık ve yorgunluk hissine veda edin. Dünyayı 8K çözünürlükte görüyormuş gibi hissedeceksiniz.
             </motion.p>
@@ -61,12 +61,12 @@ export default function LensTech() {
               className="grid grid-cols-2 gap-6"
             >
               <div>
-                <h4 className="text-[var(--accent-gold)] font-bold text-2xl mb-1">%99.9</h4>
-                <p className="text-white/40 text-sm font-light">Yansıma Engelleyici</p>
+                <h4 className="text-[var(--accent-gold)] font-bold text-xl md:text-2xl mb-1">%99.9</h4>
+                <p className="text-white/40 text-[10px] md:text-sm font-light uppercase tracking-widest">Yansıma Engelleyici</p>
               </div>
               <div>
-                <h4 className="text-[var(--accent-gold)] font-bold text-2xl mb-1">%40</h4>
-                <p className="text-white/40 text-sm font-light">Daha İnce ve Hafif</p>
+                <h4 className="text-[var(--accent-gold)] font-bold text-xl md:text-2xl mb-1">%40</h4>
+                <p className="text-white/40 text-[10px] md:text-sm font-light uppercase tracking-widest">Daha İnce ve Hafif</p>
               </div>
             </motion.div>
           </div>
@@ -76,7 +76,7 @@ export default function LensTech() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="order-1 lg:order-2 w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden relative cursor-ew-resize border border-white/10"
+            className="order-1 lg:order-2 w-full h-[350px] md:h-[500px] rounded-[2rem] overflow-hidden relative cursor-ew-resize border border-white/10"
             ref={sliderRef}
             onMouseMove={onMouseMove}
             onTouchMove={onTouchMove}
