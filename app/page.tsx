@@ -1,7 +1,6 @@
 import HeroSection from "@/components/home/HeroSection";
 import Craftsmanship from "@/components/home/Craftsmanship";
 import VIPConcierge from "@/components/home/VIPConcierge";
-import TheVault from "@/components/home/TheVault";
 import LensTech from "@/components/home/LensTech";
 import BrandShowcase from "@/components/home/BrandShowcase";
 import CTASection from "@/components/home/CTASection";
@@ -31,9 +30,6 @@ export default function Home() {
 
       {/* 6. Sipariş Sorgulama — Müşteri Takip Sistemi */}
       <OrderLookup />
-
-      {/* 7. The Vault — Basılı Tutarak Kasa Açma Efekti (Gizli Koleksiyon) */}
-      <TheVault />
 
       {/* Altın Çizgi Ayırıcı */}
       <div className="divider-gold" />
