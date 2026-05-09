@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut } from "lucide-react";
+import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -16,6 +16,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
     { id: "orders", label: "Siparişler", icon: Box },
     { id: "certs", label: "Sertifikalar", icon: Award },
     { id: "lenses", label: "Lens Radarı", icon: Eye },
+    { id: "telegram", label: "Telegram Ayarları", icon: Send },
   ];
 
   return (

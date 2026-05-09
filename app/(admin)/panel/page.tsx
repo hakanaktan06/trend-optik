@@ -12,6 +12,7 @@ import Radar from "@/components/admin/Radar";
 import OrderManager from "@/components/admin/OrderManager";
 import VIPCerts from "@/components/admin/VIPCerts";
 import LensRadar from "@/components/admin/LensRadar";
+import TelegramSettings from "@/components/admin/TelegramSettings";
 
 export default function AdminPanel() {
   const [user, setUser] = useState<User | null>(null);
@@ -142,6 +143,7 @@ export default function AdminPanel() {
             {activeTab === "orders" && <OrderManager />}
             {activeTab === "certs" && <VIPCerts />}
             {activeTab === "lenses" && <LensRadar />}
+            {activeTab === "telegram" && <TelegramSettings />}
           </motion.div>
         </AnimatePresence>
       </main>
