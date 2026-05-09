@@ -114,14 +114,14 @@ export default function BentoGrid() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="overflow-hidden"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-6">
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible scrollbar-hide">
                 {extraGallery.map((item, idx) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="relative rounded-[2rem] overflow-hidden group cursor-pointer h-[400px]"
+                    className="relative min-w-[85vw] md:min-w-0 md:w-auto h-[400px] flex-shrink-0 snap-center rounded-[2rem] overflow-hidden group cursor-pointer"
                   >
                     <Image 
                       src={item.img} 
@@ -133,7 +133,7 @@ export default function BentoGrid() {
                     <div className="absolute bottom-8 left-8 right-8">
                       <h4 className="text-xl font-bold text-white mb-2">{item.title}</h4>
                       <p className="text-white/50 text-sm font-light mb-4">{item.desc}</p>
-                      <div className="flex items-center gap-2 text-[var(--accent-gold)] text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-2 text-[var(--accent-gold)] text-xs font-bold uppercase tracking-widest md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         İncele <ArrowRight size={14} />
                       </div>
                     </div>
