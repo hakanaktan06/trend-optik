@@ -125,39 +125,41 @@ export default function CatalogPage() {
                 transition={{ delay: idx * 0.05 }}
                 className="group relative"
               >
-                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group-hover:border-[var(--accent-gold)]/30 transition-all duration-500">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={product.img} 
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  
-                  {product.isFeatured && (
-                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
-                      <Star className="w-3 h-3 text-[var(--accent-gold)] fill-[var(--accent-gold)]" />
-                      <span className="text-[10px] text-white uppercase tracking-widest font-bold">Trend</span>
+                <Link href={`/product/${product.id}`}>
+                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group-hover:border-[var(--accent-gold)]/30 transition-all duration-500">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={product.img} 
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    
+                    {product.isFeatured && (
+                      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
+                        <Star className="w-3 h-3 text-[var(--accent-gold)] fill-[var(--accent-gold)]" />
+                        <span className="text-[10px] text-white uppercase tracking-widest font-bold">Trend</span>
+                      </div>
+                    )}
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                      <div className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2">
+                        <ShoppingBag className="w-4 h-4" /> İncele
+                      </div>
                     </div>
-                  )}
-
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                    <button className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2">
-                      <ShoppingBag className="w-4 h-4" /> Satın Al
-                    </button>
                   </div>
-                </div>
 
-                <div className="mt-6 text-center">
-                  <span className="text-[10px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block">
-                    {product.category}
-                  </span>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    {product.name}
-                  </h3>
-                  <p className="text-white/40 font-medium tracking-wider">
-                    {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
-                  </p>
-                </div>
+                  <div className="mt-6 text-center">
+                    <span className="text-[10px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block">
+                      {product.category}
+                    </span>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-white/40 font-medium tracking-wider">
+                      {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
+                    </p>
+                  </div>
+                </Link>
               </motion.div>
             ))
           )}

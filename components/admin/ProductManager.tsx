@@ -26,12 +26,13 @@ export default function ProductManager() {
   const [pCategory, setPCategory] = useState("gunes");
   const [pPrice, setPPrice] = useState("");
   const [pDesc, setPDesc] = useState("");
+  const [pLongDesc, setPLongDesc] = useState("");
   const [pImgUrl, setPImgUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   // VIP & QR State
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [qrProduct, setQrProduct] = useState<Product | null>(null);
+  const [qrProduct, setQrProduct] = useState<any>(null);
 
   useEffect(() => {
     loadProducts();
@@ -42,8 +43,8 @@ export default function ProductManager() {
     try {
       const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
       const snap = await getDocs(q);
-      const data: Product[] = [];
-      snap.forEach((d) => data.push({ id: d.id, ...d.data() } as Product));
+      const data: any[] = [];
+      snap.forEach((d) => data.push({ id: d.id, ...d.data() }));
       setProducts(data);
     } catch (e) {
       console.error(e);
@@ -58,6 +59,7 @@ export default function ProductManager() {
     setPCategory("gunes");
     setPPrice("");
     setPDesc("");
+    setPLongDesc("");
     setPImgUrl("");
   };
 
@@ -65,14 +67,23 @@ export default function ProductManager() {
     if (!pName || !pPrice || !pImgUrl) return alert("Ad, Fiyat ve Resim URL zorunludur.");
     setIsSaving(true);
     try {
+      const payload = {
+        name: pName, 
+        category: pCategory, 
+        price: pPrice, 
+        desc: pDesc, 
+        description: pLongDesc, // Detailed description for product page
+        img: pImgUrl
+      };
+
       if (editId) {
-        await updateDoc(doc(db, "products", editId), {
-          name: pName, category: pCategory, price: pPrice, desc: pDesc, img: pImgUrl
-        });
+        await updateDoc(doc(db, "products", editId), payload);
       } else {
         await addDoc(collection(db, "products"), {
-          name: pName, category: pCategory, price: pPrice, desc: pDesc, img: pImgUrl,
-          isFeatured: false, clicks: 0, createdAt: serverTimestamp()
+          ...payload,
+          isFeatured: false, 
+          clicks: 0, 
+          createdAt: serverTimestamp()
         });
       }
       resetForm();
@@ -97,12 +108,13 @@ export default function ProductManager() {
     loadProducts();
   };
 
-  const handleEdit = (p: Product) => {
+  const handleEdit = (p: any) => {
     setEditId(p.id);
     setPName(p.name);
     setPCategory(p.category);
     setPPrice(p.price.toString().replace(/[^0-9]/g, ''));
-    setPDesc(p.desc);
+    setPDesc(p.desc || "");
+    setPLongDesc(p.description || "");
     setPImgUrl(p.img);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -171,6 +183,15 @@ export default function ProductManager() {
               <div>
                 <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Kısa Açıklama</label>
                 <input type="text" value={pDesc} onChange={e => setPDesc(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="Polarize cam, hafif çerçeve" />
+              </div>
+              <div>
+                <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Detaylı Ürün Özeti (Sayfada Görünür)</label>
+                <textarea 
+                  value={pLongDesc} 
+                  onChange={e => setPLongDesc(e.target.value)} 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors h-24 resize-none" 
+                  placeholder="Ürün hikayesi, teknik özellikler..."
+                />
               </div>
               <div>
                 <div className="flex justify-between items-center mb-1">
@@ -297,7 +318,7 @@ export default function ProductManager() {
             </p>
             <div className="flex justify-center mb-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://trendoptikmersin.com/urun-detay.html?id=${qrProduct.id}`} alt="QR Code" className="w-48 h-48 rounded-xl border p-2 bg-white" />
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://trendoptikmersin.com/product/${qrProduct.id}`} alt="QR Code" className="w-48 h-48 rounded-xl border p-2 bg-white" />
             </div>
             <p className="text-xs text-black/40 mb-6">Okutunca ürün detay sayfasına gider.</p>
             <div className="flex gap-2">
