@@ -114,14 +114,30 @@ export default function BentoGrid() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="overflow-hidden"
             >
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible scrollbar-hide">
+              {/* Floating Scroll Hint */}
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="flex justify-end mb-4 md:hidden"
+              >
+                <motion.span 
+                  animate={{ opacity: 0 }}
+                  transition={{ delay: 4, duration: 1 }}
+                  className="text-[10px] text-white/30 tracking-[0.3em] uppercase font-light"
+                >
+                  Kaydırarak İnceleyin
+                </motion.span>
+              </motion.div>
+
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
                 {extraGallery.map((item, idx) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="relative min-w-[85vw] md:min-w-0 md:w-auto h-[400px] flex-shrink-0 snap-center rounded-[2rem] overflow-hidden group cursor-pointer"
+                    className="relative min-w-[80vw] md:min-w-0 md:w-auto h-[400px] flex-shrink-0 snap-center rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5"
                   >
                     <Image 
                       src={item.img} 
@@ -130,12 +146,19 @@ export default function BentoGrid() {
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    
                     <div className="absolute bottom-8 left-8 right-8">
                       <h4 className="text-xl font-bold text-white mb-2">{item.title}</h4>
-                      <p className="text-white/50 text-sm font-light mb-4">{item.desc}</p>
-                      <div className="flex items-center gap-2 text-[var(--accent-gold)] text-xs font-bold uppercase tracking-widest md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <p className="text-white/50 text-sm font-light mb-5">{item.desc}</p>
+                      
+                      <a 
+                        href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba Trend Optik, sayfanızdaki ${item.title} serisi ile ilgileniyorum, detaylı bilgi alabilir miyim?`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-[var(--accent-gold)] text-xs font-bold uppercase tracking-widest md:opacity-0 md:group-hover:opacity-100 transition-all hover:gap-3"
+                      >
                         İncele <ArrowRight size={14} />
-                      </div>
+                      </a>
                     </div>
                   </motion.div>
                 ))}
