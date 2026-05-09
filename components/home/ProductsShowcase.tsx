@@ -88,7 +88,7 @@ export default function ProductsShowcase() {
           </div>
         ) : products.length > 0 ? (
           /* Ürün Listesi - Mobil Yatay Kaydırma / Masaüstü Grid */
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
             {products.map((product, idx) => (
               <motion.div
                 key={product.id}
@@ -96,21 +96,20 @@ export default function ProductsShowcase() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1, duration: 0.8 }}
                 viewport={{ once: true }}
-                className="relative min-w-[80vw] md:min-w-0 md:w-auto flex-shrink-0 snap-center group"
+                className="relative min-w-[85vw] flex-shrink-0 snap-center md:min-w-0 md:w-auto overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] group"
               >
                 <Link href={`/product/${product.id}`} className="block">
-                  <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-white/[0.02] border border-white/[0.05] transition-all duration-700 group-hover:border-[var(--accent-gold)]/20">
-                    <div className="relative w-full h-full p-8 md:p-12">
-                      <Image 
-                        src={product.img} 
-                        alt={product.name}
-                        fill
-                        className="object-contain p-8 md:p-12 group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    </div>
+                  <div className="relative aspect-[4/5] overflow-hidden p-8 md:p-12">
+                    {/* Ürün Fotoğrafı: product.img */}
+                    <Image 
+                      src={product.img} 
+                      alt={product.name}
+                      fill
+                      className="object-contain p-8 md:p-12 group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
                   </div>
 
-                  <div className="mt-8 px-4 space-y-3">
+                  <div className="p-8 pt-0 space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
                         <span className="text-[9px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block">
@@ -132,10 +131,10 @@ export default function ProductsShowcase() {
                         onClick={(e) => e.stopPropagation()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold hover:text-[var(--accent-gold)] transition-all group/link"
+                        className="inline-flex items-center gap-2 text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold hover:text-[var(--accent-gold)] transition-all"
                       >
-                        <MessageCircle size={14} className="text-[var(--accent-gold)]/50 group-hover/link:animate-pulse" />
-                        Bilgi Al <ArrowRight size={12} className="opacity-0 group-hover/link:opacity-100 transition-all -translate-x-2 group-hover/link:translate-x-0" />
+                        <MessageCircle size={14} className="text-[var(--accent-gold)]" />
+                        Bilgi Al
                       </a>
                     </div>
                   </div>
@@ -145,8 +144,7 @@ export default function ProductsShowcase() {
           </div>
         ) : (
           /* Boş State */
-          <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem]">
-            <Loader2 className="w-8 h-8 text-[var(--accent-gold)]/20 animate-spin mx-auto mb-4" />
+          <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem] mx-6">
             <p className="text-white/20 italic font-light tracking-widest text-xs uppercase">
               Vitrinde henüz ürün bulunmuyor. <br/> Panelden ürünleri yıldızlayarak ekleyebilirsiniz.
             </p>
