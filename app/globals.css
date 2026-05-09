@@ -10,8 +10,8 @@
 /* --- Design Tokens --- */
 :root {
   /* Colors — Luxury Dark Palette */
-  --background: hsl(0, 42%, 12%);
-  --background-secondary: hsl(0, 42%, 27%);
+  --background: #050505;
+  --background-secondary: #0a0a0a;
   --background-elevated: #111111;
   --background-glass: rgba(255, 255, 255, 0.03);
 
