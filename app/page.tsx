@@ -40,6 +40,9 @@ export default function Home() {
 
       {/* 8. CTA — WhatsApp İletişim */}
       <CTASection />
+      
+      {/* Build Marker - Can be removed later */}
+      <div className="hidden">v1.2.0-sync-stable</div>
     </>
   );
 }
