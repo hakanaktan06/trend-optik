@@ -125,54 +125,58 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-[#050505]/95 backdrop-blur-2xl lg:hidden"
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-40 bg-[#050505]/98 backdrop-blur-3xl lg:hidden flex flex-col"
           >
-            <div className="flex flex-col items-center justify-center h-full gap-2">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ delay: i * 0.08, duration: 0.4 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className="text-2xl font-light text-white/80 hover:text-[var(--accent-gold)] py-3 transition-colors duration-300"
+            <div className="flex-1 flex flex-col items-center justify-center p-10">
+              <div className="w-full max-w-xs space-y-6">
+                {navLinks.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsMobileOpen(false)}
+                      className="group flex items-end gap-4 py-2"
+                    >
+                      <span className="text-[var(--accent-gold)] text-[10px] font-bold mb-2">0{i+1}</span>
+                      <span className="text-4xl font-bold text-white tracking-tighter group-hover:text-[var(--accent-gold)] transition-colors">
+                        {link.label}
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.4 }}
-                className="mt-8 flex flex-col items-center gap-4"
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="mt-20 w-full max-w-xs grid grid-cols-1 gap-6"
               >
-                <a
-                  href="tel:+905551234567"
-                  className="flex items-center gap-2 text-sm text-white/50"
-                >
-                  <Phone size={14} className="text-[var(--accent-gold)]" />
-                  0555 123 45 67
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center gap-2 text-sm text-white/50"
-                >
-                  <MapPin size={14} className="text-[var(--accent-gold)]" />
-                  İstanbul, Türkiye
-                </a>
-                <a
-                  href="#iletisim"
+                <div className="h-px bg-white/10 w-full" />
+                <div className="space-y-4">
+                  <a href="tel:+905551234567" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
+                    <Phone size={16} className="text-[var(--accent-gold)]" />
+                    <span className="text-sm font-medium">0555 123 45 67</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
+                    <MapPin size={16} className="text-[var(--accent-gold)]" />
+                    <span className="text-sm font-medium">Mersin, Türkiye</span>
+                  </a>
+                </div>
+                
+                <Link
+                  href="/#iletisim"
                   onClick={() => setIsMobileOpen(false)}
-                  className="mt-4 px-8 py-3 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-full"
+                  className="w-full py-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-2xl text-center shadow-xl shadow-[var(--accent-gold)]/20"
                 >
                   Randevu Al
-                </a>
+                </Link>
               </motion.div>
             </div>
           </motion.div>

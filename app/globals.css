@@ -323,3 +323,29 @@ body {
       transparent);
   opacity: 0.3;
 }
+
+/* --- Mobile Utility: Hide Scrollbar --- */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* --- Smooth Tap Highlight --- */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Mobile Grid Optimization --- */
+@media (max-width: 640px) {
+  .container-premium {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  
+  h1 { font-size: clamp(2.5rem, 10vw, 3.5rem) !important; }
+  h2 { font-size: clamp(2rem, 8vw, 2.5rem) !important; }
+}

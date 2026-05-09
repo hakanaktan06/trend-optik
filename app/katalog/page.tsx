@@ -78,18 +78,21 @@ export default function CatalogPage() {
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
-          <div className="flex gap-2 p-1 bg-white/5 rounded-full border border-white/5 overflow-x-auto max-w-full scrollbar-hide">
+          <div className="flex gap-2 p-1.5 bg-white/5 rounded-full border border-white/10 overflow-x-auto max-w-full scrollbar-hide">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setFilter(cat)}
-                className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+                className={`px-6 py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                   filter === cat 
                   ? "bg-[var(--accent-gold)] text-black shadow-[0_0_15px_rgba(201,169,110,0.4)]" 
                   : "text-white/40 hover:text-white"
                 }`}
               >
-                {cat === "all" ? "Tümü" : cat}
+                {cat === "all" ? "Tümü" : 
+                 cat === "gunes" ? "Güneş" : 
+                 cat === "klasik" ? "Klasik" : 
+                 cat === "kadin" ? "Kadın" : "Çocuk"}
               </button>
             ))}
           </div>
