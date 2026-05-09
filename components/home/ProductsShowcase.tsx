@@ -76,52 +76,54 @@ export default function ProductsShowcase() {
             <Loader2 className="w-10 h-10 text-[var(--accent-gold)] animate-spin" />
           </div>
         ) : products.length > 0 ? (
-          /* Ürün Listesi - Mobil Yatay Kaydırma (Horizontal Snap) */
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
+          /* Ürün Listesi - Zarif Yatay Kaydırma (Elegant Horizontal Snap) */
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-12 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-10 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
             {products.map((product, idx) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1, duration: 0.8 }}
+                transition={{ delay: idx * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
-                className="relative min-w-[85vw] flex-shrink-0 snap-center md:min-w-0 md:w-auto overflow-hidden rounded-[2rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] group"
+                className="relative min-w-[65vw] sm:min-w-[45vw] md:min-w-0 md:w-auto aspect-[4/5] flex-shrink-0 snap-center overflow-hidden rounded-[1.5rem] bg-white/[0.02] backdrop-blur-md border border-white/[0.05] group flex flex-col"
               >
-                <Link href={`/product/${product.id}`} className="block">
-                  <div className="relative aspect-[4/5] overflow-hidden p-8 md:p-12 flex items-center justify-center">
-                    {/* Standart <img> Etiketi Kullanımı (Next.js Image Yasak!) */}
+                <Link href={`/product/${product.id}`} className="flex flex-col h-full">
+                  {/* Ürün Görseli: Kartın %70'ini kaplar */}
+                  <div className="h-[70%] w-full overflow-hidden relative">
                     <img 
                       src={product.img} 
                       alt={product.name}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
 
-                  <div className="p-8 pt-0 space-y-3">
-                    <div className="flex justify-between items-start text-left">
-                      <div>
-                        <span className="text-[9px] text-[var(--accent-gold)] uppercase tracking-[0.2em] font-bold mb-1 block">
-                          {product.category}
-                        </span>
-                        <h3 className="text-lg md:text-xl font-light text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors">
+                  {/* İçerik: Alt %30 */}
+                  <div className="flex-1 p-4 flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="text-sm font-light text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">
                           {product.name}
                         </h3>
+                        <p className="text-xs text-white/40 font-light whitespace-nowrap">
+                          {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
+                        </p>
                       </div>
-                      <p className="text-white/40 font-light tracking-wider text-sm md:text-base whitespace-nowrap">
-                        {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
-                      </p>
+                      <span className="text-[8px] text-[var(--accent-gold)]/60 uppercase tracking-[0.2em] font-medium block">
+                        {product.category}
+                      </span>
                     </div>
                     
-                    {/* WhatsApp Link */}
-                    <div className="pt-2 flex">
+                    {/* Minimalist WhatsApp Link */}
+                    <div className="flex justify-end">
                       <a 
                         href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba, ${product.name} modelini incelemek istiyorum.`)}`}
                         onClick={(e) => e.stopPropagation()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold hover:text-[var(--accent-gold)] transition-all"
+                        className="inline-flex items-center gap-1.5 text-[9px] text-white/20 uppercase tracking-[0.1em] font-bold hover:text-[var(--accent-gold)] transition-all py-1 px-2 rounded-full hover:bg-white/5"
                       >
-                        <MessageCircle size={14} className="text-[var(--accent-gold)]" />
+                        <MessageCircle size={12} className="text-[var(--accent-gold)]/40" />
                         Bilgi Al
                       </a>
                     </div>
