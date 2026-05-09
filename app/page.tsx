@@ -1,11 +1,12 @@
 import HeroSection from "@/components/home/HeroSection";
-import Craftsmanship from "@/components/home/Craftsmanship";
+import BentoGrid from "@/components/home/BentoGrid";
 import VIPConcierge from "@/components/home/VIPConcierge";
 import LensTech from "@/components/home/LensTech";
 import BrandShowcase from "@/components/home/BrandShowcase";
 import CTASection from "@/components/home/CTASection";
 import ProductsShowcase from "@/components/home/ProductsShowcase";
 import OrderLookup from "@/components/home/OrderLookup";
+import ParallaxBanner from "@/components/home/ParallaxBanner";
 
 export default function Home() {
   return (
@@ -13,16 +14,19 @@ export default function Home() {
       {/* 1. Hero — Apple Style Canvas Scroll Animasyon */}
       <HeroSection />
 
-      {/* 2. Zanaatkarlık ve Materyaller — Parallax & Hover Glow */}
-      <Craftsmanship />
+      {/* 2. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
+      <BentoGrid />
 
       {/* 3. Lens Teknolojisi — Before/After Slider */}
       <LensTech />
 
-      {/* 4. Vitrin Ürünleri — Panelden Yıldızlananlar */}
+      {/* 4. Lifestyle Parallax Banner */}
+      <ParallaxBanner />
+
+      {/* 5. Vitrin Ürünleri — Panelden Yıldızlananlar */}
       <ProductsShowcase />
 
-      {/* 5. VIP Özel Sunum Concierge — Glassmorphism Anket */}
+      {/* 6. VIP Özel Sunum Concierge — Glassmorphism Anket */}
       <VIPConcierge />
 
       {/* Marka Vitrini — Infinite Carousel */}
