@@ -40,7 +40,7 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
             <motion.span 
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
-              className="text-[var(--accent-gold)] text-[10px] tracking-[0.4em] uppercase mb-4 block font-bold"
+              className="text-[var(--accent-color)] text-[10px] tracking-[0.4em] uppercase mb-4 block font-bold"
             >
               Elite Selection
             </motion.span>
@@ -52,7 +52,7 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
               Sezonun <span className="text-white/30 font-light italic">Yıldızları</span>
             </motion.h2>
           </div>
-          <Link href="/katalog" className="group flex items-center gap-2 text-white/30 hover:text-[var(--accent-gold)] transition-colors text-[10px] tracking-widest uppercase font-bold">
+          <Link href="/katalog" className="group flex items-center gap-2 text-white/30 hover:text-[var(--accent-color)] transition-colors text-[10px] tracking-widest uppercase font-bold">
             Tüm Modeller <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -103,11 +103,11 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
                       {/* İçerik */}
                       <div className="flex-1 p-4 flex flex-col justify-between">
                         <div className="space-y-1">
-                          <h3 className="text-[13px] font-medium text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">
+                          <h3 className="text-[13px] font-medium text-white tracking-tight group-hover:text-[var(--accent-color)] transition-colors line-clamp-1">
                             {product.name}
                           </h3>
                           <div className="flex justify-between items-center mt-1">
-                            <span className="text-[9px] text-[var(--accent-gold)]/70 uppercase tracking-[0.2em] font-medium">
+                            <span className="text-[9px] text-[var(--accent-color)]/70 uppercase tracking-[0.2em] font-medium">
                               {product.category}
                             </span>
                             <p className="text-[11px] text-white/50 font-light whitespace-nowrap tracking-wide">
@@ -123,9 +123,9 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
                             onClick={(e) => { e.stopPropagation(); }}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-[9px] text-white/40 uppercase tracking-[0.1em] font-bold hover:text-[var(--accent-gold)] transition-all group/wa pointer-events-auto"
+                            className="inline-flex items-center gap-1.5 text-[9px] text-white/40 uppercase tracking-[0.1em] font-bold hover:text-[var(--accent-color)] transition-all group/wa pointer-events-auto"
                           >
-                            <MessageCircle size={12} className="text-[var(--accent-gold)] opacity-40 group-hover/wa:opacity-100" />
+                            <MessageCircle size={12} className="text-[var(--accent-color)] opacity-40 group-hover/wa:opacity-100" />
                             Bilgi Al
                           </a>
                         </div>
@@ -147,7 +147,7 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
 
             {/* Navigasyon İpuçları */}
             <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center gap-4 pointer-events-none opacity-40">
-              <span className="text-[10px] text-[var(--accent-gold)] uppercase tracking-[0.3em] font-bold">&larr; Sürükle &rarr;</span>
+              <span className="text-[10px] text-[var(--accent-color)] uppercase tracking-[0.3em] font-bold">&larr; Sürükle &rarr;</span>
             </div>
 
           </div>

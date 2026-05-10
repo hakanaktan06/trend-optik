@@ -154,8 +154,8 @@ export default function HeroSection() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="mb-6 md:mb-10 z-10"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-[10px] md:text-sm font-medium text-[var(--accent-gold)] tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass text-[10px] md:text-sm font-medium text-[var(--accent-color)] tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] animate-pulse" />
             Premium Gözlük Koleksiyonu 2025
           </div>
         </motion.div>
@@ -170,7 +170,7 @@ export default function HeroSection() {
           >
             Lüksü Yeniden
             <br />
-            <span className="text-gradient-gold">Tanımlıyoruz</span>
+            <span className="text-gradient-aura">Tanımlıyoruz</span>
           </motion.h1>
         </div>
 
@@ -195,7 +195,7 @@ export default function HeroSection() {
           >
             <a
               href="#koleksiyon"
-              className="group px-7 py-3.5 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-full hover:shadow-xl hover:shadow-[var(--accent-gold)]/20 transition-all duration-500 hover:scale-[1.03] active:scale-[0.97] flex items-center gap-2"
+              className="group px-7 py-3.5 text-sm font-medium text-black bg-gradient-to-r from-[var(--accent-light)] to-[var(--accent-color)] rounded-full hover:shadow-xl hover:shadow-[var(--accent-color)]/20 transition-all duration-500 hover:scale-[1.03] active:scale-[0.97] flex items-center gap-2"
             >
               Koleksiyonu Keşfet
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>

@@ -124,36 +124,60 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-3xl relative overflow-hidden border border-rose-500/30">
-          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-            <Settings2 className="w-48 h-48 text-rose-500" />
+      <div className="grid grid-cols-1 gap-8">
+        <div className="glass p-8 rounded-[2.5rem] relative overflow-hidden border-white/5">
+          {/* Subtle Atmosphere Icon in background */}
+          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <Settings2 className="w-64 h-64 text-[var(--accent-color)]" />
           </div>
           
           <div className="relative z-10">
-            <h3 className="text-2xl font-bold text-rose-500 mb-2">Global Tema Şovu</h3>
-            <p className="text-white/50 text-sm mb-8 max-w-sm">
-              Tüm siteyi tek tıkla günün anlam ve önemine göre profesyonelce süsle. Müşterilerine özel günlerde sürpriz yap.
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-full bg-[var(--aura-color)] flex items-center justify-center">
+                <Settings2 className="w-5 h-5 text-[var(--accent-color)]" />
+              </div>
+              <h3 className="text-2xl font-bold text-white tracking-tight">Global Atmosphere Controller</h3>
+            </div>
+            
+            <p className="text-white/40 text-sm mb-10 max-w-lg font-light leading-relaxed">
+              Tüm sitenin aurasını tek tıkla profesyonelce yönetin. Vurgu renkleri, parlama efektleri ve tipografi anında tüm kullanıcılarda güncellenir.
             </p>
 
-            <select 
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white font-medium mb-4 focus:outline-none focus:border-rose-500/50"
-            >
-              <option value="standart">Standart (Sade ve Minimal)</option>
-              <option value="yilbasi">Kış Koleksiyonu (Buzul Işıltısı)</option>
-              <option value="sevgililer">Sevgililer Günü (Yakut Ambiyans)</option>
-              <option value="kadinlar">Kadınlar Günü (Zarif Lila)</option>
-              <option value="bayram">Özel Seri (Altın Yansıma)</option>
-            </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {[
+                { id: "standard", label: "Standard (Pure Gold)", desc: "Zifiri siyah ve premium altın parlamalar." },
+                { id: "amber", label: "Amber Gold (Sunset)", desc: "Sıcak amber tonları ve yüksek kontrastlı lüks." },
+                { id: "winter", label: "Winter Ice (Diamond)", desc: "Gümüş ışıltılar ve soğuk kristalize cam efekti." },
+                { id: "executive", label: "Executive Matrix (CEO)", desc: "Neon yeşili detaylar ve monospaced fontlar." },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTheme(t.id)}
+                  className={`p-6 rounded-3xl border text-left transition-all duration-500 group ${
+                    theme === t.id 
+                    ? "bg-[var(--aura-color)] border-[var(--accent-color)]/30 shadow-[0_0_30px_var(--aura-color)]" 
+                    : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <span className={`text-lg font-bold ${theme === t.id ? "text-white" : "text-white/60"}`}>
+                      {t.label}
+                    </span>
+                    {theme === t.id && (
+                      <div className="w-2 h-2 rounded-full bg-[var(--accent-color)] animate-pulse shadow-[0_0_10px_var(--accent-color)]" />
+                    )}
+                  </div>
+                  <p className="text-xs text-white/30 font-light leading-relaxed">{t.desc}</p>
+                </button>
+              ))}
+            </div>
 
             <button 
               onClick={handleUpdateTheme}
               disabled={isUpdating}
-              className="w-full py-4 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors shadow-[0_0_20px_rgba(244,63,94,0.3)] disabled:opacity-50"
+              className="w-full py-5 bg-white text-black hover:bg-[var(--accent-color)] hover:text-white transition-all duration-500 font-bold rounded-2xl tracking-[0.2em] uppercase text-xs disabled:opacity-50 active:scale-[0.98]"
             >
-              {isUpdating ? "Güncelleniyor..." : "SİTE TEMASINI GÜNCELLE"}
+              {isUpdating ? "ATMOSFER SENKRONİZE EDİLİYOR..." : "YENİ ATMOSFERİ YAYINLA"}
             </button>
           </div>
         </div>

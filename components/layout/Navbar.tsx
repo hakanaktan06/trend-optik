@@ -57,16 +57,16 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="relative z-50 flex items-center gap-3 group">
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-gold-light)] to-[var(--accent-gold-dark)] flex items-center justify-center shadow-lg shadow-[var(--accent-gold)]/20 transition-shadow duration-500 group-hover:shadow-[var(--accent-gold)]/40">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-[var(--accent-dark)] flex items-center justify-center shadow-lg shadow-[var(--accent-color)]/20 transition-shadow duration-500 group-hover:shadow-[var(--accent-color)]/40">
                 <span className="text-[#050505] font-bold text-lg font-[var(--font-display)]">T</span>
               </div>
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--accent-gold-light)] to-[var(--accent-gold-dark)] blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-[var(--accent-dark)] blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
             </div>
             <div className="flex flex-col">
               <span className="text-base font-semibold tracking-tight text-white leading-none">
                 TREND OPTİK
               </span>
-              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-0.5">
+              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-color)] uppercase leading-none mt-0.5">
                 MERSİN
               </span>
             </div>
@@ -81,7 +81,7 @@ export default function Navbar() {
                 className="relative px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors duration-300 group"
               >
                 {link.label}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[var(--accent-gold)] transition-all duration-300 group-hover:w-3/4" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[var(--accent-color)] transition-all duration-300 group-hover:w-3/4" />
               </Link>
             ))}
           </div>
@@ -92,12 +92,12 @@ export default function Navbar() {
               href="tel:+905312075818"
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors duration-300"
             >
-              <Phone size={14} className="text-[var(--accent-gold)]" />
+              <Phone size={14} className="text-[var(--accent-color)]" />
               <span className="hidden xl:inline">Bizi Arayın</span>
             </a>
             <Link
               href="/#iletisim"
-              className="px-5 py-2.5 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-full hover:shadow-lg hover:shadow-[var(--accent-gold)]/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="px-5 py-2.5 text-sm font-medium text-black bg-gradient-to-r from-[var(--accent-light)] to-[var(--accent-color)] rounded-full hover:shadow-lg hover:shadow-[var(--accent-color)]/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               Randevu Al
             </Link>
@@ -143,8 +143,8 @@ export default function Navbar() {
                       onClick={() => setIsMobileOpen(false)}
                       className="group flex items-end gap-4 py-2"
                     >
-                      <span className="text-[var(--accent-gold)] text-[10px] font-bold mb-2">0{i+1}</span>
-                      <span className="text-4xl font-bold text-white tracking-tighter group-hover:text-[var(--accent-gold)] transition-colors">
+                      <span className="text-[var(--accent-color)] text-[10px] font-bold mb-2">0{i+1}</span>
+                      <span className="text-4xl font-bold text-white tracking-tighter group-hover:text-[var(--accent-color)] transition-colors">
                         {link.label}
                       </span>
                     </Link>
@@ -161,11 +161,11 @@ export default function Navbar() {
                 <div className="h-px bg-white/10 w-full" />
                 <div className="space-y-4">
                   <a href="tel:+905312075818" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
-                    <Phone size={16} className="text-[var(--accent-gold)]" />
+                    <Phone size={16} className="text-[var(--accent-color)]" />
                     <span className="text-sm font-medium">0531 207 58 18</span>
                   </a>
                   <a href="#" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
-                    <MapPin size={16} className="text-[var(--accent-gold)]" />
+                    <MapPin size={16} className="text-[var(--accent-color)]" />
                     <span className="text-sm font-medium">Mersin, Türkiye</span>
                   </a>
                 </div>
@@ -173,7 +173,7 @@ export default function Navbar() {
                 <Link
                   href="/#iletisim"
                   onClick={() => setIsMobileOpen(false)}
-                  className="w-full py-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-2xl text-center shadow-xl shadow-[var(--accent-gold)]/20"
+                  className="w-full py-4 bg-gradient-to-r from-[var(--accent-light)] to-[var(--accent-color)] text-black font-bold rounded-2xl text-center shadow-xl shadow-[var(--accent-color)]/20"
                 >
                   Randevu Al
                 </Link>

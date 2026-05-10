@@ -24,7 +24,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
       
       <div className="hidden lg:block text-center mb-10 mt-4">
         <h1 className="text-xl font-bold tracking-wider text-white">
-          <span className="text-[var(--accent-gold)]">Trend Optik</span> Mersin.
+          <span className="text-[var(--accent-color)]">Trend Optik</span> Mersin.
         </h1>
       </div>
 

@@ -24,7 +24,7 @@ export default function BentoGrid() {
           <motion.span 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="text-[var(--accent-gold)] text-xs md:text-sm tracking-[0.3em] uppercase mb-4 block font-medium"
+            className="text-[var(--accent-color)] text-xs md:text-sm tracking-[0.3em] uppercase mb-4 block font-medium"
           >
             Sıfır Taviz
           </motion.span>
@@ -73,7 +73,7 @@ export default function BentoGrid() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute inset-0 flex flex-col justify-end p-8">
-                <h4 className="text-xl font-bold text-[var(--accent-gold)] mb-2">Japon Titanyumu</h4>
+                <h4 className="text-xl font-bold text-[var(--accent-color)] mb-2">Japon Titanyumu</h4>
                 <p className="text-white/70 text-sm font-light">Sıfır ağırlık hissi, ömür boyu dayanıklılık.</p>
               </div>
             </motion.div>
@@ -155,7 +155,7 @@ export default function BentoGrid() {
                         href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba Trend Optik, sayfanızdaki ${item.title} serisi ile ilgileniyorum, detaylı bilgi alabilir miyim?`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-[var(--accent-gold)] text-xs font-bold uppercase tracking-widest md:opacity-0 md:group-hover:opacity-100 transition-all hover:gap-3"
+                        className="inline-flex items-center gap-2 text-[var(--accent-color)] text-xs font-bold uppercase tracking-widest md:opacity-0 md:group-hover:opacity-100 transition-all hover:gap-3"
                       >
                         İncele <ArrowRight size={14} />
                       </a>
