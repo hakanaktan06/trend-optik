@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, chatId } = docSnap.data();
+    const { token: rawToken, chatId: rawChatId } = docSnap.data();
+    
+    const token = rawToken?.trim();
+    const chatId = rawChatId?.trim();
 
     if (!token || !chatId) {
       return NextResponse.json(
@@ -34,17 +37,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Telegram'a gönderilecek lüks formatlı mesaj
+    // Kullanıcı girdilerindeki potansiyel HTML karakterlerini temizle (XSS/Telegram HTML parse hatasını önlemek için)
+    const safeName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+    const safePhone = phone.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+    const safeStyle = (style || "Belirtilmedi").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+    const safeType = (type || "Belirtilmedi").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+
+    // Telegram'a gönderilecek lüks formatlı mesaj (HTML formatında daha güvenli)
     const message = `
-🌟 *YENİ VIP RANDEVU TALEBİ* 🌟
+🌟 <b>YENİ VIP RANDEVU TALEBİ</b> 🌟
 
-👤 *Müşteri:* ${name}
-📱 *Telefon:* ${phone}
+👤 <b>Müşteri:</b> ${safeName}
+📱 <b>Telefon:</b> ${safePhone}
 
-✨ *Seçilen Tarz:* ${style || "Belirtilmedi"}
-👓 *İhtiyaç:* ${type || "Belirtilmedi"}
+✨ <b>Seçilen Tarz:</b> ${safeStyle}
+👓 <b>İhtiyaç:</b> ${safeType}
 
-_Trend Optik Mersin - Dijital Concierge_
+<i>Trend Optik Mersin - Dijital Concierge</i>
     `;
 
     // Telegram API'ye POST isteği at
@@ -54,7 +63,7 @@ _Trend Optik Mersin - Dijital Concierge_
       body: JSON.stringify({
         chat_id: chatId,
         text: message,
-        parse_mode: "Markdown",
+        parse_mode: "HTML",
       }),
     });
 
