@@ -19,6 +19,7 @@ interface Product {
 export default function ProductsShowcase() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
     const fetchAndFilter = async () => {
@@ -43,6 +44,23 @@ export default function ProductsShowcase() {
     };
     fetchAndFilter();
   }, []);
+
+  const angle = products.length > 0 ? 360 / products.length : 0;
+
+  // Mobilde translateZ'yi 250px, masaüstünde 280px yapmak için dinamik değer kullanabiliriz,
+  // ancak CSS transform inline style içinde olduğu için clamp veya medya sorgusu mantığı kurabiliriz.
+  // Şimdilik standart olarak 280px kullanalım, çok sıkışık gelirse CSS ile optimize ederiz.
+  const radius = products.length > 5 ? 320 : 280;
+
+  const handleDragEnd = (e: any, info: any) => {
+    const swipeThreshold = 20;
+    // Sağa çekiş veya sola çekiş
+    if (info.offset.x > swipeThreshold || info.velocity.x > 200) {
+      setRotation(r => r + angle);
+    } else if (info.offset.x < -swipeThreshold || info.velocity.x < -200) {
+      setRotation(r => r - angle);
+    }
+  };
 
   return (
     <section id="koleksiyon" className="py-16 md:py-32 bg-[#050505] relative overflow-hidden">
@@ -76,63 +94,79 @@ export default function ProductsShowcase() {
             <Loader2 className="w-10 h-10 text-[var(--accent-gold)] animate-spin" />
           </div>
         ) : products.length > 0 ? (
-          /* Ürün Listesi - Zarif Yatay Kaydırma (Fixed Size Elegant Carousel) */
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-10 md:overflow-visible scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
-            {products.map((product, idx) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-                className="relative w-[220px] h-[320px] md:w-auto md:h-auto md:aspect-[4/5] flex-none snap-center overflow-hidden rounded-[1.5rem] bg-white/[0.03] backdrop-blur-md border border-white/[0.05] group flex flex-col transition-all duration-500"
-              >
-                <Link href={`/product/${product.id}`} className="flex flex-col h-full">
-                  {/* Ürün Görseli: Kartın %65'ini kaplar */}
-                  <div className="h-[65%] w-full overflow-hidden relative bg-black/20">
-                    <img 
-                      src={product.img} 
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </div>
+          
+          /* 3D Cylindrical Carousel Wrapper */
+          <div className="relative h-[450px] md:h-[500px] flex items-center justify-center perspective-[1000px] w-full max-w-full overflow-hidden">
+            
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={handleDragEnd}
+              animate={{ rotateY: rotation }}
+              transition={{ type: "spring", stiffness: 80, damping: 20 }}
+              style={{ transformStyle: "preserve-3d" }}
+              className="relative w-[220px] h-[320px] cursor-grab active:cursor-grabbing"
+            >
+              {products.map((product, idx) => {
+                const itemAngle = idx * angle;
+                return (
+                  <div
+                    key={product.id}
+                    className="absolute inset-0 w-full h-full rounded-[1.5rem] bg-white/[0.03] backdrop-blur-md border border-white/[0.05] flex flex-col overflow-hidden group select-none"
+                    style={{ transform: `rotateY(${itemAngle}deg) translateZ(${radius}px)` }}
+                  >
+                    <Link href={`/product/${product.id}`} className="flex flex-col h-full pointer-events-none md:pointer-events-auto">
+                      {/* Ürün Görseli: Kartın %60'ı */}
+                      <div className="h-[60%] w-full overflow-hidden relative bg-black/20 flex-shrink-0">
+                        <img 
+                          src={product.img} 
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 pointer-events-none"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
 
-                  {/* İçerik: Alt %35 */}
-                  <div className="flex-1 p-5 flex flex-col justify-between">
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-start gap-2">
-                        <h3 className="text-sm font-light text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">
-                          {product.name}
-                        </h3>
+                      {/* İçerik */}
+                      <div className="flex-1 p-4 flex flex-col justify-between">
+                        <div className="space-y-1">
+                          <h3 className="text-[13px] font-medium text-white tracking-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">
+                            {product.name}
+                          </h3>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-[9px] text-[var(--accent-gold)]/70 uppercase tracking-[0.2em] font-medium">
+                              {product.category}
+                            </span>
+                            <p className="text-[11px] text-white/50 font-light whitespace-nowrap tracking-wide">
+                              {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Minimalist WhatsApp Link */}
+                        <div className="flex justify-end pt-2 border-t border-white/5 mt-auto">
+                          <a 
+                            href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba, ${product.name} modelini incelemek istiyorum.`)}`}
+                            onClick={(e) => { e.stopPropagation(); }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-[9px] text-white/40 uppercase tracking-[0.1em] font-bold hover:text-[var(--accent-gold)] transition-all group/wa pointer-events-auto"
+                          >
+                            <MessageCircle size={12} className="text-[var(--accent-gold)] opacity-40 group-hover/wa:opacity-100" />
+                            Bilgi Al
+                          </a>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] text-[var(--accent-gold)]/70 uppercase tracking-[0.2em] font-medium">
-                          {product.category}
-                        </span>
-                        <p className="text-xs text-white/50 font-light whitespace-nowrap tracking-wide">
-                          {product.price.toString().includes("₺") ? product.price : `${product.price} ₺`}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Minimalist WhatsApp Link */}
-                    <div className="flex justify-end pt-2 border-t border-white/5">
-                      <a 
-                        href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba, ${product.name} modelini incelemek istiyorum.`)}`}
-                        onClick={(e) => e.stopPropagation()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-[9px] text-white/40 uppercase tracking-[0.1em] font-bold hover:text-[var(--accent-gold)] transition-all group/wa"
-                      >
-                        <MessageCircle size={12} className="text-[var(--accent-gold)] opacity-40 group-hover/wa:opacity-100" />
-                        Bilgi Al
-                      </a>
-                    </div>
+                    </Link>
                   </div>
-                </Link>
-              </motion.div>
-            ))}
+                );
+              })}
+            </motion.div>
+
+            {/* Navigasyon İpuçları */}
+            <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center gap-4 pointer-events-none opacity-40">
+              <span className="text-[10px] text-[var(--accent-gold)] uppercase tracking-[0.3em] font-bold">&larr; Sürükle &rarr;</span>
+            </div>
+
           </div>
         ) : (
           <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem] mx-6">
