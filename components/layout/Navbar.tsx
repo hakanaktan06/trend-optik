@@ -55,21 +55,13 @@ export default function Navbar() {
       >
         <div className="container-premium flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="relative z-50 flex items-center gap-3 group">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-[var(--accent-dark)] flex items-center justify-center shadow-lg shadow-[var(--accent-color)]/20 transition-shadow duration-500 group-hover:shadow-[var(--accent-color)]/40">
-                <span className="text-[#050505] font-bold text-lg font-[var(--font-display)]">T</span>
-              </div>
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-[var(--accent-dark)] blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-semibold tracking-tight text-white leading-none">
-                TREND OPTİK
-              </span>
-              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-color)] uppercase leading-none mt-0.5">
-                MERSİN
-              </span>
-            </div>
+          <Link href="/" className="flex flex-col items-start justify-center group relative z-50">
+            <span className="text-xl md:text-2xl font-black tracking-[0.2em] uppercase text-white drop-shadow-md transition-all duration-300 group-hover:tracking-[0.25em]">
+              TREND <span className="font-light text-white/70">OPTİK</span>
+            </span>
+            <span className="text-[0.60rem] tracking-[0.4em] uppercase text-white/40 ml-1 mt-[2px] group-hover:text-white/60 transition-colors duration-300">
+              Mersin
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
