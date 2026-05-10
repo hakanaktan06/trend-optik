@@ -96,14 +96,23 @@ export default function ProductsShowcase() {
         ) : products.length > 0 ? (
           
           /* 3D Cylindrical Carousel Wrapper */
-          <div className="relative h-[450px] md:h-[500px] flex items-center justify-center perspective-[1000px] w-full max-w-full overflow-hidden">
+          <div className="relative h-[450px] md:h-[500px] flex items-center justify-center perspective-[1000px] w-full max-w-full overflow-hidden group/carousel">
             
+            {/* Masaüstü Hayalet Sol Buton */}
+            <button 
+              onClick={() => setRotation(prev => prev + angle)}
+              className="hidden md:flex absolute left-8 lg:left-24 z-50 w-12 h-12 rounded-full bg-white/[0.05] backdrop-blur-md border border-white/10 text-white opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300 items-center justify-center hover:bg-white/10 hover:scale-110"
+              aria-label="Önceki Ürün"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+
             <motion.div
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={handleDragEnd}
               animate={{ rotateY: rotation }}
-              transition={{ type: "spring", stiffness: 80, damping: 20 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
               style={{ transformStyle: "preserve-3d" }}
               className="relative w-[220px] h-[320px] cursor-grab active:cursor-grabbing"
             >
@@ -161,6 +170,15 @@ export default function ProductsShowcase() {
                 );
               })}
             </motion.div>
+
+            {/* Masaüstü Hayalet Sağ Buton */}
+            <button 
+              onClick={() => setRotation(prev => prev - angle)}
+              className="hidden md:flex absolute right-8 lg:right-24 z-50 w-12 h-12 rounded-full bg-white/[0.05] backdrop-blur-md border border-white/10 text-white opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300 items-center justify-center hover:bg-white/10 hover:scale-110"
+              aria-label="Sonraki Ürün"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
 
             {/* Navigasyon İpuçları */}
             <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center gap-4 pointer-events-none opacity-40">
