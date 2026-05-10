@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { MessageCircle, ArrowRight, Loader2 } from "lucide-react";
+import { MessageCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Product {
   id: string;
@@ -16,45 +15,14 @@ interface Product {
   isFeatured?: boolean;
 }
 
-export default function ProductsShowcase() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ProductsShowcase({ initialProducts = [] }: { initialProducts?: Product[] }) {
   const [rotation, setRotation] = useState(0);
 
-  useEffect(() => {
-    const fetchAndFilter = async () => {
-      setLoading(true);
-      try {
-        // BYPASS: Tüm koleksiyonu çekiyoruz
-        const snap = await getDocs(collection(db, "products"));
-        
-        const allItems: Product[] = [];
-        snap.forEach((doc) => {
-          allItems.push({ id: doc.id, ...doc.data() } as Product);
-        });
-
-        // JAVASCRIPT FILTRELEME: Sadece isFeatured olanları ayıkla
-        const vitrinler = allItems.filter(p => p.isFeatured === true);
-        setProducts(vitrinler);
-      } catch (e) {
-        console.error("Vitrin fetch bypass error:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAndFilter();
-  }, []);
-
-  const angle = products.length > 0 ? 360 / products.length : 0;
-
-  // Mobilde translateZ'yi 250px, masaüstünde 280px yapmak için dinamik değer kullanabiliriz,
-  // ancak CSS transform inline style içinde olduğu için clamp veya medya sorgusu mantığı kurabiliriz.
-  // Şimdilik standart olarak 280px kullanalım, çok sıkışık gelirse CSS ile optimize ederiz.
-  const radius = products.length > 5 ? 320 : 280;
+  const angle = initialProducts.length > 0 ? 360 / initialProducts.length : 0;
+  const radius = initialProducts.length > 5 ? 320 : 280;
 
   const handleDragEnd = (e: any, info: any) => {
     const swipeThreshold = 20;
-    // Sağa çekiş veya sola çekiş
     if (info.offset.x > swipeThreshold || info.velocity.x > 200) {
       setRotation(r => r + angle);
     } else if (info.offset.x < -swipeThreshold || info.velocity.x < -200) {
@@ -89,11 +57,7 @@ export default function ProductsShowcase() {
           </Link>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-24">
-            <Loader2 className="w-10 h-10 text-[var(--accent-gold)] animate-spin" />
-          </div>
-        ) : products.length > 0 ? (
+        {initialProducts.length > 0 ? (
           
           /* 3D Cylindrical Carousel Wrapper */
           <div className="relative h-[450px] md:h-[500px] flex items-center justify-center perspective-[1000px] w-full max-w-full overflow-hidden group/carousel">
@@ -116,7 +80,7 @@ export default function ProductsShowcase() {
               style={{ transformStyle: "preserve-3d" }}
               className="relative w-[220px] h-[320px] cursor-grab active:cursor-grabbing"
             >
-              {products.map((product, idx) => {
+              {initialProducts.map((product, idx) => {
                 const itemAngle = idx * angle;
                 return (
                   <div
@@ -127,10 +91,11 @@ export default function ProductsShowcase() {
                     <Link href={`/product/${product.id}`} className="flex flex-col h-full pointer-events-none md:pointer-events-auto">
                       {/* Ürün Görseli: Kartın %60'ı */}
                       <div className="h-[60%] w-full overflow-hidden relative bg-black/20 flex-shrink-0">
-                        <img 
+                        <Image 
                           src={product.img} 
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 pointer-events-none"
+                          fill
+                          className="object-cover transition-transform duration-1000 group-hover:scale-110 pointer-events-none"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>

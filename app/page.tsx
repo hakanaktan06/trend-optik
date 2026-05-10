@@ -8,7 +8,39 @@ import ProductsShowcase from "@/components/home/ProductsShowcase";
 import OrderLookup from "@/components/home/OrderLookup";
 import ParallaxBanner from "@/components/home/ParallaxBanner";
 
-export default function Home() {
+async function getFeaturedProducts() {
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products`;
+
+  try {
+    const res = await fetch(firebaseUrl, { next: { revalidate: 3600 } }); // Cache for 1 hour
+    if (!res.ok) throw new Error("Failed to fetch products");
+
+    const data = await res.json();
+    
+    // Transform Firebase REST format to our Product interface
+    const products = (data.documents || []).map((doc: any) => {
+      const fields = doc.fields;
+      return {
+        id: doc.name.split("/").pop(),
+        name: fields.name?.stringValue || "",
+        price: fields.price?.stringValue || fields.price?.integerValue || fields.price?.doubleValue || 0,
+        img: fields.img?.stringValue || "",
+        category: fields.category?.stringValue || "",
+        isFeatured: fields.isFeatured?.booleanValue || false,
+      };
+    });
+
+    return products.filter((p: any) => p.isFeatured === true);
+  } catch (error) {
+    console.error("Server-side fetch error:", error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
+
   return (
     <>
       {/* 1. Hero — Apple Style Canvas Scroll Animasyon */}
@@ -24,7 +56,7 @@ export default function Home() {
       <ParallaxBanner />
 
       {/* 5. Vitrin Ürünleri — Panelden Yıldızlananlar */}
-      <ProductsShowcase />
+      <ProductsShowcase initialProducts={featuredProducts} />
 
       {/* 6. VIP Özel Sunum Concierge — Glassmorphism Anket */}
       <VIPConcierge />

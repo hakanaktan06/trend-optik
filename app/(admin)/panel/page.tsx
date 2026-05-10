@@ -41,6 +41,8 @@ export default function AdminPanel() {
     setIsLoggingIn(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Set Edge-compatible session cookie
+      document.cookie = "admin_session=active; path=/; max-age=86400; SameSite=Strict";
     } catch (err) {
       setError("Hatalı e-posta veya şifre girdiniz.");
     } finally {
@@ -50,6 +52,8 @@ export default function AdminPanel() {
 
   const handleLogout = async () => {
     await signOut(auth);
+    // Remove Edge-compatible session cookie
+    document.cookie = "admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   };
 
   if (loading) {
