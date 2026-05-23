@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "Trend Optik",
     images: [
       {
-        url: "/images/og-image.jpg", // Public klasöründeki kapak resmi
+        url: "/images/og-image.png", // Public klasöründeki kapak resmi
         width: 1200,
         height: 630,
         alt: "Trend Optik Premium Koleksiyon",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: "Trend Optik | Premium Güneş ve Optik Koleksiyonları",
     description:
       "Dünyanın en seçkin markaları, el yapımı asetat çerçeveler ve ileri teknoloji cam çözümleri. Lüks optik deneyimini keşfedin.",
-    images: ["/images/og-image.jpg"],
+    images: ["/images/og-image.png"],
   },
 };
 
