@@ -32,54 +32,50 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
 
   return (
     <section id="koleksiyon" className="py-16 md:py-32 bg-[#050505] relative overflow-hidden">
-      {/* Ambient Liquid Glow Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-50 md:opacity-75">
+      {/* Ambient Liquid Glow Background (Highly Optimized GPU Rendering) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         {/* Glow Blob 1: Premium Gold (Theme Aura) */}
         <motion.div
           animate={{
-            x: [0, 80, -40, 0],
-            y: [0, -60, 50, 0],
-            scale: [1, 1.2, 0.85, 1],
+            opacity: [0.4, 0.7, 0.4],
           }}
           transition={{
-            duration: 20,
+            duration: 8,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-[5%] left-[5%] w-[350px] md:w-[650px] h-[350px] md:h-[650px] rounded-full blur-[80px] md:blur-[140px]"
-          style={{ background: "radial-gradient(circle, var(--aura-color) 0%, transparent 70%)" }}
+          className="absolute top-[5%] left-[5%] w-[350px] md:w-[650px] h-[350px] md:h-[650px] rounded-full blur-3xl will-change-[opacity]"
+          style={{ background: "radial-gradient(circle, var(--aura-color) 0%, rgba(201, 169, 110, 0.03) 50%, transparent 100%)" }}
         />
         
         {/* Glow Blob 2: Warm Amber / Bronze */}
         <motion.div
           animate={{
-            x: [0, -60, 70, 0],
-            y: [0, 80, -50, 0],
-            scale: [1, 0.9, 1.15, 1],
+            opacity: [0.3, 0.6, 0.3],
           }}
           transition={{
-            duration: 25,
+            duration: 11,
             repeat: Infinity,
             ease: "easeInOut",
             delay: 1,
           }}
-          className="absolute top-[25%] right-[5%] w-[300px] md:w-[550px] h-[300px] md:h-[550px] rounded-full blur-[70px] md:blur-[120px]"
-          style={{ background: "radial-gradient(circle, rgba(184, 148, 31, 0.1) 0%, transparent 70%)" }}
+          className="absolute top-[25%] right-[5%] w-[300px] md:w-[550px] h-[300px] md:h-[550px] rounded-full blur-3xl will-change-[opacity]"
+          style={{ background: "radial-gradient(circle, rgba(184, 148, 31, 0.08) 0%, rgba(184, 148, 31, 0.01) 50%, transparent 100%)" }}
         />
         
         {/* Glow Blob 3: Center Highlight (Intense Aura) */}
         <motion.div
           animate={{
-            scale: [1, 1.15, 0.95, 1],
-            opacity: [0.4, 0.6, 0.4],
+            opacity: [0.4, 0.65, 0.4],
           }}
           transition={{
-            duration: 12,
+            duration: 9,
             repeat: Infinity,
             ease: "easeInOut",
+            delay: 2,
           }}
-          className="absolute bottom-[-15%] left-1/2 -translate-x-1/2 w-[400px] md:w-[750px] h-[300px] md:h-[450px] rounded-full blur-[90px] md:blur-[150px]"
-          style={{ background: "radial-gradient(circle, var(--aura-intense) 0%, transparent 75%)" }}
+          className="absolute bottom-[-15%] left-1/2 -translate-x-1/2 w-[400px] md:w-[750px] h-[300px] md:h-[450px] rounded-full blur-3xl will-change-[opacity]"
+          style={{ background: "radial-gradient(circle, var(--aura-intense) 0%, rgba(201, 169, 110, 0.04) 50%, transparent 100%)" }}
         />
       </div>
 
