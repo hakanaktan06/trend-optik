@@ -21,8 +21,23 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Singleton pattern — aynı app'i tekrar tekrar başlatma
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Next.js build-time protection: use mock credentials if variables are not provided.
+const isConfigValid = !!firebaseConfig.apiKey;
+
+const app = !getApps().length 
+  ? initializeApp(
+      isConfigValid
+        ? firebaseConfig
+        : {
+            apiKey: "mock-api-key-for-build-time-only",
+            authDomain: "mock-project.firebaseapp.com",
+            projectId: "mock-project",
+            storageBucket: "mock-project.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:1234567890",
+          }
+    ) 
+  : getApp();
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
