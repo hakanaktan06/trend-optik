@@ -160,10 +160,17 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
                     : "bg-white/[0.02] border-white/5 hover:border-white/10"
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`text-lg font-bold ${theme === t.id ? "text-white" : "text-white/60"}`}>
-                      {t.label}
-                    </span>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-lg font-bold ${theme === t.id ? "text-white" : "text-white/60"}`}>
+                        {t.label}
+                      </span>
+                      {t.id === "standard" && (
+                        <span className="text-[9px] bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                          Önerilen
+                        </span>
+                      )}
+                    </div>
                     {theme === t.id && (
                       <div className="w-2 h-2 rounded-full bg-[var(--accent-color)] animate-pulse shadow-[0_0_10px_var(--accent-color)]" />
                     )}

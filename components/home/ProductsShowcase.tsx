@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -17,6 +17,7 @@ interface Product {
 
 export default function ProductsShowcase({ initialProducts = [] }: { initialProducts?: Product[] }) {
   const [rotation, setRotation] = useState(0);
+  const isDraggingRef = useRef(false);
 
   const angle = initialProducts.length > 0 ? 360 / initialProducts.length : 0;
   const radius = initialProducts.length > 5 ? 320 : 280;
@@ -109,6 +110,31 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
           /* 3D Cylindrical Carousel Wrapper */
           <div className="relative h-[450px] md:h-[500px] flex items-center justify-center perspective-[1000px] w-full max-w-full overflow-hidden group/carousel">
             
+            {/* 3D Holographic Pedestal / Display Stand */}
+            <div 
+              className="absolute w-[500px] md:w-[750px] aspect-square rounded-full pointer-events-none z-0 opacity-45 flex items-center justify-center select-none"
+              style={{
+                transform: "rotateX(75deg) translateY(60px)",
+                background: "radial-gradient(circle, rgba(234, 88, 12, 0.2) 0%, rgba(217, 119, 6, 0.05) 45%, transparent 70%)"
+              }}
+            >
+              {/* Outer Glow Ring */}
+              <div className="absolute inset-0 rounded-full border border-[var(--accent-color)]/25 blur-[1px]" />
+              
+              {/* Spinning Dashed Ring */}
+              <div 
+                className="absolute inset-8 rounded-full border border-dashed border-[var(--accent-color)]/20 animate-[spin_100s_linear_infinite]"
+              />
+
+              {/* Inner Reverse Spinning Ring */}
+              <div 
+                className="absolute inset-16 rounded-full border-2 border-double border-white/5 animate-[spin_60s_linear_infinite_reverse]"
+              />
+
+              {/* Center Core Glow */}
+              <div className="absolute w-32 h-32 rounded-full bg-[var(--accent-color)]/10 blur-xl" />
+            </div>
+            
             {/* Masaüstü Hayalet Sol Buton */}
             <button 
               onClick={() => setRotation(prev => prev + angle)}
@@ -121,7 +147,15 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
             <motion.div
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={handleDragEnd}
+              onDragStart={() => {
+                isDraggingRef.current = true;
+              }}
+              onDragEnd={(e, info) => {
+                handleDragEnd(e, info);
+                setTimeout(() => {
+                  isDraggingRef.current = false;
+                }, 50);
+              }}
               animate={{ rotateY: rotation }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
               style={{ transformStyle: "preserve-3d" }}
@@ -135,7 +169,16 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
                     className="absolute inset-0 w-full h-full rounded-[1.5rem] bg-white/[0.03] backdrop-blur-md border border-white/[0.05] flex flex-col overflow-hidden group select-none"
                     style={{ transform: `rotateY(${itemAngle}deg) translateZ(${radius}px)` }}
                   >
-                    <Link href={`/product/${product.id}`} className="flex flex-col h-full pointer-events-none md:pointer-events-auto">
+                    <Link 
+                      href={`/product/${product.id}`} 
+                      className="flex flex-col h-full pointer-events-auto"
+                      onClick={(e) => {
+                        if (isDraggingRef.current) {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }
+                      }}
+                    >
                       {/* Ürün Görseli: Kartın %60'ı */}
                       <div className="h-[60%] w-full overflow-hidden relative bg-black/20 flex-shrink-0">
                         <Image 
