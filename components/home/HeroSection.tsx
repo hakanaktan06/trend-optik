@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const FRAME_COUNT = 240;
+const FRAME_COUNT = 143;
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
