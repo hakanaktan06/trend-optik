@@ -31,18 +31,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
           {/* Brand Column */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent-gold-light)] to-[var(--accent-gold-dark)] flex items-center justify-center">
-                <span className="text-[#050505] font-bold text-sm">T</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-semibold tracking-tight text-white leading-none">
-                  TREND OPTİK
-                </span>
-                <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-0.5">
-                  MERSİN
-                </span>
-              </div>
+            <div className="flex flex-col">
+              <span className="text-base font-semibold tracking-tight text-white leading-none">
+                TREND OPTİK
+              </span>
+              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">
+                MERSİN
+              </span>
             </div>
             <p className="text-sm text-white/25 font-light leading-relaxed max-w-xs">
               Premium gözlük koleksiyonları ve profesyonel göz sağlığı hizmetleri
