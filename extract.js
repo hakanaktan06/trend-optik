@@ -15,7 +15,7 @@ console.log('Extracting frames for buttery smooth mobile experience...');
 const child = execFile(ffmpeg, [
   '-y',
   '-i', 'public/hero-video.mp4',
-  '-vf', 'fps=30,scale=1080:-1', // 30 FPS is smooth, 1080 width
+  '-vf', 'fps=60,scale=1080:-1', // 60 FPS is ultra smooth, 1080 width
   '-c:v', 'libwebp',
   '-quality', '80', // Good compression
   'public/frames/frame_%04d.webp'

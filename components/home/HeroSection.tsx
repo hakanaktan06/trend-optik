@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const FRAME_COUNT = 143;
+const FRAME_COUNT = 285;
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -82,19 +82,20 @@ export default function HeroSection() {
         });
       }
 
-      // The Magic Frame Scrubber
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom top", // section is 300vh, gives lots of scroll space
-        scrub: 0.5, // 0.5s smoothing
-        onUpdate: (self) => {
-          // Progress from 0 to 1 -> map to frame 0 to 239
-          const frameIndex = Math.min(
-            FRAME_COUNT - 1,
-            Math.max(0, Math.floor(self.progress * FRAME_COUNT))
-          );
-          
+      // The Magic Frame Scrubber - Animate dummy playhead object using GSAP tween for buttery smooth scrubbing
+      const playhead = { frame: 0 };
+      gsap.to(playhead, {
+        frame: FRAME_COUNT - 1,
+        snap: "frame",
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom top", // section is 300vh, gives lots of scroll space
+          scrub: 0.8, // Smooth scrub delay in seconds (0.8s makes scroll steps disappear)
+        },
+        onUpdate: () => {
+          const frameIndex = playhead.frame;
           if (images[frameIndex] && images[frameIndex].complete) {
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.drawImage(images[frameIndex], 0, 0, canvas.width, canvas.height);
