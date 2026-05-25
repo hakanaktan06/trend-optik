@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, MessageCircle, ShieldCheck, Gem, Sparkles } from "lucide-react";
 
 const collections = {
@@ -51,6 +52,7 @@ const collections = {
 };
 
 export default function CollectionDetailClient({ id }: { id: string }) {
+  const router = useRouter();
   const collection = collections[Number(id) as keyof typeof collections];
 
   if (!collection) {
@@ -83,10 +85,10 @@ export default function CollectionDetailClient({ id }: { id: string }) {
         
         {/* Geri Dön Button - Moved down to avoid Navbar overlap */}
         <div className="absolute top-24 left-0 w-full px-6 md:px-10 z-30 flex justify-start items-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors group bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 shadow-lg hover:bg-black/80">
+          <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors group bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 shadow-lg hover:bg-black/80">
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-xs font-bold tracking-widest uppercase">Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Hero Content */}
