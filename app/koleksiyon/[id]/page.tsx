@@ -1,7 +1,8 @@
 import CollectionDetailClient from "./CollectionDetailClient";
 import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
   const titles: Record<string, string> = {
     "1": "Güneş Koleksiyonu",
     "2": "Retro Serisi",
@@ -11,7 +12,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     "6": "Usta Elleri",
   };
 
-  const title = titles[params.id] || "Koleksiyon İncelemesi";
+  const title = titles[resolvedParams.id] || "Koleksiyon İncelemesi";
 
   return {
     title: `${title} - Trend Optik`,
@@ -19,6 +20,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default function CollectionPage({ params }: { params: { id: string } }) {
-  return <CollectionDetailClient id={params.id} />;
+export default async function CollectionPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  return <CollectionDetailClient id={resolvedParams.id} />;
 }
