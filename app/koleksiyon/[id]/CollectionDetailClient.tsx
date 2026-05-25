@@ -81,11 +81,11 @@ export default function CollectionDetailClient({ id }: { id: string }) {
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-black/40 to-transparent" />
         
-        {/* Navbar-like Back Button */}
-        <div className="absolute top-0 left-0 w-full p-6 md:p-10 z-10 flex justify-between items-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors group bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+        {/* Geri Dön Button - Moved down to avoid Navbar overlap */}
+        <div className="absolute top-24 left-0 w-full px-6 md:px-10 z-30 flex justify-start items-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors group bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 shadow-lg hover:bg-black/80">
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm font-medium tracking-wider uppercase">Geri Dön</span>
+            <span className="text-xs font-bold tracking-widest uppercase">Geri Dön</span>
           </Link>
         </div>
 
