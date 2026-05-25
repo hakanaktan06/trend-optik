@@ -146,7 +146,8 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {[
-                { id: "standard", label: "Standard (Pure Gold)", desc: "Zifiri siyah ve premium altın parlamalar." },
+                { id: "standard", label: "Trend Optik (Marka Turu)", desc: "Markanın imza koyu turuncusu. Cesur, modern ve özgün." },
+                { id: "classic", label: "Classic Gold (Orijinal)", desc: "Eski premium altın palet — kuruluş döneminden kalma şık tasarım." },
                 { id: "amber", label: "Amber Gold (Sunset)", desc: "Sıcak amber tonları ve yüksek kontrastlı lüks." },
                 { id: "winter", label: "Winter Ice (Diamond)", desc: "Gümüş ışıltılar ve soğuk kristalize cam efekti." },
                 { id: "executive", label: "Executive Matrix (CEO)", desc: "Neon yeşili detaylar ve monospaced fontlar." },
@@ -166,7 +167,7 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
                         {t.label}
                       </span>
                       {t.id === "standard" && (
-                        <span className="text-[9px] bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                        <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                           Önerilen
                         </span>
                       )}
