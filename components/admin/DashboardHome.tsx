@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Package, Truck, Target, Award, Eye, Settings2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 // Actually, to be safe, I'll use simple inline states or native alerts if Sonner is not installed. 
 // Let's use simple window.alert for now to mimic trendAlert, or build a quick toast.
 // For the sake of premium look, I'll build a quick custom Toast function or use standard browser features. Let's just use simple state for now.
@@ -84,9 +85,9 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     setIsUpdating(true);
     try {
       await setDoc(doc(db, "settings", "theme"), { activeTheme: theme });
-      alert("Site teması başarıyla güncellendi.");
+      toast.success("Site teması başarıyla güncellendi.");
     } catch(e) {
-      alert("Tema güncellenirken hata oluştu.");
+      toast.error("Tema güncellenirken hata oluştu.");
     } finally {
       setIsUpdating(false);
     }
