@@ -32,10 +32,11 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
     <>
       {/* --- DESKTOP SIDEBAR --- */}
       <aside className="hidden lg:flex w-64 bg-[#0a0a0a] fixed h-screen top-0 left-0 border-r border-white/5 z-50 flex-col p-6 overflow-y-auto">
-        <div className="text-center mb-10 mt-4">
-          <h1 className="text-xl font-bold tracking-wider text-white">
-            <span className="text-[var(--accent-color)]">Trend Optik</span> Mersin.
-          </h1>
+        <div className="flex flex-col items-center mb-10 mt-4">
+          <div className="flex flex-col items-start leading-tight select-none">
+            <span className="text-xl font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
+            <span className="text-[10px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-1">mersin</span>
+          </div>
         </div>
 
         <nav className="flex flex-col gap-2 w-full">
@@ -72,10 +73,11 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
 
       {/* --- MOBILE HEADER & MENU --- */}
       {/* Mobile Sticky Top Bar */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5 z-50 flex items-center justify-between px-6">
-        <h1 className="text-lg font-bold tracking-wider text-white">
-          <span className="text-[var(--accent-color)]">Trend Optik</span> Mersin.
-        </h1>
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[#0a0a0a]/85 backdrop-blur-md border-b border-white/5 z-50 flex items-center justify-between px-6">
+        <div className="flex flex-col items-start leading-tight select-none">
+          <span className="text-base font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
+          <span className="text-[8px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-0.5">mersin</span>
+        </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="p-2 rounded-xl text-white/75 hover:bg-white/5 transition-colors focus:outline-none"
