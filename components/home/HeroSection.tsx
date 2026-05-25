@@ -22,36 +22,48 @@ export default function HeroSection() {
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
 
   useEffect(() => {
-    // 1. Preload images for buttery smooth scrolling
-    const images: HTMLImageElement[] = [];
+    // 1. Optimize preloading (chunked to prevent UI freeze)
+    const images: HTMLImageElement[] = new Array(FRAME_COUNT);
     let loadedCount = 0;
-
-    for (let i = 1; i <= FRAME_COUNT; i++) {
-      const img = new Image();
-      const paddedIndex = i.toString().padStart(4, "0");
-      img.src = `/frames/frame_${paddedIndex}.webp`;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === FRAME_COUNT) {
-          setImagesPreloaded(true);
+    
+    const loadImages = async () => {
+      // Load in batches of 10 to avoid choking the browser
+      for (let i = 1; i <= FRAME_COUNT; i += 10) {
+        const batch = [];
+        for (let j = 0; j < 10 && i + j <= FRAME_COUNT; j++) {
+          const index = i + j;
+          const img = new Image();
+          const paddedIndex = index.toString().padStart(4, "0");
+          img.src = `/frames/frame_${paddedIndex}.webp`;
+          batch.push(new Promise((resolve) => {
+            img.onload = () => {
+              images[index - 1] = img;
+              loadedCount++;
+              if (loadedCount === FRAME_COUNT) setImagesPreloaded(true);
+              resolve(true);
+            };
+            img.onerror = () => resolve(false);
+          }));
         }
-      };
-      images.push(img);
-    }
+        await Promise.all(batch);
+      }
+    };
+    loadImages();
 
     // 2. Setup GSAP Canvas Scrubbing
     const ctx = gsap.context(() => {
       if (!canvasRef.current) return;
       const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
+      const context = canvas.getContext("2d", { alpha: false }); // alpha: false optimizations for opaque images
       if (!context) return;
 
       // Draw first frame immediately once loaded
-      if (images[0]) {
-        images[0].onload = () => {
+      const drawInitial = setInterval(() => {
+        if (images[0] && images[0].complete) {
           context.drawImage(images[0], 0, 0, canvas.width, canvas.height);
-        };
-      }
+          clearInterval(drawInitial);
+        }
+      }, 100);
 
       // Parallax text animations
       if (headlineRef.current) {
@@ -82,8 +94,19 @@ export default function HeroSection() {
         });
       }
 
-      // The Magic Frame Scrubber - Animate dummy playhead object using GSAP tween for buttery smooth scrubbing
+      // The Magic Frame Scrubber - Optimized with rAF
       const playhead = { frame: 0 };
+      let renderRequested = false;
+
+      const render = () => {
+        const frameIndex = Math.round(playhead.frame);
+        if (images[frameIndex] && images[frameIndex].complete) {
+          // No clearRect needed because alpha: false and images are opaque
+          context.drawImage(images[frameIndex], 0, 0, canvas.width, canvas.height);
+        }
+        renderRequested = false;
+      };
+
       gsap.to(playhead, {
         frame: FRAME_COUNT - 1,
         snap: "frame",
@@ -91,14 +114,13 @@ export default function HeroSection() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "bottom top", // section is 300vh, gives lots of scroll space
-          scrub: 0.8, // Smooth scrub delay in seconds (0.8s makes scroll steps disappear)
+          end: "bottom top", 
+          scrub: 0.5, // Reduced scrub delay for tighter tracking but still smooth
         },
         onUpdate: () => {
-          const frameIndex = playhead.frame;
-          if (images[frameIndex] && images[frameIndex].complete) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(images[frameIndex], 0, 0, canvas.width, canvas.height);
+          if (!renderRequested) {
+            renderRequested = true;
+            requestAnimationFrame(render);
           }
         },
       });
@@ -137,13 +159,13 @@ export default function HeroSection() {
         {/* Subtle Background Gradient to blend with video background */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--background-secondary)]/5 to-[var(--background)]/90 z-[1]" />
         
-        {/* Apple-style Canvas */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1200px] aspect-[16/9] sm:aspect-video pointer-events-none z-[2] flex items-center justify-center mix-blend-screen">
+        {/* Apple-style Canvas - Removed mix-blend-screen for huge performance boost */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1200px] aspect-[16/9] sm:aspect-video pointer-events-none z-[2] flex items-center justify-center">
           <canvas
             ref={canvasRef}
             width={1080}
             height={608}
-            className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+            className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.4)] opacity-90"
           />
         </div>
 
