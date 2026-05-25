@@ -83,7 +83,7 @@ export default function CollectionDetailClient({ id }: { id: string }) {
         
         {/* Navbar-like Back Button */}
         <div className="absolute top-0 left-0 w-full p-6 md:p-10 z-10 flex justify-between items-center">
-          <Link href="/#koleksiyon" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors group bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+          <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors group bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-sm font-medium tracking-wider uppercase">Geri Dön</span>
           </Link>
