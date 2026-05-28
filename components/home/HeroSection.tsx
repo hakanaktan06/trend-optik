@@ -11,6 +11,7 @@ if (typeof window !== "undefined") {
 }
 
 const FRAME_COUNT = 121;
+const MOBILE_BREAKPOINT = 768;
 
 function drawCover(ctx: CanvasRenderingContext2D, img: HTMLImageElement, cw: number, ch: number) {
   const ir = img.naturalWidth / img.naturalHeight;
@@ -36,34 +37,39 @@ export default function HeroSection() {
   const sublineRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>(new Array(FRAME_COUNT));
-  const currentFrameRef = useRef(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [frameDir, setFrameDir] = useState<string | null>(null);
 
-  // Detect mobile once on mount
+  // Pick frame source once on mount based on viewport
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+    setFrameDir(isMobile ? "/frames-mobile" : "/frames");
   }, []);
 
-  // Desktop: frame scrubbing
   useEffect(() => {
-    if (isMobile) return;
+    if (!frameDir) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Size canvas buffer to exact viewport — eliminates distortion
+    const context = canvas.getContext("2d", { alpha: false });
+    if (!context) return;
+
+    // Use device pixel ratio capped at 2 for retina sharpness without overkill
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const images: HTMLImageElement[] = new Array(FRAME_COUNT);
+    const currentFrame = { idx: 0 };
+
     const syncCanvasSize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-        // Redraw current frame after resize
-        const img = imagesRef.current[currentFrameRef.current];
+      const targetW = Math.round(w * dpr);
+      const targetH = Math.round(h * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const img = images[currentFrame.idx];
         if (img?.complete) {
-          const ctx = canvas.getContext("2d", { alpha: false });
-          if (ctx) drawCover(ctx, img, w, h);
+          drawCover(context, img, targetW, targetH);
         }
       }
     };
@@ -71,12 +77,8 @@ export default function HeroSection() {
     syncCanvasSize();
     window.addEventListener("resize", syncCanvasSize);
 
-    const context = canvas.getContext("2d", { alpha: false });
-    if (!context) return;
-
-    const images = imagesRef.current;
-    let loadedCount = 0;
-
+    // Batched preload (10 at a time so UI stays responsive)
+    let firstLoaded = false;
     const loadImages = async () => {
       for (let i = 1; i <= FRAME_COUNT; i += 10) {
         const batch: Promise<unknown>[] = [];
@@ -84,12 +86,15 @@ export default function HeroSection() {
           const index = i + j;
           const img = new Image();
           const padded = index.toString().padStart(4, "0");
-          img.src = `/frames/frame_${padded}.jpg`;
+          img.src = `${frameDir}/frame_${padded}.jpg`;
           batch.push(
             new Promise((resolve) => {
               img.onload = () => {
                 images[index - 1] = img;
-                loadedCount++;
+                if (index === 1 && !firstLoaded) {
+                  firstLoaded = true;
+                  drawCover(context, img, canvas.width, canvas.height);
+                }
                 resolve(true);
               };
               img.onerror = () => resolve(false);
@@ -101,14 +106,6 @@ export default function HeroSection() {
     };
 
     loadImages();
-
-    // Draw first frame as soon as it arrives
-    const drawInitial = setInterval(() => {
-      if (images[0]?.complete) {
-        drawCover(context, images[0], canvas.width, canvas.height);
-        clearInterval(drawInitial);
-      }
-    }, 50);
 
     const ctx = gsap.context(() => {
       if (headlineRef.current) {
@@ -144,7 +141,7 @@ export default function HeroSection() {
 
       const render = () => {
         const idx = Math.round(playhead.frame);
-        currentFrameRef.current = idx;
+        currentFrame.idx = idx;
         const img = images[idx];
         if (img?.complete) {
           drawCover(context, img, canvas.width, canvas.height);
@@ -172,11 +169,10 @@ export default function HeroSection() {
     }, sectionRef);
 
     return () => {
-      clearInterval(drawInitial);
       window.removeEventListener("resize", syncCanvasSize);
       ctx.revert();
     };
-  }, [isMobile]);
+  }, [frameDir]);
 
   return (
     <section
@@ -186,26 +182,11 @@ export default function HeroSection() {
     >
       <div className="sticky top-0 h-[100svh] flex flex-col items-center justify-center overflow-hidden">
 
-        {/* Mobile: direct video (no frame loading) */}
-        {isMobile && (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-[1]"
-          >
-            <source src="/hero-new.mp4" type="video/mp4" />
-          </video>
-        )}
-
-        {/* Desktop: scroll-scrubbed canvas */}
-        {!isMobile && (
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
-          />
-        )}
+        {/* Scroll-scrubbed canvas (mobile + desktop, dynamic source) */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
+        />
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[var(--background)]/90 z-[2]" />
