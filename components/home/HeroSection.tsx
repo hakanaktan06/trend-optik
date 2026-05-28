@@ -6,7 +6,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronDown } from "lucide-react";
 
-// Register GSAP plugins
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -16,19 +15,19 @@ const FRAME_COUNT = 121;
 function drawCover(ctx: CanvasRenderingContext2D, img: HTMLImageElement, cw: number, ch: number) {
   const ir = img.naturalWidth / img.naturalHeight;
   const cr = cw / ch;
-  let sw: number, sh: number, sx: number, sy: number;
+  let dw: number, dh: number, dx: number, dy: number;
   if (ir > cr) {
-    sh = ch;
-    sw = ch * ir;
-    sx = (cw - sw) / 2;
-    sy = 0;
+    dh = ch;
+    dw = ch * ir;
+    dx = (cw - dw) / 2;
+    dy = 0;
   } else {
-    sw = cw;
-    sh = cw / ir;
-    sx = 0;
-    sy = (ch - sh) / 2;
+    dw = cw;
+    dh = cw / ir;
+    dx = 0;
+    dy = (ch - dh) / 2;
   }
-  ctx.drawImage(img, sx, sy, sw, sh);
+  ctx.drawImage(img, dx, dy, dw, dh);
 }
 
 export default function HeroSection() {
@@ -37,48 +36,81 @@ export default function HeroSection() {
   const sublineRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [imagesPreloaded, setImagesPreloaded] = useState(false);
+  const imagesRef = useRef<HTMLImageElement[]>(new Array(FRAME_COUNT));
+  const currentFrameRef = useRef(0);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Detect mobile once on mount
   useEffect(() => {
-    const images: HTMLImageElement[] = new Array(FRAME_COUNT);
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  // Desktop: frame scrubbing
+  useEffect(() => {
+    if (isMobile) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Size canvas buffer to exact viewport — eliminates distortion
+    const syncCanvasSize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        // Redraw current frame after resize
+        const img = imagesRef.current[currentFrameRef.current];
+        if (img?.complete) {
+          const ctx = canvas.getContext("2d", { alpha: false });
+          if (ctx) drawCover(ctx, img, w, h);
+        }
+      }
+    };
+
+    syncCanvasSize();
+    window.addEventListener("resize", syncCanvasSize);
+
+    const context = canvas.getContext("2d", { alpha: false });
+    if (!context) return;
+
+    const images = imagesRef.current;
     let loadedCount = 0;
 
     const loadImages = async () => {
       for (let i = 1; i <= FRAME_COUNT; i += 10) {
-        const batch = [];
+        const batch: Promise<unknown>[] = [];
         for (let j = 0; j < 10 && i + j <= FRAME_COUNT; j++) {
           const index = i + j;
           const img = new Image();
-          const paddedIndex = index.toString().padStart(4, "0");
-          img.src = `/frames/frame_${paddedIndex}.jpg`;
-          batch.push(new Promise((resolve) => {
-            img.onload = () => {
-              images[index - 1] = img;
-              loadedCount++;
-              if (loadedCount === FRAME_COUNT) setImagesPreloaded(true);
-              resolve(true);
-            };
-            img.onerror = () => resolve(false);
-          }));
+          const padded = index.toString().padStart(4, "0");
+          img.src = `/frames/frame_${padded}.jpg`;
+          batch.push(
+            new Promise((resolve) => {
+              img.onload = () => {
+                images[index - 1] = img;
+                loadedCount++;
+                resolve(true);
+              };
+              img.onerror = () => resolve(false);
+            })
+          );
         }
         await Promise.all(batch);
       }
     };
+
     loadImages();
 
+    // Draw first frame as soon as it arrives
+    const drawInitial = setInterval(() => {
+      if (images[0]?.complete) {
+        drawCover(context, images[0], canvas.width, canvas.height);
+        clearInterval(drawInitial);
+      }
+    }, 50);
+
     const ctx = gsap.context(() => {
-      if (!canvasRef.current) return;
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d", { alpha: false });
-      if (!context) return;
-
-      const drawInitial = setInterval(() => {
-        if (images[0] && images[0].complete) {
-          drawCover(context, images[0], canvas.width, canvas.height);
-          clearInterval(drawInitial);
-        }
-      }, 100);
-
       if (headlineRef.current) {
         gsap.to(headlineRef.current, {
           y: -120,
@@ -108,14 +140,16 @@ export default function HeroSection() {
       }
 
       const playhead = { frame: 0 };
-      let renderRequested = false;
+      let rafPending = false;
 
       const render = () => {
-        const frameIndex = Math.round(playhead.frame);
-        if (images[frameIndex] && images[frameIndex].complete) {
-          drawCover(context, images[frameIndex], canvas.width, canvas.height);
+        const idx = Math.round(playhead.frame);
+        currentFrameRef.current = idx;
+        const img = images[idx];
+        if (img?.complete) {
+          drawCover(context, img, canvas.width, canvas.height);
         }
-        renderRequested = false;
+        rafPending = false;
       };
 
       gsap.to(playhead, {
@@ -129,17 +163,20 @@ export default function HeroSection() {
           scrub: 0.5,
         },
         onUpdate: () => {
-          if (!renderRequested) {
-            renderRequested = true;
+          if (!rafPending) {
+            rafPending = true;
             requestAnimationFrame(render);
           }
         },
       });
-
     }, sectionRef);
 
-    return () => ctx.revert();
-  }, []);
+    return () => {
+      clearInterval(drawInitial);
+      window.removeEventListener("resize", syncCanvasSize);
+      ctx.revert();
+    };
+  }, [isMobile]);
 
   return (
     <section
@@ -149,15 +186,28 @@ export default function HeroSection() {
     >
       <div className="sticky top-0 h-[100svh] flex flex-col items-center justify-center overflow-hidden">
 
-        {/* Full-cover Canvas */}
-        <canvas
-          ref={canvasRef}
-          width={1920}
-          height={1080}
-          className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
-        />
+        {/* Mobile: direct video (no frame loading) */}
+        {isMobile && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-[1]"
+          >
+            <source src="/hero-new.mp4" type="video/mp4" />
+          </video>
+        )}
 
-        {/* Gradient overlay on top of canvas */}
+        {/* Desktop: scroll-scrubbed canvas */}
+        {!isMobile && (
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
+          />
+        )}
+
+        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[var(--background)]/90 z-[2]" />
 
         {/* Badge */}
