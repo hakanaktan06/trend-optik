@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -14,6 +15,15 @@ export default function HeroSection() {
   // Smooth parallax for the background video
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  const handleVideoEnded = () => {
+    // 10 saniye bekle ve tekrar oynat
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(console.error);
+      }
+    }, 10000);
+  };
 
   return (
     <section
@@ -27,13 +37,14 @@ export default function HeroSection() {
         className="absolute inset-0 w-full h-full"
       >
         <video
+          ref={videoRef}
           autoPlay
-          loop
           muted
           playsInline
+          onEnded={handleVideoEnded}
           className="w-full h-full object-cover"
         >
-          <source src="/hero-video.mp4" type="video/mp4" />
+          <source src="/hero-new.mp4" type="video/mp4" />
         </video>
         {/* Advanced Gradient Overlay for Premium Look */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[var(--background)]/95" />
