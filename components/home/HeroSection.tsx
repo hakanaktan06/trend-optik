@@ -44,6 +44,9 @@ export default function HeroSection() {
           onEnded={handleVideoEnded}
           className="w-full h-full object-cover"
         >
+          {/* Mobile Video (9:16 aspect ratio, cropped via FFmpeg) */}
+          <source src="/hero-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+          {/* Desktop Video (Standard Landscape) */}
           <source src="/hero-new.mp4" type="video/mp4" />
         </video>
         {/* Advanced Gradient Overlay for Premium Look */}
