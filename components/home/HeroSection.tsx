@@ -65,7 +65,6 @@ export default function HeroSection() {
           className="mb-8"
         >
           <div className="inline-flex items-center gap-2.5 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full glass text-[10px] sm:text-xs font-medium text-[var(--accent-color)] tracking-widest uppercase backdrop-blur-md border border-[var(--accent-color)]/20 shadow-lg shadow-[var(--accent-color)]/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] animate-pulse" />
             Premium Koleksiyon '25
           </div>
         </motion.div>
