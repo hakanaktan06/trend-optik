@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { motion, AnimatePresence } from "framer-motion";
+import { Toaster } from "react-hot-toast";
 import DashboardHome from "@/components/admin/DashboardHome";
 import Sidebar from "@/components/admin/Sidebar";
 import ProductManager from "@/components/admin/ProductManager";
@@ -26,11 +27,36 @@ export default function AdminPanel() {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#161616",
+            color: "#fff",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            fontSize: "14px",
+            borderRadius: "12px",
+            padding: "12px 18px",
+          },
+          success: {
+            iconTheme: {
+              primary: "#ea580c",
+              secondary: "#fff",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#ef4444",
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
       {/* Sidebar */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-6 lg:p-10 lg:pt-16 max-w-7xl">
+      <main className="flex-1 lg:ml-64 p-6 pt-20 lg:p-10 lg:pt-16 max-w-7xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Package, Truck, Target, Award, Eye, Settings2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 // Actually, to be safe, I'll use simple inline states or native alerts if Sonner is not installed. 
 // Let's use simple window.alert for now to mimic trendAlert, or build a quick toast.
 // For the sake of premium look, I'll build a quick custom Toast function or use standard browser features. Let's just use simple state for now.
@@ -84,9 +85,9 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     setIsUpdating(true);
     try {
       await setDoc(doc(db, "settings", "theme"), { activeTheme: theme });
-      alert("Site teması başarıyla güncellendi.");
+      toast.success("Site teması başarıyla güncellendi.");
     } catch(e) {
-      alert("Tema güncellenirken hata oluştu.");
+      toast.error("Tema güncellenirken hata oluştu.");
     } finally {
       setIsUpdating(false);
     }
@@ -145,7 +146,8 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {[
-                { id: "standard", label: "Standard (Pure Gold)", desc: "Zifiri siyah ve premium altın parlamalar." },
+                { id: "standard", label: "Trend Optik (Marka Turu)", desc: "Markanın imza koyu turuncusu. Cesur, modern ve özgün." },
+                { id: "classic", label: "Classic Gold (Orijinal)", desc: "Eski premium altın palet — kuruluş döneminden kalma şık tasarım." },
                 { id: "amber", label: "Amber Gold (Sunset)", desc: "Sıcak amber tonları ve yüksek kontrastlı lüks." },
                 { id: "winter", label: "Winter Ice (Diamond)", desc: "Gümüş ışıltılar ve soğuk kristalize cam efekti." },
                 { id: "executive", label: "Executive Matrix (CEO)", desc: "Neon yeşili detaylar ve monospaced fontlar." },
@@ -159,10 +161,17 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
                     : "bg-white/[0.02] border-white/5 hover:border-white/10"
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`text-lg font-bold ${theme === t.id ? "text-white" : "text-white/60"}`}>
-                      {t.label}
-                    </span>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-lg font-bold ${theme === t.id ? "text-white" : "text-white/60"}`}>
+                        {t.label}
+                      </span>
+                      {t.id === "standard" && (
+                        <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                          Önerilen
+                        </span>
+                      )}
+                    </div>
                     {theme === t.id && (
                       <div className="w-2 h-2 rounded-full bg-[var(--accent-color)] animate-pulse shadow-[0_0_10px_var(--accent-color)]" />
                     )}

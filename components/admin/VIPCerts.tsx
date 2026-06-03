@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Award, Plus, Trash2, Link2, Loader2, BadgeCheck } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface Certificate {
   id: string;
@@ -45,7 +46,10 @@ export default function VIPCerts() {
   };
 
   const handleSave = async () => {
-    if (!cName || !cProduct) return alert("Müşteri Adı ve Ürün zorunludur.");
+    if (!cName || !cProduct) {
+      toast.error("Müşteri Adı ve Ürün zorunludur.");
+      return;
+    }
     setIsSaving(true);
     try {
       const genNo = `TRND-${new Date().getFullYear()}-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
@@ -59,9 +63,9 @@ export default function VIPCerts() {
       });
       setCName(""); setCProduct(""); setCDiscount("15"); setCDuration("24");
       loadCerts();
-      alert(`Sertifika başarıyla oluşturuldu. No: ${genNo}`);
+      toast.success(`Sertifika başarıyla oluşturuldu. No: ${genNo}`);
     } catch (e) {
-      alert("Hata oluştu.");
+      toast.error("Hata oluştu.");
     } finally {
       setIsSaving(false);
     }
@@ -77,7 +81,7 @@ export default function VIPCerts() {
   const copyLink = (id: string) => {
     const link = `https://trendoptikmersin.com/sertifika?id=${id}`;
     navigator.clipboard.writeText(link);
-    alert("Sertifika Linki Kopyalandı!");
+    toast.success("Sertifika Linki Kopyalandı!");
   };
 
   return (

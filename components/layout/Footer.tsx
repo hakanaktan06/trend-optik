@@ -31,18 +31,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
           {/* Brand Column */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent-gold-light)] to-[var(--accent-gold-dark)] flex items-center justify-center">
-                <span className="text-[#050505] font-bold text-sm">T</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-semibold tracking-tight text-white leading-none">
-                  TREND OPTİK
-                </span>
-                <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-0.5">
-                  MERSİN
-                </span>
-              </div>
+            <div className="flex flex-col">
+              <span className="text-base font-semibold tracking-tight text-white leading-none">
+                TREND OPTİK
+              </span>
+              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">
+                MERSİN
+              </span>
             </div>
             <p className="text-sm text-white/25 font-light leading-relaxed max-w-xs">
               Premium gözlük koleksiyonları ve profesyonel göz sağlığı hizmetleri
@@ -67,53 +62,55 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
-              Hızlı Erişim
-            </h4>
-            <nav className="flex flex-col gap-2.5">
-              {[
-                { label: "Güneş Gözlükleri", href: "#" },
-                { label: "Numaralı Gözlükler", href: "#" },
-                { label: "Lens Çözümleri", href: "#" },
-                { label: "Göz Muayenesi", href: "#" },
-                { label: "Kampanyalar", href: "#" },
-              ].map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
-          </div>
+          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2 md:gap-8">
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+                Hızlı Erişim
+              </h4>
+              <nav className="flex flex-col gap-2.5">
+                {[
+                  { label: "Güneş Gözlükleri", href: "#" },
+                  { label: "Numaralı Gözlükler", href: "#" },
+                  { label: "Lens Çözümleri", href: "#" },
+                  { label: "Göz Muayenesi", href: "#" },
+                  { label: "Kampanyalar", href: "#" },
+                ].map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
+            </div>
 
-          {/* Contact */}
-          <div className="space-y-4">
-            <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
-              İletişim
-            </h4>
-            <div className="flex flex-col gap-3">
-              <a
-                href="tel:+905312075818"
-                className="flex items-center gap-3 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
-              >
-                <Phone size={14} className="text-[var(--accent-gold)]/50" />
-                0531 207 58 18
-              </a>
-              <a
-                href="mailto:info@trendoptikmersin.com"
-                className="flex items-center gap-3 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
-              >
-                <Mail size={14} className="text-[var(--accent-gold)]/50" />
-                info@trendoptikmersin.com
-              </a>
-              <div className="flex items-start gap-3 text-sm text-white/25 font-light">
-                <MapPin size={14} className="text-[var(--accent-gold)]/50 mt-0.5 flex-shrink-0" />
-                <span>Mersin, Türkiye</span>
+            {/* Contact */}
+            <div className="space-y-4">
+              <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+                İletişim
+              </h4>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="tel:+905312075818"
+                  className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
+                >
+                  <Phone size={14} className="text-[var(--accent-gold)]/50 shrink-0" />
+                  <span className="truncate">0531 207 58 18</span>
+                </a>
+                <a
+                  href="mailto:info@trendoptikmersin.com"
+                  className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
+                >
+                  <Mail size={14} className="text-[var(--accent-gold)]/50 shrink-0" />
+                  <span className="truncate">info@trendoptik</span>
+                </a>
+                <div className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-white/25 font-light">
+                  <MapPin size={14} className="text-[var(--accent-gold)]/50 mt-0.5 shrink-0" />
+                  <span className="truncate">Mersin, Türkiye</span>
+                </div>
               </div>
             </div>
           </div>
