@@ -40,7 +40,7 @@ export default async function SertifikaPage({ searchParams }: { searchParams: Pr
 
   if (!cert) {
     return (
-      <main className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 text-center">
+      <main className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-6 py-28 text-center">
         <h1 className="text-2xl font-bold text-white mb-2">Sertifika Bulunamadı</h1>
         <p className="text-white/40">Bu sertifika linki geçersiz veya kaldırılmış olabilir.</p>
       </main>
@@ -48,7 +48,7 @@ export default async function SertifikaPage({ searchParams }: { searchParams: Pr
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] flex items-center justify-center p-4 md:p-8">
+    <main className="min-h-screen bg-[#050505] flex items-center justify-center px-4 py-28 md:py-32">
       <div className="w-full max-w-xl relative rounded-[2.25rem] border border-[var(--accent-gold)]/25 bg-white/[0.025] backdrop-blur-xl px-7 py-10 md:px-12 md:py-14 text-center overflow-hidden shadow-[0_0_70px_rgba(234,88,12,0.12)]">
         <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-80 h-80 bg-[var(--accent-gold)] opacity-[0.07] blur-[90px] rounded-full pointer-events-none" />
 
@@ -87,7 +87,6 @@ export default async function SertifikaPage({ searchParams }: { searchParams: Pr
               <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Kapsamlı Garanti</span>
             </div>
             <p className="text-3xl font-bold text-white mb-1">{cert.duration} Ay</p>
-            <p className="text-xs text-white/45 font-light">Tüm ürünlerinizde geçerlidir.</p>
           </div>
         </div>
 
