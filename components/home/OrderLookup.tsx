@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Package, Truck, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
 
@@ -25,17 +23,13 @@ export default function OrderLookup() {
     setLoading(true);
     setSearched(true);
     try {
-      const q = query(
-        collection(db, "orders"),
-        where("phone", "==", phone),
-        limit(5)
-      );
-      const snap = await getDocs(q);
-      const items: Order[] = [];
-      snap.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as Order);
+      const res = await fetch("/api/order-tracking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
       });
-      setResults(items);
+      const data = await res.json();
+      setResults(res.ok ? (data.results ?? []) : []);
     } catch (e) {
       console.error("Order lookup error:", e);
       setResults([]);

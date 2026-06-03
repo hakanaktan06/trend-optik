@@ -81,20 +81,21 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
+      suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} dark antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[#050505] text-white grain">
-        {/* JSON-LD Schema Markup */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-        />
-        
         <ThemeProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
+
+        {/* JSON-LD Schema Markup */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        />
       </body>
     </html>
   );
