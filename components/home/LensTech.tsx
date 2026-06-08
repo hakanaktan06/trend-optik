@@ -89,21 +89,21 @@ export default function LensTech() {
               />
               {/* Fake sun glare overlay */}
               <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/40 via-transparent to-transparent mix-blend-overlay" />
-              <div className="absolute top-6 left-6 bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 z-10">
+              <div className="absolute top-6 right-6 bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 z-10">
                 <span className="text-white/80 text-xs tracking-widest uppercase font-semibold">Standart Cam</span>
               </div>
             </div>
 
             {/* Top Image (Premium Lens - Sharp/Clear) */}
             <div 
-              className="absolute inset-0 overflow-hidden"
+              className="absolute inset-0 overflow-hidden z-10"
               style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
             >
               <div 
                 className="absolute inset-0 bg-[url('/images/coastal-drive.png')] bg-cover bg-center scale-[1.05]"
                 style={{ filter: "contrast(1.1) saturate(1.2)" }}
               />
-              <div className="absolute top-6 left-6 bg-[var(--accent-gold)]/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-[var(--accent-gold)]/50 z-10 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
+              <div className="absolute top-6 left-6 bg-[var(--accent-gold)]/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-[var(--accent-gold)]/50 z-20 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
                 <span className="text-[var(--accent-gold)] text-xs tracking-widest uppercase font-bold drop-shadow-md">Premium ZEISS Cam</span>
               </div>
             </div>
