@@ -37,21 +37,12 @@ export const metadata: Metadata = {
     title: "Trend Optik Mersin | Optik, Gözlük & Güneş Gözlüğü",
     description:
       "Mersin Yenişehir'in premium optik mağazası. Numaralı gözlük, güneş gözlüğü, lens ve göz muayenesi. Ray-Ban, Prada, Gucci, Oakley orijinal ürünler.",
-    images: [
-      {
-        url: "/images/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Trend Optik Mersin",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Trend Optik Mersin | Optik, Gözlük & Güneş Gözlüğü",
     description:
       "Mersin Yenişehir'in premium optik mağazası. Numaralı gözlük, güneş gözlüğü, lens ve göz muayenesi. Ray-Ban, Prada, Gucci, Oakley orijinal ürünler.",
-    images: ["/images/og-image.png"],
   },
   robots: {
     index: true,
