@@ -14,7 +14,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const docRef = doc(db, "urunler", id);
+    const docRef = doc(db, "products", id);
     const docSnap = await getDoc(docRef);
 
     if (!docSnap.exists()) {

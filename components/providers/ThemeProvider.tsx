@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -12,6 +12,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [activeTheme, setActiveTheme] = useState("standard");
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     // Real-time listener for the theme settings in Firestore
@@ -20,11 +21,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const theme = docSnap.data().activeTheme || "standard";
         setActiveTheme(theme);
         
+        if (isFirstLoad.current) {
+          isFirstLoad.current = false;
+        } else {
+          // Add a smooth transition class if needed
+          document.documentElement.style.transition = "all 1s ease";
+        }
+        
         // Update the HTML data-theme attribute
         document.documentElement.setAttribute("data-theme", theme);
-        
-        // Add a smooth transition class if needed
-        document.documentElement.style.transition = "all 1s ease";
       }
     });
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Eye, UserPlus, Trash2, Camera, Loader2, Image as ImageIcon, X } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface LensItem {
   id: string;
@@ -89,7 +90,10 @@ export default function LensRadar() {
   };
 
   const handleSave = async () => {
-    if (!lName || !lPhone || !lProduct) return alert("Lütfen müşteri adı, telefon ve lens modelini girin.");
+    if (!lName || !lPhone || !lProduct) {
+      toast.error("Lütfen müşteri adı, telefon ve lens modelini girin.");
+      return;
+    }
     setIsSaving(true);
     try {
       let photoData = "";
@@ -109,9 +113,9 @@ export default function LensRadar() {
       setLName(""); setLPhone(""); setLProduct(""); setLDuration("30");
       removePhoto();
       loadLenses();
-      alert("Lens kaydı başarıyla eklendi.");
+      toast.success("Lens kaydı başarıyla eklendi.");
     } catch (e) {
-      alert("Hata oluştu.");
+      toast.error("Hata oluştu.");
     } finally {
       setIsSaving(false);
     }

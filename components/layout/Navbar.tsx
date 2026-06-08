@@ -20,9 +20,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Don't show navbar in admin panel
-  if (pathname?.startsWith("/panel")) return null;
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -42,6 +39,9 @@ export default function Navbar() {
       document.body.style.overflow = "";
     };
   }, [isMobileOpen]);
+
+  // Don't show navbar in admin panel
+  if (pathname?.startsWith("/panel")) return null;
 
   return (
     <>

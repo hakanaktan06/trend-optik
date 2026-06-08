@@ -19,25 +19,25 @@
   --foreground-secondary: #a1a1aa;
   --foreground-muted: #52525b;
 
-  /* Gold Accent — Signature Trend Optik */
-  --accent-gold: #c9a96e;
-  --accent-gold-light: #d4af37;
-  --accent-gold-dark: #b8941f;
-  --accent-gold-glow: rgba(201, 169, 110, 0.15);
-  --accent-gold-subtle: rgba(201, 169, 110, 0.08);
+  /* Brand Orange Accent — Trend Optik Signature */
+  --accent-gold: #ea580c;
+  --accent-gold-light: #f97316;
+  --accent-gold-dark: #c2410c;
+  --accent-gold-glow: rgba(234, 88, 12, 0.15);
+  --accent-gold-subtle: rgba(234, 88, 12, 0.08);
 
   /* Borders */
   --border-primary: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.12);
-  --border-gold: rgba(201, 169, 110, 0.3);
+  --border-gold: rgba(234, 88, 12, 0.3);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
   --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.7);
-  --shadow-gold: 0 0 40px rgba(201, 169, 110, 0.1);
-  --shadow-gold-intense: 0 0 80px rgba(201, 169, 110, 0.15);
+  --shadow-gold: 0 0 40px rgba(234, 88, 12, 0.1);
+  --shadow-gold-intense: 0 0 80px rgba(234, 88, 12, 0.15);
 
   /* Glass */
   --glass-bg: rgba(255, 255, 255, 0.04);
@@ -68,12 +68,12 @@
   --radius-xl: 28px;
   --radius-full: 9999px;
 
-  /* --- Atmosfer Değişkenleri (Dinamik) --- */
-  --aura-color: rgba(201, 169, 110, 0.15);
-  --aura-intense: rgba(201, 169, 110, 0.25);
-  --accent-color: #c9a96e;
-  --accent-light: #d4af37;
-  --accent-dark: #b8941f;
+  /* --- Atmosfer Değişkenleri (Dinamik) — Trend Optik Brand Orange --- */
+  --aura-color: rgba(234, 88, 12, 0.15);
+  --aura-intense: rgba(234, 88, 12, 0.25);
+  --accent-color: #ea580c;
+  --accent-light: #f97316;
+  --accent-dark: #c2410c;
   --glass-opacity: 0.04;
   --glass-border-opacity: 0.08;
   --font-aura: var(--font-inter);
@@ -81,7 +81,24 @@
 
 /* --- ATMOSFER PAKETLERİ --- */
 
-/* 1. Standard (Current Gold) - Default is already set in :root */
+/* 0. Classic Gold (Orijinal Altın Palet) */
+[data-theme="classic"] {
+  --accent-color: #c9a96e;
+  --accent-light: #d4af37;
+  --accent-dark: #b8941f;
+  --accent-gold: #c9a96e;
+  --accent-gold-light: #d4af37;
+  --accent-gold-dark: #b8941f;
+  --accent-gold-glow: rgba(201, 169, 110, 0.15);
+  --accent-gold-subtle: rgba(201, 169, 110, 0.08);
+  --border-gold: rgba(201, 169, 110, 0.3);
+  --shadow-gold: 0 0 40px rgba(201, 169, 110, 0.1);
+  --shadow-gold-intense: 0 0 80px rgba(201, 169, 110, 0.15);
+  --aura-color: rgba(201, 169, 110, 0.15);
+  --aura-intense: rgba(201, 169, 110, 0.25);
+}
+
+/* 1. Standard (Trend Optik Marka Turuncu) - Default is already set in :root */
 
 /* 2. Amber Gold (Yaz/Lüks) */
 [data-theme="amber"] {
@@ -209,9 +226,9 @@ body {
 .shimmer-gold {
   background: linear-gradient(110deg,
       transparent 20%,
-      rgba(201, 169, 110, 0.08) 40%,
-      rgba(201, 169, 110, 0.15) 50%,
-      rgba(201, 169, 110, 0.08) 60%,
+      rgba(234, 88, 12, 0.08) 40%,
+      rgba(234, 88, 12, 0.15) 50%,
+      rgba(234, 88, 12, 0.08) 60%,
       transparent 80%);
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
@@ -274,11 +291,11 @@ body {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(201, 169, 110, 0.1);
+    box-shadow: 0 0 20px rgba(234, 88, 12, 0.1);
   }
 
   50% {
-    box-shadow: 0 0 40px rgba(201, 169, 110, 0.25);
+    box-shadow: 0 0 40px rgba(234, 88, 12, 0.25);
   }
 }
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Plus, ListFilter, Star, Trash2, Pencil, QrCode, Link2, Loader2, Sparkles, Glasses } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface Product {
   id: string;
@@ -73,7 +74,10 @@ export default function ProductManager() {
   };
 
   const handleSave = async () => {
-    if (!pName || !pPrice || !pImgUrl) return alert("Ad, Fiyat ve Resim URL zorunludur.");
+    if (!pName || !pPrice || !pImgUrl) {
+      toast.error("Ad, Fiyat ve Resim URL zorunludur.");
+      return;
+    }
     setIsSaving(true);
     try {
       const payload = {
@@ -100,9 +104,9 @@ export default function ProductManager() {
       }
       resetForm();
       loadProducts();
-      alert(editId ? "Ürün güncellendi." : "Yeni ürün eklendi.");
+      toast.success(editId ? "Ürün güncellendi." : "Yeni ürün eklendi.");
     } catch (e) {
-      alert("Hata oluştu.");
+      toast.error("Hata oluştu.");
     } finally {
       setIsSaving(false);
     }
@@ -135,7 +139,10 @@ export default function ProductManager() {
   };
 
   const handleVIPOffer = () => {
-    if (selectedIds.length === 0) return alert("VIP teklif için önce ürün seçin.");
+    if (selectedIds.length === 0) {
+      toast.error("VIP teklif için önce ürün seçin.");
+      return;
+    }
     const selectedProds = products.filter(p => selectedIds.includes(p.id));
     let total = 0;
     let msg = "Sizin için VIP Modeller:\\n";
@@ -149,7 +156,7 @@ export default function ProductManager() {
     if (discount) {
       msg += `\\n🎁 ÖZEL FİYAT: ${discount} ₺ 🎁`;
       navigator.clipboard.writeText(msg);
-      alert("WhatsApp VIP Mesajı Panoya Kopyalandı!");
+      toast.success("WhatsApp VIP Mesajı Panoya Kopyalandı!");
     }
   };
 

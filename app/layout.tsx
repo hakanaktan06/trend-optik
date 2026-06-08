@@ -121,6 +121,7 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
+      suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} dark antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[#050505] text-white grain">

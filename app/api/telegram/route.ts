@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,29 +13,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Firestore REST API'sini kullanarak Telegram ayarlarını al 
-    // Not: Next.js API (Server) ortamında Firebase Client SDK (getDoc) hatalarını/çökmelerini önlemek için direkt REST API kullanıyoruz.
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/settings/telegram`;
-    
-    const fbResponse = await fetch(firebaseUrl, { cache: "no-store" });
-    
-    if (!fbResponse.ok) {
-      if (fbResponse.status === 404) {
-        return NextResponse.json(
-          { error: "Telegram ayarları henüz yapılandırılmamış." },
-          { status: 500 }
-        );
-      }
-      throw new Error(`Firebase ayarlara erişilemedi: ${fbResponse.statusText}`);
+    // Admin SDK kullanarak Telegram ayarlarını al (bypasses rules)
+    const docRef = adminDb.collection("settings").doc("telegram");
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists) {
+      return NextResponse.json(
+        { error: "Telegram ayarları henüz yapılandırılmamış." },
+        { status: 500 }
+      );
     }
 
-    const docData = await fbResponse.json();
-    const rawToken = docData.fields?.token?.stringValue;
-    const rawChatId = docData.fields?.chatId?.stringValue;
-
-    const token = rawToken?.trim();
-    const chatId = rawChatId?.trim();
+    const docData = docSnap.data();
+    const token = docData?.token?.trim();
+    const chatId = docData?.chatId?.trim();
 
     if (!token || !chatId) {
       return NextResponse.json(

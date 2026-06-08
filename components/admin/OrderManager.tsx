@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Box, Plus, Trash2, Loader2, Truck } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface Order {
   id: string;
@@ -44,7 +45,10 @@ export default function OrderManager() {
   };
 
   const handleSave = async () => {
-    if (!oName || !oPhone || !oProduct) return alert("Lütfen tüm alanları doldurun.");
+    if (!oName || !oPhone || !oProduct) {
+      toast.error("Lütfen tüm alanları doldurun.");
+      return;
+    }
     setIsSaving(true);
     try {
       await addDoc(collection(db, "orders"), {
@@ -56,9 +60,9 @@ export default function OrderManager() {
       });
       setOName(""); setOPhone(""); setOProduct(""); setOStatus("Sipariş Alındı");
       loadOrders();
-      alert("Sipariş başarıyla eklendi.");
+      toast.success("Sipariş başarıyla eklendi.");
     } catch (e) {
-      alert("Sipariş eklenirken hata oluştu.");
+      toast.error("Sipariş eklenirken hata oluştu.");
     } finally {
       setIsSaving(false);
     }

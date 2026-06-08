@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { Plus, Minus, ArrowRight } from "lucide-react";
 
 const extraGallery = [
@@ -151,14 +152,12 @@ export default function BentoGrid() {
                       <h4 className="text-xl font-bold text-white mb-2">{item.title}</h4>
                       <p className="text-white/50 text-sm font-light mb-5">{item.desc}</p>
                       
-                      <a 
-                        href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba Trend Optik, sayfanızdaki ${item.title} serisi ile ilgileniyorum, detaylı bilgi alabilir miyim?`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Link 
+                        href={`/koleksiyon/${item.id}`}
                         className="inline-flex items-center gap-2 text-[var(--accent-color)] text-xs font-bold uppercase tracking-widest md:opacity-0 md:group-hover:opacity-100 transition-all hover:gap-3"
                       >
                         İncele <ArrowRight size={14} />
-                      </a>
+                      </Link>
                     </div>
                   </motion.div>
                 ))}
