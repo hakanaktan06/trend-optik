@@ -82,35 +82,29 @@ export default function LensTech() {
             onTouchMove={onTouchMove}
           >
             {/* Base Image (Standard Lens - Blurry/Glare) */}
-            <div className="absolute inset-0 bg-stone-900 flex items-center justify-center p-8">
-              {/* Simulated blurry content */}
-              <div className="w-full h-full relative blur-[3px] opacity-70">
-                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full blur-[40px] opacity-80" />
-                <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-blue-500 rounded-full blur-[60px] opacity-50" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white text-4xl font-bold tracking-widest mix-blend-overlay">CITY LIGHTS</span>
-                </div>
-              </div>
-              <div className="absolute top-6 left-6 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                <span className="text-white/50 text-xs tracking-widest uppercase">Standart Cam</span>
+            <div className="absolute inset-0 bg-stone-900 overflow-hidden">
+              <div 
+                className="absolute inset-0 bg-[url('/images/coastal-drive.png')] bg-cover bg-center scale-[1.05]"
+                style={{ filter: "blur(4px) brightness(1.3) contrast(0.8) saturate(0.6)" }}
+              />
+              {/* Fake sun glare overlay */}
+              <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/40 via-transparent to-transparent mix-blend-overlay" />
+              <div className="absolute top-6 left-6 bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 z-10">
+                <span className="text-white/80 text-xs tracking-widest uppercase font-semibold">Standart Cam</span>
               </div>
             </div>
 
             {/* Top Image (Premium Lens - Sharp/Clear) */}
             <div 
-              className="absolute inset-0 bg-black flex items-center justify-center p-8 overflow-hidden"
+              className="absolute inset-0 overflow-hidden"
               style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
             >
-              {/* Simulated sharp content */}
-              <div className="w-full h-full relative">
-                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full blur-[2px] opacity-90" />
-                <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-blue-500 rounded-full blur-[10px] opacity-80" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white text-4xl font-bold tracking-widest drop-shadow-2xl">CITY LIGHTS</span>
-                </div>
-              </div>
-              <div className="absolute top-6 left-6 bg-[var(--accent-gold)]/20 backdrop-blur-md px-3 py-1 rounded-full border border-[var(--accent-gold)]/50">
-                <span className="text-[var(--accent-gold)] text-xs tracking-widest uppercase">Premium ZEISS Cam</span>
+              <div 
+                className="absolute inset-0 bg-[url('/images/coastal-drive.png')] bg-cover bg-center scale-[1.05]"
+                style={{ filter: "contrast(1.1) saturate(1.2)" }}
+              />
+              <div className="absolute top-6 left-6 bg-[var(--accent-gold)]/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-[var(--accent-gold)]/50 z-10 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
+                <span className="text-[var(--accent-gold)] text-xs tracking-widest uppercase font-bold drop-shadow-md">Premium ZEISS Cam</span>
               </div>
             </div>
 
