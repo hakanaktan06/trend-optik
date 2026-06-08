@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/eski-urunler',
+        destination: '/katalog',
+        permanent: true,
+      },
+      // You can add more legacy redirects here
+    ];
+  },
 };
 
 export default nextConfig;

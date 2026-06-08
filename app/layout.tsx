@@ -3,6 +3,9 @@ import { Inter, Playfair_Display } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import MetaPixel from "@/components/MetaPixel";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,42 +21,49 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Trend Optik | Premium Güneş ve Optik Koleksiyonları",
+  metadataBase: new URL("https://trendoptikmersin.com"),
+  title: {
+    default: "Trend Optik Mersin | Optik, Gözlük & Güneş Gözlüğü",
+    template: "%s | Trend Optik Mersin",
+  },
   description:
-    "Dünyanın en seçkin markaları, el yapımı asetat çerçeveler ve ileri teknoloji cam çözümleri. Lüks optik deneyimini keşfedin.",
-  keywords: [
-    "trend optik",
-    "premium gözlük",
-    "lüks güneş gözlüğü",
-    "el yapımı asetat çerçeve",
-    "trend optik mersin",
-    "özel tasarım gözlük",
-    "optik",
-    "lens",
-  ],
+    "Mersin Yenişehir'in premium optik mağazası. Numaralı gözlük, güneş gözlüğü, lens ve göz muayenesi. Ray-Ban, Prada, Gucci, Oakley orijinal ürünler. WhatsApp'tan hemen bilgi alın.",
+  alternates: { canonical: "https://trendoptikmersin.com" },
   openGraph: {
-    title: "Trend Optik | Premium Güneş ve Optik Koleksiyonları",
-    description:
-      "Dünyanın en seçkin markaları, el yapımı asetat çerçeveler ve ileri teknoloji cam çözümleri. Lüks optik deneyimini keşfedin.",
     type: "website",
     locale: "tr_TR",
-    siteName: "Trend Optik",
+    siteName: "Trend Optik Mersin",
+    url: "https://trendoptikmersin.com",
+    title: "Trend Optik Mersin | Optik, Gözlük & Güneş Gözlüğü",
+    description:
+      "Mersin Yenişehir'in premium optik mağazası. Numaralı gözlük, güneş gözlüğü, lens ve göz muayenesi. Ray-Ban, Prada, Gucci, Oakley orijinal ürünler.",
     images: [
       {
-        url: "/images/og-image.png", // Public klasöründeki kapak resmi
+        url: "/images/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Trend Optik Premium Koleksiyon",
+        alt: "Trend Optik Mersin",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trend Optik | Premium Güneş ve Optik Koleksiyonları",
+    title: "Trend Optik Mersin | Optik, Gözlük & Güneş Gözlüğü",
     description:
-      "Dünyanın en seçkin markaları, el yapımı asetat çerçeveler ve ileri teknoloji cam çözümleri. Lüks optik deneyimini keşfedin.",
+      "Mersin Yenişehir'in premium optik mağazası. Numaralı gözlük, güneş gözlüğü, lens ve göz muayenesi. Ray-Ban, Prada, Gucci, Oakley orijinal ürünler.",
     images: ["/images/og-image.png"],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: { google: "Apib7-x98H0j5cPqHWwSMm6dNU4GmODRoqxLiDzdx9I" },
 };
 
 export default function RootLayout({
@@ -61,21 +71,51 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const schemaData = {
+  const opticianSchema = {
     "@context": "https://schema.org",
     "@type": "Optician",
-    "name": "Trend Optik",
-    "description": "Dünyanın en seçkin markaları, el yapımı asetat çerçeveler ve ileri teknoloji cam çözümleri. Lüks optik deneyimini keşfedin.",
-    "logo": "https://trendoptikk.vercel.app/logo.png",
-    "image": "https://trendoptikk.vercel.app/logo.png",
-    "telephone": "+90 531 207 58 18",
-    "priceRange": "$$$",
+    "name": "Trend Optik Mersin",
+    "image": "https://trendoptikmersin.com/images/og-image.png",
+    "@id": "https://trendoptikmersin.com",
+    "url": "https://trendoptikmersin.com",
+    "telephone": "+905312075818",
+    "priceRange": "₺₺₺",
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "Mersin",
+      "streetAddress": "Çiftlikköy Mah., Mimar Sinan Cad., Paradise Homes Sitesi, B-Blok No: 24/BB",
+      "addressLocality": "Yenişehir",
+      "addressRegion": "Mersin",
+      "postalCode": "33150",
       "addressCountry": "TR"
     },
-    "url": "https://trendoptikk.vercel.app"
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "36.7740608",
+      "longitude": "34.5639134"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "08:30",
+        "closes": "18:30"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Saturday"],
+        "opens": "08:30",
+        "closes": "17:30"
+      }
+    ],
+    "sameAs": ["https://instagram.com/trendoptikmersin"],
+    "areaServed": { "@type": "City", "name": "Mersin" }
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Trend Optik Mersin",
+    "url": "https://trendoptikmersin.com"
   };
 
   return (
@@ -84,10 +124,15 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} dark antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[#050505] text-white grain">
-        {/* JSON-LD Schema Markup */}
+        {/* Optician LocalBusiness JSON-LD */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(opticianSchema) }}
+        />
+        {/* WebSite JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
         
         <ThemeProvider>
@@ -95,6 +140,10 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
+
+        <GoogleAnalytics gaId="G-PVZTDX1VJR" />
+        <MetaPixel />
+        <CookieConsent />
       </body>
     </html>
   );

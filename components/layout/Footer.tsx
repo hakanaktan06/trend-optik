@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { MapPin, Phone, MessageCircle } from "lucide-react";
 
 // Instagram icon — Lucide React'te trademark nedeniyle yok, inline SVG
 function InstagramIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
@@ -74,11 +74,11 @@ export default function Footer() {
             </h4>
             <nav className="flex flex-col gap-2.5">
               {[
-                { label: "Güneş Gözlükleri", href: "#" },
-                { label: "Numaralı Gözlükler", href: "#" },
-                { label: "Lens Çözümleri", href: "#" },
-                { label: "Göz Muayenesi", href: "#" },
-                { label: "Kampanyalar", href: "#" },
+                { label: "Güneş Gözlükleri", href: "/gunes-gozlugu" },
+                { label: "Numaralı Gözlükler", href: "/numarali-gozluk" },
+                { label: "Lens Çözümleri", href: "/lens" },
+                { label: "Göz Muayenesi", href: "/#faq" },
+                { label: "Kampanyalar", href: "/katalog" },
               ].map((link) => (
                 <a
                   key={link.label}
@@ -105,15 +105,17 @@ export default function Footer() {
                 0531 207 58 18
               </a>
               <a
-                href="mailto:info@trendoptikmersin.com"
+                href="https://wa.me/905312075818"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 font-light"
               >
-                <Mail size={14} className="text-[var(--accent-gold)]/50" />
-                info@trendoptikmersin.com
+                <MessageCircle size={14} className="text-[var(--accent-gold)]/50" />
+                WhatsApp ile Yazın
               </a>
               <div className="flex items-start gap-3 text-sm text-white/25 font-light">
                 <MapPin size={14} className="text-[var(--accent-gold)]/50 mt-0.5 flex-shrink-0" />
-                <span>Mersin, Türkiye</span>
+                <span>Çiftlikköy Mah., Mimar Sinan Cad., Paradise Homes Sitesi, B-Blok No: 24/BB, Yenişehir / Mersin</span>
               </div>
             </div>
           </div>

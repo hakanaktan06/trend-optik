@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import BentoGrid from "@/components/home/BentoGrid";
 import VIPConcierge from "@/components/home/VIPConcierge";
@@ -7,6 +8,17 @@ import CTASection from "@/components/home/CTASection";
 import ProductsShowcase from "@/components/home/ProductsShowcase";
 import OrderLookup from "@/components/home/OrderLookup";
 import ParallaxBanner from "@/components/home/ParallaxBanner";
+import FAQSection, { faqs } from "@/components/home/FAQSection";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Trend Optik Mersin | Premium Gözlük & Güneş Gözlüğü Mağazası",
+  },
+  description:
+    "Mersin Yenişehir Trend Optik: güneş gözlüğü, numaralı gözlük, lens ve göz muayenesi. Ray-Ban, Prada, Gucci, Oakley orijinal ürünler. Hemen WhatsApp'tan bilgi alın.",
+  alternates: { canonical: "https://trendoptikmersin.com" },
+};
+
 
 async function getFeaturedProducts() {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -41,8 +53,25 @@ async function getFeaturedProducts() {
 export default async function Home() {
   const featuredProducts = await getFeaturedProducts();
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       {/* 1. Hero — Apple Style Canvas Scroll Animasyon */}
       <HeroSection />
 
@@ -66,6 +95,9 @@ export default async function Home() {
 
       {/* 6. Sipariş Sorgulama — Müşteri Takip Sistemi */}
       <OrderLookup />
+
+      {/* 7. FAQ — Sıkça Sorulan Sorular */}
+      <FAQSection />
 
       {/* Altın Çizgi Ayırıcı */}
       <div className="divider-gold" />

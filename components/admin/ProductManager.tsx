@@ -13,6 +13,9 @@ interface Product {
   desc: string;
   img: string;
   isFeatured: boolean;
+  brand?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 export default function ProductManager() {
@@ -28,6 +31,9 @@ export default function ProductManager() {
   const [pDesc, setPDesc] = useState("");
   const [pLongDesc, setPLongDesc] = useState("");
   const [pImgUrl, setPImgUrl] = useState("");
+  const [pBrand, setPBrand] = useState("");
+  const [pSeoTitle, setPSeoTitle] = useState("");
+  const [pSeoDesc, setPSeoDesc] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   // VIP & QR State
@@ -61,6 +67,9 @@ export default function ProductManager() {
     setPDesc("");
     setPLongDesc("");
     setPImgUrl("");
+    setPBrand("");
+    setPSeoTitle("");
+    setPSeoDesc("");
   };
 
   const handleSave = async () => {
@@ -73,7 +82,10 @@ export default function ProductManager() {
         price: pPrice, 
         desc: pDesc, 
         description: pLongDesc, // Detailed description for product page
-        img: pImgUrl
+        img: pImgUrl,
+        brand: pBrand,
+        seoTitle: pSeoTitle,
+        seoDescription: pSeoDesc
       };
 
       if (editId) {
@@ -116,6 +128,9 @@ export default function ProductManager() {
     setPDesc(p.desc || "");
     setPLongDesc(p.description || "");
     setPImgUrl(p.img);
+    setPBrand(p.brand || "");
+    setPSeoTitle(p.seoTitle || "");
+    setPSeoDesc(p.seoDescription || "");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -208,6 +223,22 @@ export default function ProductManager() {
                   ) : (
                     <span className="text-white/20 text-xs">Görsel Önizleme</span>
                   )}
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-white/5 space-y-4">
+                <h4 className="text-sm font-bold text-[var(--accent-gold)]">SEO & Marka (İsteğe Bağlı)</h4>
+                <div>
+                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Marka</label>
+                  <input type="text" value={pBrand} onChange={e => setPBrand(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="Örn: Ray-Ban" />
+                </div>
+                <div>
+                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">SEO Title (Başlık)</label>
+                  <input type="text" value={pSeoTitle} onChange={e => setPSeoTitle(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="Özel başlık boşsa otomatik oluşur" />
+                </div>
+                <div>
+                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">SEO Description (Açıklama)</label>
+                  <input type="text" value={pSeoDesc} onChange={e => setPSeoDesc(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="Özel meta açıklama" />
                 </div>
               </div>
 

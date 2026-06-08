@@ -45,6 +45,9 @@ export default function CTASection() {
               href="https://wa.me/905312075818?text=Merhaba%2C%20Trend%20Optik%20Mersin%27den%20bilgi%20almak%20istiyorum."
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                import("@/lib/analytics").then((m) => m.trackWhatsAppLead("Homepage CTA"));
+              }}
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4.5 text-sm font-medium text-[#050505] bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] rounded-2xl md:rounded-full hover:shadow-xl hover:shadow-[var(--accent-gold)]/20 transition-all duration-500 active:scale-[0.97]"
             >
               <MessageCircle size={18} />

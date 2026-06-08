@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const marka = searchParams.get("marka");
     const limitCount = parseInt(searchParams.get("limit") || "50");
 
-    let q = query(collection(db, "urunler"), orderBy("createdAt", "desc"));
+    let q = query(collection(db, "products"), orderBy("createdAt", "desc"));
 
     // Filtreleme
     const constraints = [];
@@ -36,14 +36,14 @@ export async function GET(request: NextRequest) {
 
     if (constraints.length > 0) {
       q = query(
-        collection(db, "urunler"),
+        collection(db, "products"),
         ...constraints,
         orderBy("createdAt", "desc"),
         limit(limitCount)
       );
     } else {
       q = query(
-        collection(db, "urunler"),
+        collection(db, "products"),
         orderBy("createdAt", "desc"),
         limit(limitCount)
       );

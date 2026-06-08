@@ -167,7 +167,10 @@ export default function ProductsShowcase({ initialProducts = [] }: { initialProd
                         <div className="flex justify-end pt-2 border-t border-white/5 mt-auto">
                           <a 
                             href={`https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba, ${product.name} modelini incelemek istiyorum.`)}`}
-                            onClick={(e) => { e.stopPropagation(); }}
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              import("@/lib/analytics").then((m) => m.trackWhatsAppLead(product.name));
+                            }}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-[9px] text-white/40 uppercase tracking-[0.1em] font-bold hover:text-[var(--accent-color)] transition-all group/wa pointer-events-auto"
