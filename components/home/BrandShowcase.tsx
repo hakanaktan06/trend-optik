@@ -1,138 +1,50 @@
-"use client";
+import Link from "next/link";
+import Image from "next/image";
+import { Brand } from "@/lib/firestore-server";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-
-const brands = [
-  "Ray-Ban",
-  "Gucci",
-  "Prada",
-  "Tom Ford",
-  "Cartier",
-  "Versace",
-  "Dolce & Gabbana",
-  "Burberry",
-  "Dior",
-  "Saint Laurent",
-  "Chanel",
-  "Oakley",
-];
-
-export default function BrandShowcase() {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+export default function BrandShowcase({ brands }: { brands: Brand[] }) {
+  if (!brands || brands.length === 0) return null;
 
   return (
-    <section
-      id="markalar"
-      ref={ref}
-      className="relative py-[var(--section-padding)] bg-[var(--background-secondary)] overflow-hidden"
-    >
+    <section id="markalar" className="py-20 md:py-32 bg-[var(--background-secondary)] relative overflow-hidden">
       <div className="container-premium relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-14 md:mb-16">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="inline-block text-[11px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-medium mb-4"
-          >
+        <div className="text-center mb-14 md:mb-20">
+          <span className="inline-block text-[11px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-medium mb-4">
             Markalarımız
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.1, duration: 0.8 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white"
-          >
-            Dünyadan{" "}
-            <span className="text-gradient-gold">Seçkin</span> Markalar
-          </motion.h2>
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+            Markalara Göre <span className="text-gradient-gold">Keşfet</span>
+          </h2>
         </div>
-      </div>
 
-      {/* Infinite Scroll Carousel */}
-      <div className="relative">
-        {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-r from-[var(--background-secondary)] to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-[var(--background-secondary)] to-transparent z-10 pointer-events-none" />
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.3, duration: 1 }}
-          className="flex overflow-hidden"
-        >
-          <div className="flex animate-scroll-left gap-8 md:gap-12 items-center min-w-max">
-            {[...brands, ...brands].map((brand, i) => (
-              <div
-                key={`${brand}-${i}`}
-                className="flex-shrink-0 px-6 md:px-8 py-4 md:py-5 rounded-2xl glass group hover:border-[var(--border-gold)] transition-all duration-500 cursor-default"
-              >
-                <span className="text-lg md:text-xl font-semibold text-white/20 group-hover:text-[var(--accent-gold)] transition-colors duration-500 tracking-tight whitespace-nowrap">
-                  {brand}
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Second Row — Reverse Direction */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="flex overflow-hidden mt-4"
-        >
-          <div
-            className="flex gap-8 md:gap-12 items-center min-w-max"
-            style={{
-              animation: "scrollLeft 35s linear infinite reverse",
-            }}
-          >
-            {[...brands.slice().reverse(), ...brands.slice().reverse()].map(
-              (brand, i) => (
-                <div
-                  key={`${brand}-rev-${i}`}
-                  className="flex-shrink-0 px-6 md:px-8 py-4 md:py-5 rounded-2xl glass group hover:border-[var(--border-gold)] transition-all duration-500 cursor-default"
-                >
-                  <span className="text-lg md:text-xl font-semibold text-white/15 group-hover:text-[var(--accent-gold)] transition-colors duration-500 tracking-tight whitespace-nowrap">
-                    {brand}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Stats Bar */}
-      <div className="container-premium mt-16 md:mt-20">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
-        >
-          {[
-            { value: "50+", label: "Marka" },
-            { value: "10K+", label: "Mutlu Müşteri" },
-            { value: "15+", label: "Yıllık Deneyim" },
-            { value: "%100", label: "Orijinal Ürün" },
-          ].map((stat, i) => (
-            <div
-              key={stat.label}
-              className="text-center p-5 md:p-6 rounded-2xl glass"
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+          {brands.map((brand) => (
+            <Link 
+              key={brand.id}
+              href={`/marka/${brand.slug}`}
+              className="group flex flex-col items-center justify-center p-8 md:p-12 rounded-3xl glass hover:bg-white/5 transition-all duration-500 border border-white/5 hover:border-white/10 hover:-translate-y-1"
             >
-              <div className="text-2xl md:text-3xl font-bold text-gradient-gold tracking-tight">
-                {stat.value}
+              {brand.logoUrl ? (
+                <div className="relative w-full aspect-[3/1] mb-6">
+                  <Image 
+                    src={brand.logoUrl} 
+                    alt={brand.name} 
+                    fill 
+                    className="object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-500" 
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                </div>
+              ) : (
+                <div className="text-xl md:text-2xl font-bold text-white/50 group-hover:text-white transition-colors duration-500 tracking-tight text-center mb-2">
+                  {brand.name}
+                </div>
+              )}
+              <div className="mt-auto text-[10px] uppercase tracking-widest text-[var(--accent-gold)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center gap-1">
+                Koleksiyonu Gör <span>&rarr;</span>
               </div>
-              <div className="text-xs md:text-sm text-white/30 mt-1 font-medium">
-                {stat.label}
-              </div>
-            </div>
+            </Link>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

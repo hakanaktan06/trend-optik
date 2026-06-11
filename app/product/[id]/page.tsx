@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductServer, getRelatedProductsServer, getAllProductsServer } from "@/lib/firestore-server";
+import { getProductServer, getRelatedProductsServer, getAllProductsServer, getAllBrandsServer } from "@/lib/firestore-server";
 import ProductClientUI from "@/components/product/ProductClientUI";
 
 // ISR: Cache refresh every hour
@@ -14,8 +14,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
-  const product = await getProductServer(id);
+  const p = await params;
+  const product = await getProductServer(p.id);
 
   if (!product) {
     return {
@@ -24,24 +24,27 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
   }
 
-  const title = product.seoTitle || `${product.name} ${product.brand || ""} ${product.category || ""} | Mersin`;
-  const description = product.seoDescription || `${product.name} modelini Trend Optik Mersin'de keşfedin. ${product.brand ? product.brand + " orijinal ürün. " : ""}Fiyat ve stok bilgisi için WhatsApp'tan hemen ulaşın.`;
+  const brands = await getAllBrandsServer();
+  const brandName = brands.find(b => b.id === product.brandId || b.slug === product.brandId || b.name === product.brandId)?.name || product.brandId;
+
+  const title = `${brandName} ${product.model} ${product.name} | Trend Optik Mersin`;
+  const description = `${brandName} ${product.model} modelini Trend Optik Mersin'de keşfedin. Bilgi almak için WhatsApp'tan hemen ulaşın.`;
 
   return {
     title,
     description,
     alternates: {
-      canonical: `https://trendoptikmersin.com/product/${id}`,
+      canonical: `https://trendoptikmersin.com/product/${p.id}`,
     },
     openGraph: {
       title,
       description,
       images: [
         {
-          url: product.img,
+          url: product.images?.[0] || "/placeholder.png",
           width: 800,
           height: 800,
-          alt: `${product.name} - Trend Optik Mersin`,
+          alt: `${brandName} ${product.model} - Trend Optik Mersin`,
         },
       ],
       type: "website",
@@ -50,37 +53,31 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       card: "summary_large_image",
       title,
       description,
-      images: [product.img],
+      images: [product.images?.[0] || "/placeholder.png"],
     },
   };
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const product = await getProductServer(id);
+  const p = await params;
+  const product = await getProductServer(p.id);
 
   if (!product) {
     notFound();
   }
 
-  const related = await getRelatedProductsServer(product.category, product.id);
+  const brands = await getAllBrandsServer();
+  const brandName = brands.find(b => b.id === product.brandId || b.slug === product.brandId || b.name === product.brandId)?.name || product.brandId;
+
+  const related = await getRelatedProductsServer(product.brandId, product.id);
 
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
-    "image": product.img,
-    ...(product.brand && { "brand": { "@type": "Brand", "name": product.brand } }),
-    "category": product.category,
-    "description": product.description || product.desc || "Trend Optik Mersin premium koleksiyonu.",
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "TRY",
-      "price": String(product.price).replace(/[^0-9.,]/g, '') || "0",
-      "availability": "https://schema.org/InStock",
-      "url": `https://trendoptikmersin.com/product/${id}`,
-      "seller": { "@type": "Organization", "name": "Trend Optik Mersin" }
-    }
+    "image": product.images?.[0] || "/placeholder.png",
+    ...(brandName && { "brand": { "@type": "Brand", "name": brandName } }),
+    "description": product.description || "Trend Optik Mersin premium koleksiyonu.",
   };
 
   const breadcrumbSchema = {
@@ -96,14 +93,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Katalog",
-        "item": "https://trendoptikmersin.com/katalog"
+        "name": brandName,
+        "item": `https://trendoptikmersin.com/marka/${product.brandId}`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": product.name,
-        "item": `https://trendoptikmersin.com/product/${id}`
+        "item": `https://trendoptikmersin.com/product/${p.id}`
       }
     ]
   };
@@ -118,7 +115,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <ProductClientUI product={product} related={related} />
+      <ProductClientUI product={product} related={related} brandName={brandName} />
     </main>
   );
 }

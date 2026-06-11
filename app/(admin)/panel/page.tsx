@@ -13,6 +13,7 @@ import OrderManager from "@/components/admin/OrderManager";
 import VIPCerts from "@/components/admin/VIPCerts";
 import LensRadar from "@/components/admin/LensRadar";
 import TelegramSettings from "@/components/admin/TelegramSettings";
+import BrandManager from "@/components/admin/BrandManager";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("home");
@@ -66,6 +67,7 @@ export default function AdminPanel() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === "home" && <DashboardHome setActiveTab={setActiveTab} />}
+            {activeTab === "brands" && <BrandManager />}
             {activeTab === "products" && <ProductManager />}
             {activeTab === "radar" && <Radar />}
             {activeTab === "orders" && <OrderManager />}

@@ -5,19 +5,33 @@
 // Firestore verilerini çekmek için kullanılmalıdır. 
 // Veriler REST API üzerinden public olarak okunur. Admin SDK veya auth gerektirmez.
 
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+  logoUrl?: string;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
 export interface Product {
   id: string;
   name: string;
-  price: string | number;
-  img: string;
-  category: string;
-  isFeatured?: boolean;
+  brandId: string;
+  model: string;
+  images: string[];
   description?: string;
-  desc?: string;
-  clicks?: number;
-  seoTitle?: string;
-  seoDescription?: string;
-  slug?: string;
+  stock: number;
+  isFeatured?: boolean;
+  status: 'published' | 'draft';
+  source: 'manual';
+  createdAt?: any;
+  updatedAt?: any;
+  // Legacy fields for migration
+  price?: number;
+  img?: string;
+  category?: string;
   brand?: string;
 }
 
@@ -35,20 +49,29 @@ export async function getProductServer(id: string): Promise<Product | null> {
     if (!data.fields) return null;
 
     const fields = data.fields;
+    
+    // Parse images array or fallback to legacy img
+    let images: string[] = [];
+    if (fields.images && fields.images.arrayValue && fields.images.arrayValue.values) {
+      images = fields.images.arrayValue.values.map((v: any) => v.stringValue || "");
+    } else if (fields.img?.stringValue) {
+      images = [fields.img.stringValue];
+    }
+
     return {
       id: data.name.split("/").pop() || id,
       name: fields.name?.stringValue || "",
-      price: fields.price?.stringValue || fields.price?.integerValue || fields.price?.doubleValue || 0,
-      img: fields.img?.stringValue || "",
-      category: fields.category?.stringValue || "",
+      brandId: fields.brandId?.stringValue || fields.brand?.stringValue || "",
+      model: fields.model?.stringValue || "",
+      images,
+      description: fields.description?.stringValue || fields.desc?.stringValue || "",
+      stock: fields.stock?.integerValue ? parseInt(fields.stock.integerValue, 10) : 0,
       isFeatured: fields.isFeatured?.booleanValue || false,
-      description: fields.description?.stringValue || "",
-      desc: fields.desc?.stringValue || "",
-      clicks: fields.clicks?.integerValue || 0,
-      seoTitle: fields.seoTitle?.stringValue || "",
-      seoDescription: fields.seoDescription?.stringValue || "",
-      slug: fields.slug?.stringValue || "",
-      brand: fields.brand?.stringValue || "",
+      status: fields.status?.stringValue === 'draft' ? 'draft' : 'published',
+      source: 'manual',
+      // legacy
+      price: fields.price?.integerValue || fields.price?.doubleValue || 0,
+      category: fields.category?.stringValue || "",
     };
   } catch (error) {
     console.error("Server-side product fetch error:", error);
@@ -70,20 +93,27 @@ export async function getAllProductsServer(): Promise<Product[]> {
     
     return (data.documents || []).map((doc: any) => {
       const fields = doc.fields;
+      
+      let images: string[] = [];
+      if (fields.images && fields.images.arrayValue && fields.images.arrayValue.values) {
+        images = fields.images.arrayValue.values.map((v: any) => v.stringValue || "");
+      } else if (fields.img?.stringValue) {
+        images = [fields.img.stringValue];
+      }
+
       return {
         id: doc.name.split("/").pop() || "",
         name: fields.name?.stringValue || "",
-        price: fields.price?.stringValue || fields.price?.integerValue || fields.price?.doubleValue || 0,
-        img: fields.img?.stringValue || "",
-        category: fields.category?.stringValue || "",
+        brandId: fields.brandId?.stringValue || fields.brand?.stringValue || "",
+        model: fields.model?.stringValue || "",
+        images,
+        description: fields.description?.stringValue || fields.desc?.stringValue || "",
+        stock: fields.stock?.integerValue ? parseInt(fields.stock.integerValue, 10) : 0,
         isFeatured: fields.isFeatured?.booleanValue || false,
-        description: fields.description?.stringValue || "",
-        desc: fields.desc?.stringValue || "",
-        clicks: fields.clicks?.integerValue || 0,
-        seoTitle: fields.seoTitle?.stringValue || "",
-        seoDescription: fields.seoDescription?.stringValue || "",
-        slug: fields.slug?.stringValue || "",
-        brand: fields.brand?.stringValue || "",
+        status: fields.status?.stringValue === 'draft' ? 'draft' : 'published',
+        source: 'manual',
+        price: fields.price?.integerValue || fields.price?.doubleValue || 0,
+        category: fields.category?.stringValue || "",
       };
     });
   } catch (error) {
@@ -92,9 +122,53 @@ export async function getAllProductsServer(): Promise<Product[]> {
   }
 }
 
-export async function getRelatedProductsServer(category: string, excludeId: string, limit: number = 4): Promise<Product[]> {
+export async function getAllBrandsServer(): Promise<Brand[]> {
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  if (!projectId) return [];
+
+  const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/brands?pageSize=1000`;
+
+  try {
+    const res = await fetch(firebaseUrl, { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    
+    const brands = (data.documents || []).map((doc: any) => {
+      const fields = doc.fields;
+      return {
+        id: doc.name.split("/").pop() || "",
+        name: fields.name?.stringValue || "",
+        slug: fields.slug?.stringValue || "",
+        order: fields.order?.integerValue ? parseInt(fields.order.integerValue, 10) : 999,
+        logoUrl: fields.logoUrl?.stringValue || "",
+      };
+    });
+    
+    return brands.sort((a: Brand, b: Brand) => a.order - b.order);
+  } catch (error) {
+    console.error("Server-side brands fetch error:", error);
+    return [];
+  }
+}
+
+export async function getProductsByBrandServer(brandSlug: string): Promise<Product[]> {
+  const brands = await getAllBrandsServer();
+  const brand = brands.find(b => b.slug === brandSlug);
+  
+  const allProducts = await getAllProductsServer();
+  
+  if (!brand) {
+    // Fallback: if no brand doc matches, maybe they are using legacy category field with the slug
+    return allProducts.filter(p => p.status === 'published' && p.category === brandSlug);
+  }
+
+  return allProducts.filter(p => p.status === 'published' && (p.brandId === brand.id || p.brandId === brand.slug || p.brandId === brand.name));
+}
+
+export async function getRelatedProductsServer(brandId: string, excludeId: string, limit: number = 4): Promise<Product[]> {
   const allProducts = await getAllProductsServer();
   return allProducts
-    .filter((p) => p.category === category && p.id !== excludeId)
+    .filter((p) => p.status === 'published' && p.brandId === brandId && p.id !== excludeId)
     .slice(0, limit);
 }

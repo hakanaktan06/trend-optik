@@ -15,6 +15,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
 
   const navItems = [
     { id: "home", label: "Ana Ekran", icon: LayoutGrid },
+    { id: "brands", label: "Markalar", icon: Award },
     { id: "products", label: "Ürün Vitrini", icon: Glasses },
     { id: "radar", label: "Akıllı Radar", icon: Target },
     { id: "orders", label: "Siparişler", icon: Box },

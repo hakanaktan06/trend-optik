@@ -70,11 +70,11 @@ export default function Footer() {
               </h4>
               <nav className="flex flex-col gap-2.5">
                 {[
-                  { label: "Güneş Gözlükleri", href: "/gunes-gozlugu" },
-                  { label: "Numaralı Gözlükler", href: "/numarali-gozluk" },
+                  { label: "Katalog", href: "/katalog" },
+                  { label: "Markalar", href: "/#markalar" },
                   { label: "Lens Çözümleri", href: "/lens" },
-                  { label: "Göz Muayenesi", href: "/#faq" },
-                  { label: "Kampanyalar", href: "/katalog" },
+                  { label: "Sipariş Takibi", href: "/#takip" },
+                  { label: "İletişim", href: "/#iletisim" },
                 ].map((link) => (
                   <a
                     key={link.label}

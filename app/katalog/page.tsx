@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getAllProductsServer } from "@/lib/firestore-server";
+import { getAllProductsServer, getAllBrandsServer } from "@/lib/firestore-server";
 import CatalogClient from "@/components/product/CatalogClient";
 
 export const revalidate = 3600;
@@ -14,10 +14,12 @@ export const metadata: Metadata = {
 
 export default async function CatalogPage() {
   const products = await getAllProductsServer();
+  const publishedProducts = products.filter(p => p.status === 'published');
+  const brands = await getAllBrandsServer();
 
   return (
     <main className="min-h-screen bg-[#050505] pt-32 pb-20">
-      <CatalogClient initialProducts={products} />
+      <CatalogClient initialProducts={publishedProducts} brands={brands} />
     </main>
   );
 }

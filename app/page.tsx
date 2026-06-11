@@ -10,7 +10,7 @@ import OrderLookup from "@/components/home/OrderLookup";
 import ParallaxBanner from "@/components/home/ParallaxBanner";
 import FAQSection from "@/components/home/FAQSection";
 import { faqs } from "@/lib/constants";
-import { getAllProductsServer } from "@/lib/firestore-server";
+import { getAllProductsServer, getAllBrandsServer } from "@/lib/firestore-server";
 
 export const metadata: Metadata = {
   title: {
@@ -21,14 +21,14 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://trendoptikmersin.com" },
 };
 
-
 async function getFeaturedProducts() {
   const allProducts = await getAllProductsServer();
-  return allProducts.filter((p) => p.isFeatured === true).slice(0, 8);
+  return allProducts.filter((p) => p.isFeatured === true && p.status === 'published').slice(0, 16);
 }
 
 export default async function Home() {
   const featuredProducts = await getFeaturedProducts();
+  const brands = await getAllBrandsServer();
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -52,38 +52,35 @@ export default async function Home() {
       {/* 1. Hero — Apple Style Canvas Scroll Animasyon */}
       <HeroSection />
 
-      {/* 2. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
+      {/* 2. Vitrin Ürünleri — Products Foregrounded */}
+      <ProductsShowcase initialProducts={featuredProducts} brands={brands} />
+
+      {/* 3. Marka Vitrini — Shop by Brand Tiles */}
+      <BrandShowcase brands={brands} />
+
+      {/* 4. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
       <BentoGrid />
 
-      {/* 3. Lens Teknolojisi — Before/After Slider */}
+      {/* 5. Lens Teknolojisi — Before/After Slider */}
       <LensTech />
 
-      {/* 4. Lifestyle Parallax Banner */}
+      {/* 6. Lifestyle Parallax Banner */}
       <ParallaxBanner />
 
-      {/* 5. Vitrin Ürünleri — Panelden Yıldızlananlar */}
-      <ProductsShowcase initialProducts={featuredProducts} />
-
-      {/* 6. VIP Özel Sunum Concierge — Glassmorphism Anket */}
+      {/* 7. VIP Özel Sunum Concierge — Glassmorphism Anket */}
       <VIPConcierge />
 
-      {/* Marka Vitrini — Infinite Carousel */}
-      <BrandShowcase />
-
-      {/* 6. Sipariş Sorgulama — Müşteri Takip Sistemi */}
+      {/* 8. Sipariş Sorgulama — Müşteri Takip Sistemi */}
       <OrderLookup />
 
-      {/* 7. FAQ — Sıkça Sorulan Sorular */}
+      {/* 9. FAQ — Sıkça Sorulan Sorular */}
       <FAQSection />
 
       {/* Altın Çizgi Ayırıcı */}
       <div className="divider-gold" />
 
-      {/* 8. CTA — WhatsApp İletişim */}
+      {/* 10. CTA — WhatsApp İletişim */}
       <CTASection />
-      
-      {/* Build Marker - Can be removed later */}
-      <div className="hidden">v1.2.0-sync-stable</div>
     </>
   );
 }
