@@ -30,13 +30,7 @@ export async function GET() {
     `;
 
     const securityRules = getSecurityRules(app);
-    const ruleset = await securityRules.createRuleset({
-      source: {
-        files: [{ name: 'firestore.rules', content: source }]
-      }
-    });
-
-    await securityRules.releaseFirestoreRuleset(ruleset.name);
+    await securityRules.releaseFirestoreRulesetFromSource(source);
 
     return NextResponse.json({ success: true, message: "Firestore kuralları başarıyla güncellendi!" });
   } catch (error: any) {
