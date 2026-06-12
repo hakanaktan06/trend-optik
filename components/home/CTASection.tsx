@@ -67,9 +67,9 @@ export default function CTASection() {
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.5, duration: 1 }}
-            className="flex items-center justify-center gap-6 mt-12 md:mt-14"
+            className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-12 md:mt-14 max-w-3xl mx-auto"
           >
-            {["Orijinal Ürün Garantisi", "Ücretsiz Kargo", "Kolay İade"].map(
+            {["Orijinal Ürün Garantisi", "15+ Yıl Tecrübe", "Uzman Montaj & Ayar", "Mersin Yenişehir"].map(
               (badge) => (
                 <span
                   key={badge}

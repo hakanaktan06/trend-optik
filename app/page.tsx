@@ -8,6 +8,7 @@ import ProductsShowcase from "@/components/home/ProductsShowcase";
 import OrderLookup from "@/components/home/OrderLookup";
 import ParallaxBanner from "@/components/home/ParallaxBanner";
 import FAQSection from "@/components/home/FAQSection";
+import BrandShowcase from "@/components/home/BrandShowcase";
 import { faqs } from "@/lib/constants";
 import { getAllProductsServer, getAllBrandsServer } from "@/lib/firestore-server";
 
@@ -61,7 +62,10 @@ export default async function Home() {
       {/* 2. Vitrin Ürünleri — Products Foregrounded */}
       <ProductsShowcase initialProducts={showcaseProducts} brands={brands} />
 
-      {/* 3. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
+      {/* 3. Markalar Tile Grid */}
+      <BrandShowcase brands={brands} />
+
+      {/* 4. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
       <BentoGrid />
 
       {/* 5. Lens Teknolojisi — Before/After Slider */}
@@ -70,13 +74,13 @@ export default async function Home() {
       {/* 6. Lifestyle Parallax Banner */}
       <ParallaxBanner />
 
-      {/* 7. VIP Özel Sunum Concierge — Glassmorphism Anket */}
+      {/* 8. VIP Özel Sunum Concierge — Glassmorphism Anket */}
       <VIPConcierge />
 
-      {/* 8. Sipariş Sorgulama — Müşteri Takip Sistemi */}
+      {/* 9. Sipariş Sorgulama — Müşteri Takip Sistemi */}
       <OrderLookup />
 
-      {/* 9. FAQ — Sıkça Sorulan Sorular */}
+      {/* 10. FAQ — Sıkça Sorulan Sorular */}
       <FAQSection />
 
       {/* Altın Çizgi Ayırıcı */}

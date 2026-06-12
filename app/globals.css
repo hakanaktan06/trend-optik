@@ -48,6 +48,11 @@
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+
+  /* Focus Reveal Signature */
+  --blur-initial: 10px;
+  --blur-duration: 1.2s;
 
   /* Spacing */
   --section-padding: clamp(4rem, 10vh, 8rem);
@@ -312,6 +317,33 @@ body {
   pointer-events: none;
   opacity: 0.015;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* --- Focus Reveal Animation (Netleşme) --- */
+@keyframes focusReveal {
+  from {
+    opacity: 0;
+    filter: blur(var(--blur-initial));
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+}
+
+.focus-reveal {
+  animation: focusReveal var(--blur-duration) var(--ease-out-expo) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-reveal {
+    animation: none;
+    filter: none;
+    transform: none;
+    opacity: 1;
+  }
 }
 
 /* --- Hero Section Specific --- */

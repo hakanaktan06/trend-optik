@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, MapPin } from "lucide-react";
+import { Menu, X, Phone, MapPin, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const initialNavLinks = [
@@ -72,8 +72,8 @@ export default function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
           isScrolled
-            ? "py-3 bg-[#050505]/80 backdrop-blur-2xl border-b border-white/[0.06]"
-            : "py-5 bg-transparent"
+            ? "py-2 bg-[#050505]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-sm"
+            : "py-4 bg-transparent"
         )}
       >
         <div className="container-premium flex items-center justify-between">
@@ -118,18 +118,29 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            className="lg:hidden relative z-50 w-10 h-10 flex items-center justify-center rounded-xl glass"
-            aria-label="Menü"
-          >
-            {isMobileOpen ? (
-              <X size={20} className="text-white" />
-            ) : (
-              <Menu size={20} className="text-white" />
-            )}
-          </button>
+          {/* Mobile Actions */}
+          <div className="lg:hidden flex items-center gap-2 relative z-50">
+            <a
+              href="https://wa.me/905312075818?text=Merhaba,%20bilgi%20almak%20istiyorum."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/20"
+              aria-label="WhatsApp"
+            >
+              <MessageCircle size={18} />
+            </a>
+            <button
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl glass"
+              aria-label="Menü"
+            >
+              {isMobileOpen ? (
+                <X size={20} className="text-white" />
+              ) : (
+                <Menu size={20} className="text-white" />
+              )}
+            </button>
+          </div>
         </div>
       </nav>
 

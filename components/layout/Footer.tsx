@@ -145,8 +145,23 @@ export default function Footer() {
                   <span className="truncate">WhatsApp ile Yazın</span>
                 </a>
                 <div className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-white/25 font-light">
-                  <MapPin size={14} className="text-[var(--accent-gold)]/50 mt-0.5 shrink-0" />
-                  <span className="truncate">Mersin, Türkiye</span>
+                  <MapPin size={14} className="text-[var(--accent-gold)]/50 mt-1 shrink-0" />
+                  <div className="flex flex-col gap-2">
+                    <span className="leading-relaxed">Çiftlikköy Mah., Mimar Sinan Cad., Paradise Homes Sitesi, B-Blok No: 24/BB, Yenişehir / Mersin</span>
+                    <a 
+                      href="https://maps.google.com/?q=Trend+Optik+Mersin+Yenisehir" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[var(--accent-gold)] hover:text-white transition-colors uppercase tracking-widest text-[10px] font-bold"
+                    >
+                      Yol Tarifi Al →
+                    </a>
+                  </div>
+                </div>
+                <div className="mt-2 text-[11px] text-white/20 font-mono">
+                  Pzt-Cum: 08:30-18:30<br/>
+                  Cmt: 08:30-17:30<br/>
+                  Paz: Kapalı
                 </div>
               </div>
             </div>
@@ -159,12 +174,12 @@ export default function Footer() {
             © {new Date().getFullYear()} Trend Optik. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-[11px] text-white/15 hover:text-white/30 transition-colors duration-300 font-light">
+            <span className="text-[11px] text-white/10 font-light">
               Gizlilik Politikası
-            </a>
-            <a href="#" className="text-[11px] text-white/15 hover:text-white/30 transition-colors duration-300 font-light">
+            </span>
+            <span className="text-[11px] text-white/10 font-light">
               Kullanım Koşulları
-            </a>
+            </span>
           </div>
         </div>
       </div>

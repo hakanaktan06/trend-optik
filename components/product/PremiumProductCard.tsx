@@ -12,7 +12,7 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
   return (
     <div className="group flex flex-col glass p-2 sm:p-3 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 hover:border-[var(--accent-gold)]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] transition-all duration-700 hover:bg-white/[0.04] h-full">
       {/* Image Wrapper */}
-      <Link href={`/product/${product.id}`} className="relative aspect-[4/3] w-full rounded-xl sm:rounded-[2rem] overflow-hidden mb-3 sm:mb-6 bg-white/5 flex items-center justify-center">
+      <Link href={`/product/${product.id}`} className="relative aspect-[4/5] w-full rounded-xl sm:rounded-[2rem] overflow-hidden mb-3 sm:mb-6 bg-[#241F18] flex items-center justify-center">
         <div className="absolute inset-0 bg-black/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500 z-10 pointer-events-none"></div>
         <Image 
           src={primaryImage} 
@@ -42,9 +42,9 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
 
       {/* Content */}
       <div className="px-1 sm:px-4 pb-2 sm:pb-4 flex flex-col flex-grow">
-        <span className="text-[var(--accent-gold)] text-[9px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-1 sm:mb-2 font-bold block">{brandName}</span>
-        <h3 className="text-sm sm:text-xl font-bold text-white mb-0.5 sm:mb-1 leading-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">{product.name}</h3>
-        <p className="text-[10px] sm:text-xs text-white/50 mb-3 sm:mb-4 line-clamp-1">{product.model}</p>
+        <span className="text-[var(--accent-gold)] text-[9px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-1 sm:mb-2 font-mono font-bold block">{brandName}</span>
+        <h3 className="text-sm sm:text-xl font-display font-bold text-white mb-0.5 sm:mb-1 leading-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">{product.name}</h3>
+        <p className="text-[10px] sm:text-xs text-[#9AA7AE] font-mono mb-3 sm:mb-4 line-clamp-1 tracking-wider">{product.model}</p>
         
         <div className="mt-auto flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5">
           <Link 

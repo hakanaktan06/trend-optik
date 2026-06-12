@@ -80,33 +80,59 @@ export default function ProductsShowcase({ initialProducts = [], brands = [] }: 
         </motion.div>
 
         {filteredProducts.length > 0 ? (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, staggerChildren: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8"
-          >
-            {filteredProducts.map((product, idx) => (
-              <motion.div 
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, staggerChildren: 0.1 }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8"
+            >
+              {filteredProducts.map((product, idx) => (
+                <motion.div 
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="focus-reveal"
+                >
+                  <PremiumProductCard 
+                    product={product} 
+                    brandName={getBrandName(product.brandId)} 
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mt-16 text-center"
+            >
+              <Link
+                href="/katalog"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full font-medium transition-all hover:-translate-y-1"
               >
-                <PremiumProductCard 
-                  product={product} 
-                  brandName={getBrandName(product.brandId)} 
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+                Tüm Ürünler <ArrowRight size={18} />
+              </Link>
+            </motion.div>
+          </>
         ) : (
-          <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem] mx-6">
-            <p className="text-white/20 italic font-light tracking-widest text-xs uppercase">
-              Şu an vitrinde ürün bulunmuyor.
+          <div className="text-center py-20 px-6 border border-dashed border-white/10 rounded-3xl mx-auto max-w-2xl glass">
+            <p className="text-white/40 font-light mb-6">
+              Vitrin yakında yeni modellerle dolacak — WhatsApp'tan sorabilirsiniz.
             </p>
+            <a
+              href="https://wa.me/905312075818?text=Merhaba,%20yeni%20modeller%20hakkında%20bilgi%20almak%20istiyorum."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-full transition-transform hover:scale-105"
+            >
+              WhatsApp'tan Sorun
+            </a>
           </div>
         )}
       </div>

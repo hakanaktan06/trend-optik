@@ -95,13 +95,13 @@ export default function ProductClientUI({ product, related, brandName }: Product
           className="lg:col-span-6 flex flex-col"
         >
           <div className="mb-8">
-            <span className="text-[var(--accent-gold)] text-xs tracking-[0.4em] uppercase mb-4 block font-bold">
+            <span className="text-[var(--accent-gold)] text-xs tracking-[0.4em] uppercase mb-4 block font-mono font-bold">
               {brandName}
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair text-white mb-4 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-white mb-4 leading-tight">
               {product.name}
             </h1>
-            <div className="text-lg text-white/50 font-sans tracking-wider mb-6">
+            <div className="text-lg text-white/50 tracking-wider mb-6 font-mono">
               Model: <span className="text-white font-medium">{product.model}</span>
             </div>
             
@@ -180,7 +180,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
       {related.length > 0 && (
         <div className="mt-32 border-t border-white/10 pt-20">
           <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4 text-center md:text-left">
-            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Benzer <span className="text-white/20 italic font-playfair">Modeller</span></h3>
+            <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Benzer <span className="text-white/20 italic font-display">Modeller</span></h3>
             <Link href={`/marka/${product.brandId}`} className="text-xs text-[var(--accent-gold)] font-bold uppercase tracking-widest hover:underline flex items-center gap-2">
               Tüm {brandName} Modelleri <span>&rarr;</span>
             </Link>
