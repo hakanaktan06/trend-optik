@@ -41,7 +41,7 @@ export default function Footer() {
 
   if (pathname?.startsWith("/panel")) return null;
   return (
-    <footer className="relative bg-[var(--background)] border-t border-white/[0.04]">
+    <footer className="relative bg-[var(--background)] border-t border-white/[0.04] pb-24 md:pb-0">
       {/* Gold Divider */}
       <div className="divider-gold" />
 

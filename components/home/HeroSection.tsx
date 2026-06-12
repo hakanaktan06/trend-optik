@@ -29,7 +29,7 @@ export default function HeroSection() {
     <section
       id="hero"
       ref={containerRef}
-      className="relative h-[85svh] w-full overflow-hidden bg-[var(--background)]"
+      className="relative h-[100svh] w-full overflow-hidden bg-[var(--background)]"
     >
       {/* Parallax Video Background */}
       <motion.div 
@@ -41,7 +41,6 @@ export default function HeroSection() {
           autoPlay
           muted
           playsInline
-          poster="/hero-bg.png"
           onEnded={handleVideoEnded}
           className="w-full h-full object-cover"
         >
@@ -110,7 +109,7 @@ export default function HeroSection() {
             className="group relative px-8 py-3.5 sm:py-4 bg-white text-black text-sm md:text-base font-semibold rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-light)] to-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <span className="relative z-10 group-hover:text-white transition-colors duration-300">Ürünleri Gör</span>
+            <span className="relative z-10 group-hover:text-white transition-colors duration-300">Koleksiyonu Keşfet</span>
             <span className="relative z-10 inline-block transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white">→</span>
           </a>
         </motion.div>

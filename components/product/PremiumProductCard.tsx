@@ -49,7 +49,7 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
         <div className="mt-auto flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5">
           <Link 
             href={`/product/${product.id}`}
-            className="flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center transition-all"
+            className="flex-1 py-3 min-h-[44px] flex items-center justify-center rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center transition-all"
           >
             İncele
           </Link>
@@ -62,7 +62,7 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
               e.stopPropagation();
               import("@/lib/analytics").then((m) => m.trackWhatsAppLead(product.name));
             }}
-            className="flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] text-black text-[10px] sm:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)]"
+            className="flex-1 py-3 min-h-[44px] rounded-lg sm:rounded-xl bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] text-black text-[10px] sm:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)]"
           >
             Bilgi Al
           </a>

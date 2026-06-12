@@ -124,14 +124,14 @@ export default function Navbar() {
               href="https://wa.me/905312075818?text=Merhaba,%20bilgi%20almak%20istiyorum."
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/20"
+              className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/20"
               aria-label="WhatsApp"
             >
               <MessageCircle size={18} />
             </a>
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl glass"
+              className="w-11 h-11 flex items-center justify-center rounded-xl glass"
               aria-label="Menü"
             >
               {isMobileOpen ? (
