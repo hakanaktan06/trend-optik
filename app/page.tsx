@@ -21,12 +21,19 @@ export const metadata: Metadata = {
 };
 
 async function getFeaturedProducts() {
-  const allProducts = await getAllProductsServer();
-  return allProducts.filter((p) => p.isFeatured === true && p.status === 'published').slice(0, 16);
+  const products = await getAllProductsServer();
+  const showcaseProducts = products
+    .filter((p) => p.status === "published")
+    .sort((a, b) => {
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+  return showcaseProducts;
 }
 
 export default async function Home() {
-  const featuredProducts = await getFeaturedProducts();
+  const showcaseProducts = await getFeaturedProducts();
   const brands = await getAllBrandsServer();
 
   const faqSchema = {
@@ -52,7 +59,7 @@ export default async function Home() {
       <HeroSection />
 
       {/* 2. Vitrin Ürünleri — Products Foregrounded */}
-      <ProductsShowcase initialProducts={featuredProducts} brands={brands} />
+      <ProductsShowcase initialProducts={showcaseProducts} brands={brands} />
 
       {/* 3. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
       <BentoGrid />

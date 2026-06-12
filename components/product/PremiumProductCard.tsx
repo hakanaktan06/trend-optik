@@ -6,13 +6,13 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
   const isOutOfStock = product.stock <= 0;
   const primaryImage = product.images?.[0] || "/placeholder.png";
 
-  const waMessage = encodeURIComponent(`Merhaba, "${product.name} ${product.model}" ürünü hakkında bilgi almak istiyorum.\n\nGörsel: ${primaryImage}\nÜrün Linki: https://trendoptikmersin.com/product/${product.id}`);
+  const waMessage = encodeURIComponent(`Merhaba, "${product.name} ${product.model}" ürünü hakkında bilgi almak istiyorum.\n\nÜrün Linki: https://trendoptikmersin.com/product/${product.id}`);
   const waLink = `https://wa.me/905312075818?text=${waMessage}`;
 
   return (
-    <div className="group flex flex-col glass p-3 rounded-[2.5rem] border border-white/5 hover:border-[var(--accent-gold)]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] transition-all duration-700 hover:bg-white/[0.04]">
+    <div className="group flex flex-col glass p-2 sm:p-3 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 hover:border-[var(--accent-gold)]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] transition-all duration-700 hover:bg-white/[0.04] h-full">
       {/* Image Wrapper */}
-      <Link href={`/product/${product.id}`} className="relative aspect-[4/3] w-full rounded-[2rem] overflow-hidden mb-6 bg-white/5 flex items-center justify-center">
+      <Link href={`/product/${product.id}`} className="relative aspect-[4/3] w-full rounded-xl sm:rounded-[2rem] overflow-hidden mb-3 sm:mb-6 bg-white/5 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500 z-10 pointer-events-none"></div>
         <Image 
           src={primaryImage} 
@@ -41,31 +41,28 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
       </Link>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 px-4 pb-2">
-        <div className="text-[10px] uppercase tracking-[0.3em] text-white/40 group-hover:text-[var(--accent-gold)] transition-colors duration-500 font-bold mb-3">
-          {brandName}
-        </div>
+      <div className="px-1 sm:px-4 pb-2 sm:pb-4 flex flex-col flex-grow">
+        <span className="text-[var(--accent-gold)] text-[9px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-1 sm:mb-2 font-bold block">{brandName}</span>
+        <h3 className="text-sm sm:text-xl font-bold text-white mb-0.5 sm:mb-1 leading-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">{product.name}</h3>
+        <p className="text-[10px] sm:text-xs text-white/50 mb-3 sm:mb-4 line-clamp-1">{product.model}</p>
         
-        <Link href={`/product/${product.id}`} className="block mb-6 flex-1">
-          <h3 className="text-2xl font-light tracking-tight text-white group-hover:text-[var(--accent-gold)] transition-colors duration-500">
-            {product.name}
-          </h3>
-          {product.model && <p className="text-sm font-light text-white/30 mt-2">{product.model}</p>}
-        </Link>
-
-        {/* Footer / Actions */}
-        <div className="mt-auto flex items-center gap-3">
+        <div className="mt-auto flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5">
           <Link 
             href={`/product/${product.id}`}
-            className="flex-1 py-3.5 text-center text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors border border-white/5"
+            className="flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center transition-all"
           >
             İncele
           </Link>
+          <div className="w-2 sm:w-3"></div>
           <a 
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-3.5 text-center text-[11px] font-extrabold tracking-[0.2em] uppercase text-black bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] shadow-[0_0_20px_rgba(212,175,55,0.3)] rounded-2xl transition-all hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)]"
+            onClick={(e) => {
+              e.stopPropagation();
+              import("@/lib/analytics").then((m) => m.trackWhatsAppLead(product.name));
+            }}
+            className="flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] text-black text-[10px] sm:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)]"
           >
             Bilgi Al
           </a>

@@ -37,7 +37,7 @@ export default function ProductsShowcase({ initialProducts = [], brands = [] }: 
             <span className="text-[var(--accent-gold)] text-[11px] tracking-[0.5em] uppercase mb-6 block font-bold">
               Trend Optik Exclusive
             </span>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-light text-white tracking-tighter">
+            <h2 className="text-3xl md:text-5xl lg:text-7xl font-bold tracking-tighter text-white">
               Vitrin <span className="font-playfair italic text-white/50">Koleksiyonu</span>
             </h2>
             <p className="text-white/40 mt-6 max-w-2xl mx-auto font-light leading-relaxed">
@@ -85,7 +85,7 @@ export default function ProductsShowcase({ initialProducts = [], brands = [] }: 
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, staggerChildren: 0.1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8"
           >
             {filteredProducts.map((product, idx) => (
               <motion.div 

@@ -357,29 +357,26 @@ export default function ProductManager() {
 
   const handleAddStock = (p: Product) => {
     toast((t) => (
-      <div className="flex flex-col gap-3">
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const qty = parseInt(fd.get('qty') as string, 10);
+        if (isNaN(qty) || qty <= 0) return;
+        toast.dismiss(t.id);
+        const newStock = p.stock + qty;
+        try {
+          await updateDoc(doc(db, "products", p.id), { stock: newStock });
+          setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
+          toast.success(`${qty} adet stok eklendi.`);
+        } catch (e) { toast.error("Hata oluştu."); }
+      }} className="flex flex-col gap-3">
         <span className="font-bold text-sm text-white">Kaç adet stok eklenecek?</span>
         <div className="flex gap-2">
-          {[1, 2, 5, 10].map(qty => (
-            <button 
-              key={qty}
-              onClick={async () => { 
-                toast.dismiss(t.id); 
-                const newStock = p.stock + qty;
-                try {
-                  await updateDoc(doc(db, "products", p.id), { stock: newStock });
-                  setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
-                  toast.success(`${qty} adet stok eklendi.`);
-                } catch (e) { toast.error("Hata oluştu."); }
-              }} 
-              className="px-3 py-1 bg-white/10 text-white rounded hover:bg-white/20"
-            >
-              +{qty}
-            </button>
-          ))}
-          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-red-500/20 text-red-400 rounded">İptal</button>
+          <input type="number" name="qty" min="1" defaultValue="1" className="w-20 px-2 py-1 bg-white/10 text-white rounded outline-none border border-white/20" autoFocus />
+          <button type="submit" className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded font-bold">Ekle</button>
+          <button type="button" onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-red-500/20 text-red-400 rounded font-bold">İptal</button>
         </div>
-      </div>
+      </form>
     ), { duration: Infinity, id: `add-stock-${p.id}` });
   };
 
