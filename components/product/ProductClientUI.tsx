@@ -19,7 +19,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
   const images = product.images?.length > 0 ? product.images : ["/placeholder.png"];
   
   const isOutOfStock = product.stock <= 0;
-  const whatsappLink = `https://wa.me/905312075818?text=Merhaba, ${encodeURIComponent(`"${brandName} ${product.model} - ${product.name}"`)} modeli hakkında bilgi almak istiyorum. (https://trendoptikmersin.com/product/${product.id})`;
+  const whatsappLink = `https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba, "${product.name} ${product.model}" ürünü hakkında bilgi almak istiyorum.\n\nGörsel: ${images[activeImage] || images[0] || ''}\nÜrün Linki: https://trendoptikmersin.com/product/${product.id}`)}`;
 
   return (
     <div className="container-premium relative">

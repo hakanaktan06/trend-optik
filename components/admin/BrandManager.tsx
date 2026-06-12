@@ -26,6 +26,7 @@ export default function BrandManager() {
   const [bLogoUrl, setBLogoUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
 
   useEffect(() => {
     loadBrands();
@@ -74,7 +75,7 @@ export default function BrandManager() {
 
     setIsUploading(true);
     try {
-      const signRes = await fetch("/api/cloudinary-sign", {
+      const signRes = await fetch("/api/upload-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folder: "trendoptik/brands" })
@@ -141,6 +142,36 @@ export default function BrandManager() {
     if (confirm("Marka kalıcı olarak silinecek, onaylıyor musunuz? Ürünleri etkileyebilir.")) {
       await deleteDoc(doc(db, "brands", id));
       loadBrands();
+    }
+  };
+
+  const seedDefaultBrands = async () => {
+    setIsSeeding(true);
+    const defaultBrands = [
+      "Ray-Ban", "Oakley", "Persol", "Prada", "Versace", "Vogue Eyewear",
+      "Dolce & Gabbana", "Burberry", "Michael Kors", "Tiffany & Co.",
+      "Bvlgari", "Chanel", "Giorgio Armani", "Emporio Armani",
+      "Ralph Lauren", "Miu Miu", "Carrera", "Gucci", "Tom Ford"
+    ];
+    
+    try {
+      let order = 1;
+      for (const b of defaultBrands) {
+        await addDoc(collection(db, "brands"), {
+          name: b,
+          slug: generateSlug(b),
+          order: order++,
+          logoUrl: "",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+      toast.success("Varsayılan markalar eklendi.");
+      loadBrands();
+    } catch (e) {
+      toast.error("Markalar eklenirken hata oluştu.");
+    } finally {
+      setIsSeeding(false);
     }
   };
 
@@ -224,7 +255,19 @@ export default function BrandManager() {
                   </thead>
                   <tbody>
                     {brands.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center p-8 text-white/30">Henüz marka eklenmemiş.</td></tr>
+                      <tr>
+                        <td colSpan={5} className="text-center p-8 text-white/30">
+                          <p className="mb-4">Henüz marka eklenmemiş.</p>
+                          <button 
+                            onClick={seedDefaultBrands} 
+                            disabled={isSeeding}
+                            className="px-6 py-2 bg-[var(--accent-gold)]/20 hover:bg-[var(--accent-gold)]/40 text-[var(--accent-gold)] rounded-xl transition-colors inline-flex items-center gap-2"
+                          >
+                            {isSeeding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                            Varsayılan Markaları (19 adet) Yükle
+                          </button>
+                        </td>
+                      </tr>
                     ) : (
                       brands.map((b) => (
                         <tr key={b.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, ListFilter, Star, Trash2, Pencil, Loader2, Sparkles, Glasses, Minus, PlusCircle } from "lucide-react";
+import { Plus, ListFilter, Star, Trash2, Pencil, Loader2, Glasses, Minus, PlusCircle, Copy, GripVertical, Image as ImageIcon } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface Brand {
@@ -22,8 +22,7 @@ interface Product {
   isFeatured: boolean;
   status: 'published' | 'draft';
   source: 'manual';
-  // legacy
-  price?: any;
+  type?: 'kadin' | 'erkek' | 'cocuk' | 'gunes' | 'optik' | 'unisex' | null;
 }
 
 export default function ProductManager() {
@@ -35,16 +34,21 @@ export default function ProductManager() {
   // Form State
   const [editId, setEditId] = useState<string | null>(null);
   const [pName, setPName] = useState("");
-  const [pBrandId, setPBrandId] = useState("");
+  const [pBrandName, setPBrandName] = useState(""); // Typed brand name
   const [pModel, setPModel] = useState("");
   const [pImages, setPImages] = useState<string[]>([]);
   const [pDesc, setPDesc] = useState("");
   const [pStock, setPStock] = useState<number>(0);
   const [pIsFeatured, setPIsFeatured] = useState(false);
   const [pStatus, setPStatus] = useState<'published'|'draft'>('published');
+  const [pType, setPType] = useState<Product['type']>('' as any);
   
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Rate-limiting for toasts
+  const lastActionTime = useRef<number>(0);
 
   useEffect(() => {
     loadBrands();
@@ -91,17 +95,23 @@ export default function ProductManager() {
     }
   };
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
     const uploadedUrls: string[] = [];
+    const loadingToastId = toast.loading("Görseller yükleniyor...");
 
     try {
-      // Get Cloudinary cloud name from env/config if possible, but we can't reliably read process.env on client unless NEXT_PUBLIC.
-      // So we fetch sign config from our route which can also return cloud name.
-      const signRes = await fetch("/api/cloudinary-sign", {
+      const signRes = await fetch("/api/upload-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folder: "trendoptik/products" })
@@ -109,16 +119,13 @@ export default function ProductManager() {
       const signData = await signRes.json();
       if (signData.error) throw new Error(signData.error);
 
-      // Note: In a real app we'd fetch CLOUD_NAME from a NEXT_PUBLIC var, but let's assume unsigned upload is easier 
-      // or we just need the cloud name. Wait, let's just use the signData to upload.
-      // Cloudinary API requires the cloud name. I will assume NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is available.
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dsxjq1kxx"; // fallback to a default if not set, or prompt to set it.
+      const cloudName = signData.cloudName;
       
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || "");
+        formData.append("api_key", signData.apiKey);
         formData.append("timestamp", signData.timestamp);
         formData.append("signature", signData.signature);
         formData.append("folder", signData.folder);
@@ -132,50 +139,87 @@ export default function ProductManager() {
         if (uploadData.secure_url) {
           uploadedUrls.push(uploadData.secure_url);
         } else {
-          // If signed fails (maybe API key not public), fallback to unsigned if an upload preset exists. 
-          // For now, if we can't upload via signed without public key, let's rely on standard unsigned if user set it up, or show an error.
-          throw new Error(uploadData.error?.message || "Upload failed");
+          throw new Error(uploadData.error?.message || "Yükleme başarısız");
         }
       }
 
-      setPImages([...pImages, ...uploadedUrls]);
-      toast.success("Görseller yüklendi.");
+      setPImages((prev) => [...prev, ...uploadedUrls]);
+      toast.success("Görseller yüklendi.", { id: loadingToastId });
     } catch (error: any) {
       console.error(error);
-      toast.error(`Görsel yüklenirken hata oluştu: ${error.message}`);
+      toast.error(`Hata: ${error.message}`, { id: loadingToastId });
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   const removeImage = (index: number) => {
+    setPImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Drag to reorder images
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIdx: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === targetIdx) return;
+    
     const newImages = [...pImages];
-    newImages.splice(index, 1);
+    const item = newImages.splice(draggedIdx, 1)[0];
+    newImages.splice(targetIdx, 0, item);
     setPImages(newImages);
+    setDraggedIdx(null);
   };
 
   const resetForm = () => {
     setEditId(null);
     setPName("");
-    setPBrandId("");
+    setPBrandName("");
     setPModel("");
     setPImages([]);
     setPDesc("");
     setPStock(0);
     setPIsFeatured(false);
     setPStatus("published");
+    setPType('' as any);
   };
 
   const handleSave = async () => {
-    if (!pName || !pBrandId || pImages.length === 0) {
-      toast.error("Ürün Adı, Marka ve en az 1 görsel zorunludur.");
+    if (!pName || !pBrandName || pImages.length === 0) {
+      toast.error("Ürün Adı, Marka ve en az 1 görsel zorunludur.", { id: 'validation-err' });
       return;
     }
     setIsSaving(true);
+    const saveToastId = toast.loading("Kaydediliyor...");
     try {
-      const payload = {
+      // Auto-create brand if it doesn't exist
+      let finalBrandId = pBrandName;
+      const existingBrand = brands.find(b => b.name.toLowerCase() === pBrandName.trim().toLowerCase());
+      if (existingBrand) {
+        finalBrandId = existingBrand.id;
+      } else {
+        // Create brand
+        const newBrandDoc = await addDoc(collection(db, "brands"), {
+          name: pBrandName.trim(),
+          slug: generateSlug(pBrandName.trim()),
+          order: 999,
+          logoUrl: "",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        finalBrandId = newBrandDoc.id;
+        loadBrands(); // refresh brands
+      }
+
+      const payload: any = {
         name: pName, 
-        brandId: pBrandId, 
+        brandId: finalBrandId, 
         model: pModel, 
         images: pImages,
         description: pDesc, 
@@ -185,6 +229,12 @@ export default function ProductManager() {
         source: 'manual',
         updatedAt: serverTimestamp()
       };
+      
+      if (pType && pType !== ('' as any)) {
+        payload.type = pType;
+      } else {
+        payload.type = null;
+      }
 
       if (editId) {
         await updateDoc(doc(db, "products", editId), payload);
@@ -196,9 +246,9 @@ export default function ProductManager() {
       }
       resetForm();
       loadProducts();
-      toast.success(editId ? "Ürün güncellendi." : "Yeni ürün eklendi.");
+      toast.success(editId ? "Ürün güncellendi." : "Yeni ürün eklendi.", { id: saveToastId });
     } catch (e) {
-      toast.error("Hata oluştu.");
+      toast.error("Hata oluştu.", { id: saveToastId });
     } finally {
       setIsSaving(false);
     }
@@ -207,31 +257,49 @@ export default function ProductManager() {
   const handleDelete = async (id: string) => {
     if (confirm("Kalıcı olarak silinecek, onaylıyor musunuz?")) {
       await deleteDoc(doc(db, "products", id));
+      toast.success("Ürün silindi.");
       loadProducts();
     }
-  };
-
-  const toggleFeatured = async (id: string, current: boolean) => {
-    await updateDoc(doc(db, "products", id), { isFeatured: !current });
-    loadProducts();
   };
 
   const handleEdit = (p: Product) => {
     setEditId(p.id);
     setPName(p.name);
-    setPBrandId(p.brandId);
+    const bName = brands.find(b => b.id === p.brandId)?.name || p.brandId;
+    setPBrandName(bName);
     setPModel(p.model || "");
     setPImages(p.images || []);
     setPDesc(p.description || "");
     setPStock(p.stock || 0);
     setPIsFeatured(p.isFeatured || false);
     setPStatus(p.status || 'published');
+    setPType(p.type || '' as any);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCopy = (p: Product) => {
+    resetForm();
+    setPName(p.name + " (Kopya)");
+    const bName = brands.find(b => b.id === p.brandId)?.name || p.brandId;
+    setPBrandName(bName);
+    setPModel(p.model || "");
+    setPImages(p.images || []);
+    setPDesc(p.description || "");
+    setPStock(0);
+    setPIsFeatured(false);
+    setPStatus('draft');
+    setPType(p.type || '' as any);
+    toast.success("Ürün bilgileri kopyalandı.", { id: 'copy-toast' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSell = async (p: Product) => {
+    const now = Date.now();
+    if (now - lastActionTime.current < 500) return; // debounce
+    lastActionTime.current = now;
+
     if (p.stock <= 0) {
-      toast.error("Stok zaten 0.");
+      toast.error("Stok zaten 0.", { id: `stock-err-${p.id}` });
       return;
     }
 
@@ -243,34 +311,37 @@ export default function ProductManager() {
     try {
       await updateDoc(doc(db, "products", p.id), { stock: newStock });
       
-      // Log to sales
-      await addDoc(collection(db, "sales"), {
+      const salesRef = await addDoc(collection(db, "sales"), {
         productId: p.id,
         productName: p.name,
         qty: 1,
         soldAt: serverTimestamp()
       });
 
-      toast((t) => (
-        <div className="flex items-center gap-4">
-          <span>Stok -1 düşüldü.</span>
-          <button 
-            onClick={async () => {
-              toast.dismiss(t.id);
-              // Undo
-              await updateDoc(doc(db, "products", p.id), { stock: p.stock });
-              setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: p.stock } : prod));
-              toast.success("İşlem geri alındı.");
-            }}
-            className="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors"
-          >
-            Geri Al
-          </button>
-        </div>
-      ), { duration: 5000 });
+      toast.success(
+        (t) => (
+          <div className="flex items-center gap-4">
+            <span>Stok -1 düşüldü.</span>
+            <button 
+              onClick={async () => {
+                toast.dismiss(t.id);
+                // Undo
+                await updateDoc(doc(db, "products", p.id), { stock: p.stock });
+                await deleteDoc(salesRef);
+                setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: p.stock } : prod));
+                toast.success("İşlem geri alındı.", { id: `undo-${p.id}` });
+              }}
+              className="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors"
+            >
+              Geri Al
+            </button>
+          </div>
+        ), 
+        { id: `sell-${p.id}`, duration: 5000 }
+      );
       
     } catch (e) {
-      toast.error("Hata oluştu.");
+      toast.error("Hata oluştu.", { id: `err-${p.id}` });
       loadProducts(); // revert
     }
   };
@@ -304,71 +375,126 @@ export default function ProductManager() {
         
         {/* FORM */}
         <div className="xl:col-span-1">
-          <div className="glass p-6 rounded-3xl sticky top-6">
-            <h3 className="text-xl font-bold text-[var(--accent-gold)] mb-6 flex items-center gap-2">
-              {editId ? <Pencil className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
-              {editId ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
-            </h3>
+          <div className="glass p-6 sm:p-8 rounded-3xl sticky top-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-[var(--accent-gold)] flex items-center gap-2">
+                {editId ? <Pencil className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
+                {editId ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
+              </h3>
+              {editId && (
+                 <button onClick={resetForm} className="text-xs px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">İptal</button>
+              )}
+            </div>
             
-            <div className="space-y-4">
+            <div className="space-y-5">
+              
+              {/* Görseller Dropzone */}
               <div>
-                <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Ürün Adı</label>
-                <input type="text" value={pName} onChange={e => setPName(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="Aviator Classic" />
+                <label className="block text-xs text-white/50 uppercase tracking-widest mb-2">Görseller</label>
+                <div 
+                  onClick={() => !isUploading && fileInputRef.current?.click()}
+                  className={`w-full min-h-[120px] border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center text-center p-6 cursor-pointer hover:border-[var(--accent-gold)]/50 transition-colors bg-black/20 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  <ImageIcon className="w-8 h-8 text-white/30 mb-2" />
+                  <p className="text-sm font-medium text-white/70">
+                    Görsellerinizi yüklemek için dokunun<br/>
+                    <span className="text-xs font-normal text-white/40">galeriden seçin veya fotoğraf çekin</span>
+                  </p>
+                  <input 
+                    type="file" 
+                    multiple 
+                    accept="image/*" 
+                    capture="environment"
+                    className="hidden" 
+                    onChange={handleImageUpload} 
+                    ref={fileInputRef}
+                  />
+                </div>
+                
+                {/* Image Thumbnails with Drag & Drop */}
+                {pImages.length > 0 && (
+                  <div className="flex gap-3 flex-wrap mt-4">
+                    {pImages.map((img, i) => (
+                      <div 
+                        key={`${img}-${i}`} 
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, i)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, i)}
+                        className={`relative w-20 h-20 rounded-xl border-2 overflow-hidden bg-black/40 cursor-grab active:cursor-grabbing ${i === 0 ? 'border-[var(--accent-gold)] shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'border-white/10 hover:border-white/30'}`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img} alt="preview" className="w-full h-full object-cover" />
+                        
+                        <div className="absolute top-0 left-0 w-full p-1 bg-gradient-to-b from-black/60 to-transparent flex justify-between items-start">
+                          <GripVertical className="w-4 h-4 text-white/50" />
+                          <button onClick={(e) => { e.stopPropagation(); removeImage(i); }} className="bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1 shadow">
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        {i === 0 && (
+                          <div className="absolute bottom-0 left-0 w-full bg-[var(--accent-gold)] text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest">
+                            Kapak
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Marka</label>
-                  <select value={pBrandId} onChange={e => setPBrandId(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors">
-                    <option value="" disabled>Seçiniz</option>
-                    {brands.map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Ürün Adı</label>
+                  <input type="text" value={pName} onChange={e => setPName(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="Örn: Aviator Classic" />
                 </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Marka</label>
+                  <input 
+                    list="brands-list"
+                    value={pBrandName}
+                    onChange={e => setPBrandName(e.target.value)}
+                    placeholder="Seç veya yazarak ekle"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors"
+                  />
+                  <datalist id="brands-list">
+                    {brands.map(b => (
+                      <option key={b.id} value={b.name} />
+                    ))}
+                  </datalist>
+                </div>
+
                 <div>
                   <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Model Kodu</label>
-                  <input type="text" value={pModel} onChange={e => setPModel(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="RB3025" />
+                  <input type="text" value={pModel} onChange={e => setPModel(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="RB3025" />
                 </div>
-              </div>
+                
+                <div>
+                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Tür</label>
+                  <select value={pType || ''} onChange={e => setPType(e.target.value as any)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors">
+                    <option value="">Türsüz (İsteğe Bağlı)</option>
+                    <option value="kadin">Kadın</option>
+                    <option value="erkek">Erkek</option>
+                    <option value="cocuk">Çocuk</option>
+                    <option value="gunes">Güneş</option>
+                    <option value="optik">Optik</option>
+                    <option value="unisex">Unisex</option>
+                  </select>
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Stok Adedi</label>
-                  <input type="number" value={pStock} onChange={e => setPStock(parseInt(e.target.value)||0)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" />
+                  <input type="number" value={pStock} onChange={e => setPStock(parseInt(e.target.value)||0)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" />
                 </div>
+                
                 <div>
                   <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Durum</label>
-                  <select value={pStatus} onChange={e => setPStatus(e.target.value as any)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors">
+                  <select value={pStatus} onChange={e => setPStatus(e.target.value as any)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors">
                     <option value="published">Yayında</option>
                     <option value="draft">Taslak</option>
                   </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-white/50 uppercase tracking-widest mb-1 flex items-center justify-between">
-                  <span>Görseller (Cloudinary)</span>
-                  <label className="text-[10px] text-[var(--accent-gold)] cursor-pointer hover:underline">
-                    {isUploading ? "Yükleniyor..." : "Dosya Seç"}
-                    <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
-                  </label>
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {pImages.map((img, i) => (
-                    <div key={i} className="relative w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-black/30">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img} alt="preview" className="w-full h-full object-cover" />
-                      <button onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 text-[10px]">
-                        <XIcon className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {pImages.length === 0 && (
-                    <div className="w-full h-16 border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center text-white/20 text-xs">
-                      Galeriden çoklu görsel seçebilirsiniz. İlk görsel vitrin görseli olur.
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -377,31 +503,26 @@ export default function ProductManager() {
                 <textarea 
                   value={pDesc} 
                   onChange={e => setPDesc(e.target.value)} 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors h-24 resize-none" 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors h-24 resize-none" 
                   placeholder="Ürün özellikleri..."
                 />
               </div>
 
               <div>
-                <label className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl p-3 cursor-pointer select-none">
-                  <input type="checkbox" checked={pIsFeatured} onChange={e => setPIsFeatured(e.target.checked)} className="w-5 h-5 accent-[var(--accent-gold)] rounded bg-black/50 border-white/20" />
+                <label className="flex items-center gap-4 bg-black/40 border border-white/10 rounded-xl p-4 cursor-pointer select-none hover:border-white/20 transition-colors">
+                  <input type="checkbox" checked={pIsFeatured} onChange={e => setPIsFeatured(e.target.checked)} className="w-6 h-6 accent-[var(--accent-gold)] rounded bg-black/50 border-white/20" />
                   <div>
-                    <div className="text-sm font-bold text-white">Öne Çıkar</div>
-                    <div className="text-xs text-white/40">Ana sayfada vitrinde gösterilsin mi?</div>
+                    <div className="text-base font-bold text-white mb-0.5">Öne Çıkar</div>
+                    <div className="text-xs text-white/50">Ana sayfada vitrinde gösterilsin mi?</div>
                   </div>
                 </label>
               </div>
 
-              <div className="pt-2">
-                <button onClick={handleSave} disabled={isSaving || isUploading} className="w-full py-3 bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] text-black font-bold rounded-xl transition-colors flex justify-center items-center gap-2">
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+              <div className="pt-4">
+                <button onClick={handleSave} disabled={isSaving || isUploading} className="w-full py-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-all flex justify-center items-center gap-2">
+                  {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
                   {editId ? "Değişiklikleri Kaydet" : "Ürünü Kaydet"}
                 </button>
-                {editId && (
-                  <button onClick={resetForm} className="w-full py-3 mt-2 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors text-sm">
-                    İptal Et
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -416,7 +537,7 @@ export default function ProductManager() {
               </h3>
               
               <div className="flex gap-2 w-full sm:w-auto">
-                <select value={filter} onChange={e => setFilter(e.target.value)} className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[var(--accent-gold)]/50 w-full sm:w-auto">
+                <select value={filter} onChange={e => setFilter(e.target.value)} className="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[var(--accent-gold)]/50 w-full sm:w-auto">
                   <option value="all">Tüm Markalar</option>
                   {brands.map(b => (
                     <option key={b.id} value={b.id}>{b.name}</option>
@@ -429,14 +550,14 @@ export default function ProductManager() {
               {loading ? (
                 <div className="flex justify-center py-20 text-[var(--accent-gold)]"><Loader2 className="w-8 h-8 animate-spin" /></div>
               ) : (
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr className="border-b border-white/10 text-white/50 text-xs uppercase tracking-widest">
-                      <th className="p-3">Görsel</th>
-                      <th className="p-3">Marka / Ürün</th>
-                      <th className="p-3">Durum</th>
-                      <th className="p-3">Stok</th>
-                      <th className="p-3 text-right">İşlemler</th>
+                      <th className="p-4">Görsel</th>
+                      <th className="p-4">Marka / Ürün</th>
+                      <th className="p-4">Durum</th>
+                      <th className="p-4">Stok</th>
+                      <th className="p-4 text-right">İşlemler</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -447,43 +568,46 @@ export default function ProductManager() {
                         const bName = brands.find(b => b.id === p.brandId)?.name || p.brandId;
                         return (
                           <tr key={p.id} className={`border-b border-white/5 hover:bg-white/5 transition-colors ${p.stock <= 2 ? 'bg-red-500/5' : ''}`}>
-                            <td className="p-3">
+                            <td className="p-4">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={p.images[0] || "/placeholder.png"} alt={p.name} className="w-12 h-12 rounded-lg object-cover bg-white/5" />
+                              <img src={p.images[0] || "/placeholder.png"} alt={p.name} className="w-14 h-14 rounded-xl object-cover bg-white/5 border border-white/10" />
                             </td>
-                            <td className="p-3">
+                            <td className="p-4">
                               <div className="text-[10px] text-white/50 uppercase tracking-widest">{bName}</div>
-                              <div className="font-medium flex items-center gap-2">
+                              <div className="font-bold text-base flex items-center gap-2 mt-0.5">
                                 {p.name}
-                                {p.isFeatured && <Star className="w-3 h-3 text-amber-500" fill="currentColor" />}
+                                {p.isFeatured && <Star className="w-3.5 h-3.5 text-amber-500" fill="currentColor" />}
                               </div>
-                              <div className="text-xs text-white/30">{p.model}</div>
+                              <div className="text-xs text-white/40 mt-0.5">{p.model} {p.type ? `• ${p.type.toUpperCase()}` : ''}</div>
                             </td>
-                            <td className="p-3">
+                            <td className="p-4">
                               <span className={`px-2 py-1 rounded text-[10px] uppercase tracking-widest font-bold ${p.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/50'}`}>
                                 {p.status === 'published' ? 'YAYINDA' : 'TASLAK'}
                               </span>
                             </td>
-                            <td className="p-3">
-                              <div className="flex items-center gap-2">
-                                <span className={`font-bold text-lg ${p.stock <= 0 ? 'text-red-500' : p.stock <= 2 ? 'text-amber-500' : 'text-green-500'}`}>
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <span className={`font-bold text-xl ${p.stock <= 0 ? 'text-red-500' : p.stock <= 2 ? 'text-amber-500' : 'text-green-500'}`}>
                                   {p.stock}
                                 </span>
                                 <div className="flex flex-col gap-1">
-                                  <button onClick={() => handleAddStock(p)} className="p-1 bg-white/5 hover:bg-white/10 rounded text-white/50 hover:text-white" title="Stok Ekle">
-                                    <PlusCircle className="w-3 h-3" />
+                                  <button onClick={() => handleAddStock(p)} className="p-1 bg-white/5 hover:bg-white/20 rounded-md text-white/50 hover:text-white transition-colors" title="Stok Ekle">
+                                    <PlusCircle className="w-3.5 h-3.5" />
                                   </button>
-                                  <button onClick={() => handleSell(p)} className="p-1 bg-white/5 hover:bg-amber-500/20 rounded text-white/50 hover:text-amber-500" title="Satıldı (-1)">
-                                    <Minus className="w-3 h-3" />
+                                  <button onClick={() => handleSell(p)} className="p-1 bg-white/5 hover:bg-amber-500/20 rounded-md text-white/50 hover:text-amber-500 transition-colors" title="Satıldı (-1)">
+                                    <Minus className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                               </div>
                             </td>
-                            <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                              <button onClick={() => handleEdit(p)} className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg text-blue-400 transition-colors" title="Düzenle">
+                            <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                              <button onClick={() => handleCopy(p)} className="p-2.5 bg-green-500/20 hover:bg-green-500/40 rounded-xl text-green-400 transition-colors" title="Kopyala">
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => handleEdit(p)} className="p-2.5 bg-blue-500/20 hover:bg-blue-500/40 rounded-xl text-blue-400 transition-colors" title="Düzenle">
                                 <Pencil className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-red-400 transition-colors" title="Sil">
+                              <button onClick={() => handleDelete(p.id)} className="p-2.5 bg-red-500/20 hover:bg-red-500/40 rounded-xl text-red-400 transition-colors" title="Sil">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </td>
@@ -500,14 +624,5 @@ export default function ProductManager() {
 
       </div>
     </div>
-  );
-}
-
-function XIcon(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
   );
 }

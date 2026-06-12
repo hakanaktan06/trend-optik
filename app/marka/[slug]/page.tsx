@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!brand) return { title: "Marka Bulunamadı" };
 
   return {
-    title: `${brand.name} Gözlük Modelleri & Fiyatları`,
+    title: `${brand.name} Gözlük Modelleri`,
     description: `${brand.name} güneş gözlüğü ve çerçeve modelleri Trend Optik Mersin'de. Tüm ${brand.name} koleksiyonunu inceleyin.`
   };
 }

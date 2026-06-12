@@ -26,10 +26,10 @@ export interface Product {
   isFeatured?: boolean;
   status: 'published' | 'draft';
   source: 'manual';
+  type?: 'kadin' | 'erkek' | 'cocuk' | 'gunes' | 'optik' | 'unisex' | null;
   createdAt?: any;
   updatedAt?: any;
   // Legacy fields for migration
-  price?: number;
   img?: string;
   category?: string;
   brand?: string;
@@ -69,8 +69,8 @@ export async function getProductServer(id: string): Promise<Product | null> {
       isFeatured: fields.isFeatured?.booleanValue || false,
       status: fields.status?.stringValue === 'draft' ? 'draft' : 'published',
       source: 'manual',
+      type: fields.type?.stringValue || null,
       // legacy
-      price: fields.price?.integerValue || fields.price?.doubleValue || 0,
       category: fields.category?.stringValue || "",
     };
   } catch (error) {
@@ -112,7 +112,7 @@ export async function getAllProductsServer(): Promise<Product[]> {
         isFeatured: fields.isFeatured?.booleanValue || false,
         status: fields.status?.stringValue === 'draft' ? 'draft' : 'published',
         source: 'manual',
-        price: fields.price?.integerValue || fields.price?.doubleValue || 0,
+        type: fields.type?.stringValue || null,
         category: fields.category?.stringValue || "",
       };
     });

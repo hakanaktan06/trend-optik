@@ -6,7 +6,7 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
   const isOutOfStock = product.stock <= 0;
   const primaryImage = product.images?.[0] || "/placeholder.png";
 
-  const waMessage = encodeURIComponent(`Merhaba, "${brandName} ${product.model} - ${product.name}" ürünü hakkında bilgi almak istiyorum. (https://trendoptikmersin.com/product/${product.id})`);
+  const waMessage = encodeURIComponent(`Merhaba, "${product.name} ${product.model}" ürünü hakkında bilgi almak istiyorum.\n\nGörsel: ${primaryImage}\nÜrün Linki: https://trendoptikmersin.com/product/${product.id}`);
   const waLink = `https://wa.me/905312075818?text=${waMessage}`;
 
   return (

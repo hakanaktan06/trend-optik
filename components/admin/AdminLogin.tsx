@@ -1,29 +1,49 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { motion } from "framer-motion";
-import { Lock, Loader2 } from "lucide-react";
+import { Lock, Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const getTurkishErrorMessage = (errorCode: string) => {
+    switch (errorCode) {
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return "Kullanıcı adı veya şifre hatalı.";
+      case 'auth/too-many-requests':
+        return "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.";
+      default:
+        return "Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.";
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoggingIn(true);
+    
     try {
+      const email = `${username.trim()}@gmail.com`;
+      
+      await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
       await signInWithEmailAndPassword(auth, email, password);
+      
       // Set Edge-compatible session cookie
-      document.cookie = "admin_session=active; path=/; max-age=86400; SameSite=Strict";
+      document.cookie = `admin_session=active; path=/; max-age=${rememberMe ? 86400 * 30 : 86400}; SameSite=Strict`;
       // Refresh the page to trigger the Server Component Layout check
       window.location.reload();
-    } catch (err) {
-      setError("Hatalı e-posta veya şifre girdiniz.");
+    } catch (err: any) {
+      setError(getTurkishErrorMessage(err.code));
     } finally {
       setIsLoggingIn(false);
     }
@@ -48,28 +68,48 @@ export default function AdminLogin() {
             <Lock className="w-5 h-5 text-[var(--accent-gold)]" />
           </div>
 
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-5">
             <div>
               <input 
-                type="email" 
-                placeholder="E-posta Adresi" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text" 
+                placeholder="Kullanıcı Adı" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors font-light"
                 required
               />
             </div>
-            <div>
+            <div className="relative">
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"} 
                 placeholder="Şifre" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors font-light"
+                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 pr-12 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors font-light"
                 required
               />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
             
+            <div className="flex items-center gap-2 px-1">
+              <input 
+                type="checkbox" 
+                id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 accent-[var(--accent-gold)] bg-black/40 border-white/20 rounded cursor-pointer"
+              />
+              <label htmlFor="remember" className="text-sm text-white/60 cursor-pointer select-none">
+                Beni Hatırla
+              </label>
+            </div>
+
             {error && (
               <p className="text-red-400 text-sm text-center">{error}</p>
             )}
@@ -77,7 +117,7 @@ export default function AdminLogin() {
             <button 
               type="submit" 
               disabled={isLoggingIn}
-              className="w-full py-4 mt-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-medium rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+              className="w-full py-4 mt-2 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-medium rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-all flex justify-center items-center gap-2 disabled:opacity-50"
             >
               {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : "Giriş Yap"}
             </button>
