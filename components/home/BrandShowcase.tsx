@@ -1,49 +1,57 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Brand } from "@/lib/firestore-server";
+import fs from "fs";
+import path from "path";
 
 export default function BrandShowcase({ brands }: { brands: Brand[] }) {
   if (!brands || brands.length === 0) return null;
 
-  return (
-    <section id="markalar" className="py-20 md:py-32 bg-[var(--background-secondary)] relative overflow-hidden">
-      <div className="container-premium relative z-10">
-        <div className="text-center mb-14 md:mb-20">
-          <span className="inline-block text-[11px] uppercase tracking-[0.3em] text-[var(--accent-gold)] font-medium mb-4">
-            Markalarımız
-          </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
-            Markalara Göre <span className="text-gradient-gold">Keşfet</span>
-          </h2>
-        </div>
+  // Duplicate for seamless infinite scroll on desktop
+  const marqueeBrands = [...brands, ...brands, ...brands];
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-          {brands.map((brand) => (
-            <Link 
-              key={brand.id}
-              href={`/marka/${brand.slug}`}
-              className="group flex flex-col items-center justify-center p-8 md:p-12 rounded-3xl glass hover:bg-white/5 transition-all duration-500 border border-white/5 hover:border-white/10 hover:-translate-y-1"
-            >
-              {brand.logoUrl ? (
-                <div className="relative w-full aspect-[3/1] mb-6">
-                  <Image 
-                    src={brand.logoUrl} 
-                    alt={brand.name} 
-                    fill 
-                    className="object-contain opacity-50 group-hover:opacity-100 transition-opacity duration-500" 
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                </div>
-              ) : (
-                <div className="text-xl md:text-2xl font-bold text-white/50 group-hover:text-white transition-colors duration-500 tracking-tight text-center mb-2">
-                  {brand.name}
-                </div>
-              )}
-              <div className="mt-auto text-[10px] uppercase tracking-widest text-[var(--accent-gold)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center gap-1">
-                Koleksiyonu Gör <span>&rarr;</span>
-              </div>
-            </Link>
-          ))}
+  return (
+    <section id="markalar" className="py-12 md:py-20 bg-[var(--background-secondary)] relative overflow-hidden border-t border-b border-white/[0.02]">
+      <div className="absolute left-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-r from-[var(--background-secondary)] to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-l from-[var(--background-secondary)] to-transparent z-10 pointer-events-none" />
+      
+      <div className="mobile-marquee-container md:overflow-hidden w-full flex">
+        <div className="flex items-center gap-12 md:gap-24 px-8 md:animate-marquee md:hover:[animation-play-state:paused] w-max">
+          {marqueeBrands.map((brand, idx) => {
+            const svgPath = path.join(process.cwd(), "public", "brands", `${brand.slug}.svg`);
+            const pngPath = path.join(process.cwd(), "public", "brands", `${brand.slug}.png`);
+            
+            let logoSrc = null;
+            if (fs.existsSync(svgPath)) {
+              logoSrc = `/brands/${brand.slug}.svg`;
+            } else if (fs.existsSync(pngPath)) {
+              logoSrc = `/brands/${brand.slug}.png`;
+            }
+
+            return (
+              <Link 
+                key={`${brand.id}-${idx}`}
+                href={`/marka/${brand.slug}`}
+                className="snap-center flex-shrink-0 flex items-center justify-center opacity-50 hover:opacity-100 transition-all duration-500 hover:scale-105"
+              >
+                {logoSrc ? (
+                  <div className="relative h-10 md:h-14 w-32 md:w-48">
+                    <Image 
+                      src={logoSrc} 
+                      alt={brand.name} 
+                      fill 
+                      className="object-contain brightness-0 invert" 
+                      sizes="(max-width: 768px) 128px, 192px"
+                    />
+                  </div>
+                ) : (
+                  <div className="text-xl md:text-3xl font-display font-bold text-[var(--accent-gold)] whitespace-nowrap tracking-wider">
+                    {brand.name}
+                  </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

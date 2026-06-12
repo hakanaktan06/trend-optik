@@ -337,12 +337,34 @@ body {
   animation: focusReveal var(--blur-duration) var(--ease-out-expo) forwards;
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% / 3)); }
+}
+
+@media (min-width: 768px) {
+  .md\:animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+}
+
+.mobile-marquee-container {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.mobile-marquee-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .focus-reveal {
+  .focus-reveal, .md\:animate-marquee {
     animation: none;
     filter: none;
-    transform: none;
     opacity: 1;
+    transform: none;
   }
 }
 

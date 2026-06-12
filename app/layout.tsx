@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import MetaPixel from "@/components/MetaPixel";
 import CookieConsent from "@/components/CookieConsent";
-import MobileBottomBar from "@/components/layout/MobileBottomBar";
 import "./globals.css";
 
 const inter = Inter({
@@ -132,7 +131,6 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
-          <MobileBottomBar />
         </ThemeProvider>
 
         <GoogleAnalytics gaId="G-PVZTDX1VJR" />
