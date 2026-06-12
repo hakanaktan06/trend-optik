@@ -609,12 +609,11 @@ export default function ProductManager() {
               ) : (
                 <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-white/10 text-white/50 text-xs uppercase tracking-widest">
-                      <th className="p-4">Görsel</th>
-                      <th className="p-4">Marka / Ürün</th>
-                      <th className="p-4">Durum</th>
-                      <th className="p-4">Stok</th>
-                      <th className="p-4 text-right">İşlemler</th>
+                    <tr className="border-b border-white/10 text-white/30 text-[10px] uppercase tracking-[0.2em]">
+                      <th className="p-4 font-bold">Ürün Bilgisi</th>
+                      <th className="p-4 font-bold">Vitrin / Durum</th>
+                      <th className="p-4 font-bold">Stok Yönetimi</th>
+                      <th className="p-4 font-bold text-right">Düzenle</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -626,47 +625,50 @@ export default function ProductManager() {
                         return (
                           <tr key={p.id} className={`border-b border-white/5 hover:bg-white/5 transition-colors ${p.stock <= 2 ? 'bg-red-500/5' : ''}`}>
                             <td className="p-4">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={p.images[0] || "/placeholder.png"} alt={p.name} className="w-14 h-14 rounded-xl object-cover bg-white/5 border border-white/10" />
-                            </td>
-                            <td className="p-4">
-                              <div className="text-[10px] text-white/50 uppercase tracking-widest">{bName}</div>
-                              <div className="font-bold text-base flex items-center gap-2 mt-0.5">
-                                {p.name}
-                                {p.isFeatured && <Star className="w-3.5 h-3.5 text-amber-500" fill="currentColor" />}
+                              <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white flex items-center justify-center p-2 shrink-0 shadow-lg">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={p.images[0] || "/placeholder.png"} alt={p.name} className="w-full h-full object-contain" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-[10px] text-[var(--accent-gold)] uppercase tracking-[0.3em] font-extrabold mb-1.5">{bName}</span>
+                                  <span className="text-base sm:text-lg font-bold text-white leading-tight mb-1">{p.name}</span>
+                                  <span className="text-xs text-white/40">{p.model} {p.type ? `• ${p.type.toUpperCase()}` : ''}</span>
+                                </div>
                               </div>
-                              <div className="text-xs text-white/40 mt-0.5">{p.model} {p.type ? `• ${p.type.toUpperCase()}` : ''}</div>
                             </td>
-                            <td className="p-4">
-                              <span className={`px-2 py-1 rounded text-[10px] uppercase tracking-widest font-bold ${p.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/50'}`}>
-                                {p.status === 'published' ? 'YAYINDA' : 'TASLAK'}
-                              </span>
+                            <td className="p-4 align-middle">
+                              <div className="flex flex-col gap-2 items-start">
+                                <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest font-bold ${p.status === 'published' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-white/5 text-white/50 border border-white/10'}`}>
+                                  {p.status === 'published' ? 'YAYINDA' : 'TASLAK'}
+                                </span>
+                                <button onClick={() => handleToggleFeatured(p)} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest font-bold transition-all border ${p.isFeatured ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'}`} title="Vitrin Durumunu Değiştir">
+                                  <Star className="w-3 h-3" fill={p.isFeatured ? "currentColor" : "none"} />
+                                  {p.isFeatured ? 'VİTRİNDE' : 'VİTRİNE AL'}
+                                </button>
+                              </div>
                             </td>
-                            <td className="p-4">
-                              <span className={`font-bold text-xl ${p.stock <= 0 ? 'text-red-500' : p.stock <= 2 ? 'text-amber-500' : 'text-green-500'}`}>
-                                {p.stock}
-                              </span>
+                            <td className="p-4 align-middle">
+                              <div className="flex items-center gap-2 bg-white/5 rounded-xl p-1.5 border border-white/10 w-max">
+                                <button onClick={() => handleSell(p)} className="w-9 h-9 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors" title="Satıldı (-1)">
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className={`font-bold text-xl w-10 text-center ${p.stock <= 0 ? 'text-red-500' : p.stock <= 2 ? 'text-amber-500' : 'text-green-500'}`}>
+                                  {p.stock}
+                                </span>
+                                <button onClick={() => handleAddStock(p)} className="w-9 h-9 flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-colors" title="Stok Ekle">
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
                             </td>
-                            <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                              <button onClick={() => handleToggleFeatured(p)} className={`p-2 rounded-xl transition-colors ${p.isFeatured ? 'bg-amber-500/20 text-amber-500 hover:bg-amber-500/40' : 'bg-white/5 text-white/40 hover:bg-white/20'}`} title="Vitrin Yap / Çıkar">
-                                <Star className="w-4 h-4" fill={p.isFeatured ? "currentColor" : "none"} />
-                              </button>
-                              
-                              <button onClick={() => handleSell(p)} className="px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-xl text-indigo-400 transition-colors inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider" title="-1 Stok">
-                                <Minus className="w-3.5 h-3.5" /> Satıldı
-                              </button>
-                              
-                              <button onClick={() => handleAddStock(p)} className="px-3 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-xl text-emerald-400 transition-colors inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider" title="Stok Ekle">
-                                <Plus className="w-3.5 h-3.5" /> Stok
-                              </button>
-                              
-                              <button onClick={() => handleCopy(p)} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/50 transition-colors" title="Kopyala">
+                            <td className="p-4 align-middle text-right space-x-2 whitespace-nowrap">
+                              <button onClick={() => handleCopy(p)} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/50 hover:text-white transition-colors" title="Kopyala">
                                 <Copy className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleEdit(p)} className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-xl text-blue-400 transition-colors" title="Düzenle">
+                              <button onClick={() => handleEdit(p)} className="p-3 bg-blue-500/10 hover:bg-blue-500/20 rounded-xl text-blue-400 transition-colors" title="Düzenle">
                                 <Pencil className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-xl text-red-400 transition-colors" title="Sil">
+                              <button onClick={() => handleDelete(p.id)} className="p-3 bg-red-500/10 hover:bg-red-500/20 rounded-xl text-red-400 transition-colors" title="Sil">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </td>

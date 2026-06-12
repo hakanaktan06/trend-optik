@@ -3,7 +3,6 @@ import HeroSection from "@/components/home/HeroSection";
 import BentoGrid from "@/components/home/BentoGrid";
 import VIPConcierge from "@/components/home/VIPConcierge";
 import LensTech from "@/components/home/LensTech";
-import BrandShowcase from "@/components/home/BrandShowcase";
 import CTASection from "@/components/home/CTASection";
 import ProductsShowcase from "@/components/home/ProductsShowcase";
 import OrderLookup from "@/components/home/OrderLookup";
@@ -55,10 +54,7 @@ export default async function Home() {
       {/* 2. Vitrin Ürünleri — Products Foregrounded */}
       <ProductsShowcase initialProducts={featuredProducts} brands={brands} />
 
-      {/* 3. Marka Vitrini — Shop by Brand Tiles */}
-      <BrandShowcase brands={brands} />
-
-      {/* 4. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
+      {/* 3. Zanaatkarlık ve Materyaller — Apple Bento Grid */}
       <BentoGrid />
 
       {/* 5. Lens Teknolojisi — Before/After Slider */}
