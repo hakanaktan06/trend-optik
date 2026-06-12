@@ -383,13 +383,50 @@ export default function ProductManager() {
     ), { duration: Infinity, id: `add-stock-${p.id}` });
   };
 
+  const handleToggleFeatured = async (p: Product) => {
+    const newFeatured = !p.isFeatured;
+    const toastId = toast.loading("Güncelleniyor...");
+    try {
+      await updateDoc(doc(db, "products", p.id), { isFeatured: newFeatured });
+      setProducts(products.map(prod => prod.id === p.id ? { ...prod, isFeatured: newFeatured } : prod));
+      toast.success(newFeatured ? "Vitrine Eklendi" : "Vitrinden Çıkarıldı", { id: toastId });
+    } catch (e) {
+      toast.error("Hata oluştu.", { id: toastId });
+    }
+  };
+
   const filteredProducts = filter === "all" ? products : products.filter(p => p.brandId === filter);
+
+  // Dashboard stats
+  const totalProducts = products.length;
+  const totalStock = products.reduce((acc, p) => acc + (p.stock || 0), 0);
+  const featuredCount = products.filter(p => p.isFeatured).length;
+  const outOfStockCount = products.filter(p => p.stock <= 0).length;
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-8">
         <Glasses className="w-8 h-8 text-[var(--accent-gold)]" />
         <h2 className="text-3xl font-bold">Ürün Vitrini</h2>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
+          <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Toplam Ürün</span>
+          <span className="text-3xl font-light text-white">{totalProducts}</span>
+        </div>
+        <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
+          <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Toplam Stok</span>
+          <span className="text-3xl font-light text-white">{totalStock}</span>
+        </div>
+        <div className="glass p-5 rounded-2xl border border-[var(--accent-gold)]/20 flex flex-col bg-[var(--accent-gold)]/5">
+          <span className="text-[10px] text-[var(--accent-gold)]/80 uppercase tracking-widest font-bold mb-1">Vitrindeki Ürün</span>
+          <span className="text-3xl font-light text-[var(--accent-gold)]">{featuredCount}</span>
+        </div>
+        <div className="glass p-5 rounded-2xl border border-red-500/20 flex flex-col bg-red-500/5">
+          <span className="text-[10px] text-red-400 uppercase tracking-widest font-bold mb-1">Tükenen Ürün</span>
+          <span className="text-3xl font-light text-red-400">{outOfStockCount}</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -606,28 +643,30 @@ export default function ProductManager() {
                               </span>
                             </td>
                             <td className="p-4">
-                              <div className="flex items-center gap-3">
-                                <span className={`font-bold text-xl ${p.stock <= 0 ? 'text-red-500' : p.stock <= 2 ? 'text-amber-500' : 'text-green-500'}`}>
-                                  {p.stock}
-                                </span>
-                                <div className="flex flex-col gap-1">
-                                  <button onClick={() => handleAddStock(p)} className="p-1 bg-white/5 hover:bg-white/20 rounded-md text-white/50 hover:text-white transition-colors" title="Stok Ekle">
-                                    <PlusCircle className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button onClick={() => handleSell(p)} className="p-1 bg-white/5 hover:bg-amber-500/20 rounded-md text-white/50 hover:text-amber-500 transition-colors" title="Satıldı (-1)">
-                                    <Minus className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
+                              <span className={`font-bold text-xl ${p.stock <= 0 ? 'text-red-500' : p.stock <= 2 ? 'text-amber-500' : 'text-green-500'}`}>
+                                {p.stock}
+                              </span>
                             </td>
                             <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                              <button onClick={() => handleCopy(p)} className="p-2.5 bg-green-500/20 hover:bg-green-500/40 rounded-xl text-green-400 transition-colors" title="Kopyala">
+                              <button onClick={() => handleToggleFeatured(p)} className={`p-2 rounded-xl transition-colors ${p.isFeatured ? 'bg-amber-500/20 text-amber-500 hover:bg-amber-500/40' : 'bg-white/5 text-white/40 hover:bg-white/20'}`} title="Vitrin Yap / Çıkar">
+                                <Star className="w-4 h-4" fill={p.isFeatured ? "currentColor" : "none"} />
+                              </button>
+                              
+                              <button onClick={() => handleSell(p)} className="px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-xl text-indigo-400 transition-colors inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider" title="-1 Stok">
+                                <Minus className="w-3.5 h-3.5" /> Satıldı
+                              </button>
+                              
+                              <button onClick={() => handleAddStock(p)} className="px-3 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-xl text-emerald-400 transition-colors inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider" title="Stok Ekle">
+                                <Plus className="w-3.5 h-3.5" /> Stok
+                              </button>
+                              
+                              <button onClick={() => handleCopy(p)} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/50 transition-colors" title="Kopyala">
                                 <Copy className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleEdit(p)} className="p-2.5 bg-blue-500/20 hover:bg-blue-500/40 rounded-xl text-blue-400 transition-colors" title="Düzenle">
+                              <button onClick={() => handleEdit(p)} className="p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-xl text-blue-400 transition-colors" title="Düzenle">
                                 <Pencil className="w-4 h-4" />
                               </button>
-                              <button onClick={() => handleDelete(p.id)} className="p-2.5 bg-red-500/20 hover:bg-red-500/40 rounded-xl text-red-400 transition-colors" title="Sil">
+                              <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-xl text-red-400 transition-colors" title="Sil">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </td>

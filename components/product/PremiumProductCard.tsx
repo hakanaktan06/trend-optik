@@ -12,13 +12,13 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
   return (
     <div className="group flex flex-col glass p-3 rounded-[2.5rem] border border-white/5 hover:border-[var(--accent-gold)]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] transition-all duration-700 hover:bg-white/[0.04]">
       {/* Image Wrapper */}
-      <Link href={`/product/${product.id}`} className="relative aspect-square w-full rounded-[2rem] overflow-hidden mb-6 bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center p-8">
+      <Link href={`/product/${product.id}`} className="relative aspect-square w-full rounded-[2rem] overflow-hidden mb-6 bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center p-2">
         <div className="absolute inset-0 bg-black/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
         <Image 
           src={primaryImage} 
           alt={product.name} 
           fill
-          className="object-contain p-6 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.15] group-hover:-rotate-6"
+          className="object-contain p-2 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.15] group-hover:-rotate-6"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         {/* Out of stock overlay */}
