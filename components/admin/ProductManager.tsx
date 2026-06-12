@@ -255,11 +255,20 @@ export default function ProductManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Kalıcı olarak silinecek, onaylıyor musunuz?")) {
-      await deleteDoc(doc(db, "products", id));
-      toast.success("Ürün silindi.");
-      loadProducts();
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <span className="font-bold text-sm">Ürün kalıcı olarak silinecek, onaylıyor musunuz?</span>
+        <div className="flex gap-2">
+          <button onClick={async () => { 
+            toast.dismiss(t.id); 
+            await deleteDoc(doc(db, "products", id));
+            toast.success("Ürün silindi.");
+            loadProducts();
+          }} className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/40">Evet, Sil</button>
+          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-white/10 text-white rounded">İptal</button>
+        </div>
+      </div>
+    ), { duration: Infinity, id: 'delete-confirm' });
   };
 
   const handleEdit = (p: Product) => {
@@ -346,20 +355,32 @@ export default function ProductManager() {
     }
   };
 
-  const handleAddStock = async (p: Product) => {
-    const qtyStr = prompt("Kaç adet eklenecek?");
-    if (!qtyStr) return;
-    const qty = parseInt(qtyStr, 10);
-    if (isNaN(qty) || qty <= 0) return;
-
-    const newStock = p.stock + qty;
-    try {
-      await updateDoc(doc(db, "products", p.id), { stock: newStock });
-      setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
-      toast.success("Stok eklendi.");
-    } catch (e) {
-      toast.error("Hata oluştu.");
-    }
+  const handleAddStock = (p: Product) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <span className="font-bold text-sm text-white">Kaç adet stok eklenecek?</span>
+        <div className="flex gap-2">
+          {[1, 2, 5, 10].map(qty => (
+            <button 
+              key={qty}
+              onClick={async () => { 
+                toast.dismiss(t.id); 
+                const newStock = p.stock + qty;
+                try {
+                  await updateDoc(doc(db, "products", p.id), { stock: newStock });
+                  setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
+                  toast.success(`${qty} adet stok eklendi.`);
+                } catch (e) { toast.error("Hata oluştu."); }
+              }} 
+              className="px-3 py-1 bg-white/10 text-white rounded hover:bg-white/20"
+            >
+              +{qty}
+            </button>
+          ))}
+          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-red-500/20 text-red-400 rounded">İptal</button>
+        </div>
+      </div>
+    ), { duration: Infinity, id: `add-stock-${p.id}` });
   };
 
   const filteredProducts = filter === "all" ? products : products.filter(p => p.brandId === filter);
@@ -397,14 +418,13 @@ export default function ProductManager() {
                 >
                   <ImageIcon className="w-8 h-8 text-white/30 mb-2" />
                   <p className="text-sm font-medium text-white/70">
-                    Görsellerinizi yüklemek için dokunun<br/>
-                    <span className="text-xs font-normal text-white/40">galeriden seçin veya fotoğraf çekin</span>
+                    Görsel eklemek için dokunun<br/>
+                    <span className="text-xs font-normal text-white/40">fotoğraf çekin veya galeriden seçin</span>
                   </p>
                   <input 
                     type="file" 
                     multiple 
                     accept="image/*" 
-                    capture="environment"
                     className="hidden" 
                     onChange={handleImageUpload} 
                     ref={fileInputRef}

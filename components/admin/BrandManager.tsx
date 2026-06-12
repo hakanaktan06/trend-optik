@@ -139,10 +139,20 @@ export default function BrandManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Marka kalıcı olarak silinecek, onaylıyor musunuz? Ürünleri etkileyebilir.")) {
-      await deleteDoc(doc(db, "brands", id));
-      loadBrands();
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <span className="font-bold text-sm">Marka kalıcı olarak silinecek, onaylıyor musunuz? Ürünleri etkileyebilir.</span>
+        <div className="flex gap-2">
+          <button onClick={async () => { 
+            toast.dismiss(t.id); 
+            await deleteDoc(doc(db, "brands", id)); 
+            loadBrands(); 
+            toast.success("Marka silindi.");
+          }} className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/40">Evet, Sil</button>
+          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-white/10 text-white rounded">İptal</button>
+        </div>
+      </div>
+    ), { duration: Infinity, id: 'delete-confirm' });
   };
 
   const seedDefaultBrands = async () => {
@@ -155,21 +165,42 @@ export default function BrandManager() {
     ];
     
     try {
-      let order = 1;
+      const { writeBatch } = await import("firebase/firestore");
+      const batch = writeBatch(db);
+      
+      const q = query(collection(db, "brands"));
+      const snap = await getDocs(q);
+      const existingSlugs = new Set();
+      snap.forEach(d => existingSlugs.add(d.data().slug));
+
+      let addedCount = 0;
+      let order = brands.length > 0 ? Math.max(...brands.map(b => b.order)) + 1 : 1;
+      
       for (const b of defaultBrands) {
-        await addDoc(collection(db, "brands"), {
-          name: b,
-          slug: generateSlug(b),
-          order: order++,
-          logoUrl: "",
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
+        const slug = generateSlug(b);
+        if (!existingSlugs.has(slug)) {
+          const docRef = doc(collection(db, "brands"));
+          batch.set(docRef, {
+            name: b,
+            slug: slug,
+            order: order++,
+            logoUrl: "",
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+          addedCount++;
+        }
       }
-      toast.success("Varsayılan markalar eklendi.");
-      loadBrands();
-    } catch (e) {
-      toast.error("Markalar eklenirken hata oluştu.");
+      
+      if (addedCount > 0) {
+        await batch.commit();
+        toast.success(`${addedCount} adet marka başarıyla yüklendi.`);
+        loadBrands();
+      } else {
+        toast.success("Tüm varsayılan markalar zaten yüklü.");
+      }
+    } catch (e: any) {
+      toast.error(`Markalar yüklenemedi: ${e.message}`);
     } finally {
       setIsSeeding(false);
     }

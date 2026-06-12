@@ -10,6 +10,9 @@ cloudinary.config({
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json({ error: "Cloudinary yapılandırması eksik (API bilgilerini Vercel'e ekleyin)." }, { status: 500 });
+    }
     const body = await req.json();
     const folder = body.folder || 'trendoptik/products';
 

@@ -122,10 +122,20 @@ export default function LensRadar() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Bu müşterinin lens takibi kaydını silmek istediğinize emin misiniz?")) {
-      await deleteDoc(doc(db, "lenses", id));
-      loadLenses();
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <span className="font-bold text-sm">Bu müşterinin lens takibi kaydını silmek istediğinize emin misiniz?</span>
+        <div className="flex gap-2">
+          <button onClick={async () => { 
+            toast.dismiss(t.id); 
+            await deleteDoc(doc(db, "lenses", id));
+            loadLenses(); 
+            toast.success("Kayıt silindi.");
+          }} className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/40">Evet, Sil</button>
+          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-white/10 text-white rounded">İptal</button>
+        </div>
+      </div>
+    ), { duration: Infinity, id: 'delete-confirm' });
   };
 
   const calculateDaysLeft = (createdAt: any, duration: number) => {

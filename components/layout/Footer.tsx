@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, MessageCircle } from "lucide-react";
+import Link from "next/link";
 
 // Instagram icon — Lucide React'te trademark nedeniyle yok, inline SVG
 function InstagramIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
@@ -21,6 +23,22 @@ const socialLinks = [
 
 export default function Footer() {
   const pathname = usePathname();
+  const [brands, setBrands] = useState<{name: string, slug: string}[]>([]);
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const { collection, getDocs, query, orderBy, limit } = await import("firebase/firestore");
+        const { db } = await import("@/lib/firebase");
+        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(6)));
+        const data: any[] = [];
+        snap.forEach(d => data.push(d.data()));
+        setBrands(data);
+      } catch(e) {}
+    };
+    fetchBrands();
+  }, []);
+
   if (pathname?.startsWith("/panel")) return null;
   return (
     <footer className="relative bg-[var(--background)] border-t border-white/[0.04]">
@@ -62,7 +80,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2 md:gap-8">
+          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-3 md:gap-8">
             {/* Quick Links */}
             <div className="space-y-4">
               <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
@@ -70,19 +88,36 @@ export default function Footer() {
               </h4>
               <nav className="flex flex-col gap-2.5">
                 {[
-                  { label: "Katalog", href: "/katalog" },
-                  { label: "Markalar", href: "/#markalar" },
-                  { label: "Lens Çözümleri", href: "/lens" },
+                  { label: "Ana Sayfa", href: "/" },
+                  { label: "Tüm Katalog", href: "/katalog" },
                   { label: "Sipariş Takibi", href: "/#takip" },
                   { label: "İletişim", href: "/#iletisim" },
                 ].map((link) => (
-                  <a
+                  <Link
                     key={link.label}
                     href={link.href}
                     className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
                   >
                     {link.label}
-                  </a>
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* Brands */}
+            <div className="space-y-4">
+              <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+                Markalar
+              </h4>
+              <nav className="flex flex-col gap-2.5">
+                {brands.map((b) => (
+                  <Link
+                    key={b.slug}
+                    href={`/marka/${b.slug}`}
+                    className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
+                  >
+                    {b.name}
+                  </Link>
                 ))}
               </nav>
             </div>

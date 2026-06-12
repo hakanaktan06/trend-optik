@@ -7,11 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
+const initialNavLinks = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Katalog", href: "/katalog" },
   { label: "Sipariş Takibi", href: "/#takip" },
-  { label: "Markalar", href: "/#markalar" },
   { label: "İletişim", href: "/#iletisim" },
 ];
 
@@ -19,6 +18,30 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [navLinks, setNavLinks] = useState(initialNavLinks);
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const { collection, getDocs, query, orderBy, limit } = await import("firebase/firestore");
+        const { db } = await import("@/lib/firebase");
+        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(4)));
+        const data: any[] = [];
+        snap.forEach(d => data.push(d.data()));
+        
+        if (data.length > 0) {
+          setNavLinks([
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Katalog", href: "/katalog" },
+            ...data.map(b => ({ label: b.name, href: `/marka/${b.slug}` })),
+            { label: "Sipariş Takibi", href: "/#takip" },
+            { label: "İletişim", href: "/#iletisim" }
+          ]);
+        }
+      } catch (e) {}
+    };
+    fetchBrands();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
