@@ -42,7 +42,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
           className="lg:col-span-6 relative flex flex-col gap-4"
         >
           {/* Main Image */}
-          <div className="relative aspect-[4/3] sm:aspect-square lg:aspect-[4/5] rounded-[2rem] overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center p-4">
+          <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeImage}
@@ -56,16 +56,17 @@ export default function ProductClientUI({ product, related, brandName }: Product
                   src={images[activeImage]} 
                   alt={`${brandName} ${product.name}`}
                   fill
-                  className="object-contain"
+                  className="object-cover"
                   priority
                 />
               </motion.div>
             </AnimatePresence>
             
             {product.isFeatured && (
-              <div className="absolute top-6 left-6 bg-black/60 backdrop-blur-xl px-4 py-2 rounded-full border border-[var(--accent-gold)]/30 flex items-center gap-2 shadow-2xl">
-                <Star className="w-4 h-4 text-[var(--accent-gold)] fill-[var(--accent-gold)]" />
-                <span className="text-[10px] text-white uppercase tracking-[0.2em] font-bold">Trend Seçkisi</span>
+              <div className="absolute top-6 left-6 z-20">
+                <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[var(--accent-gold)]/30 to-black/40 border border-[var(--accent-gold)]/40 backdrop-blur-md shadow-2xl">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--accent-gold)] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]">Trend Ürün</span>
+                </div>
               </div>
             )}
           </div>

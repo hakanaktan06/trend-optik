@@ -12,13 +12,13 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
   return (
     <div className="group flex flex-col glass p-3 rounded-[2.5rem] border border-white/5 hover:border-[var(--accent-gold)]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] transition-all duration-700 hover:bg-white/[0.04]">
       {/* Image Wrapper */}
-      <Link href={`/product/${product.id}`} className="relative aspect-square w-full rounded-[2rem] overflow-hidden mb-6 bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center p-2">
-        <div className="absolute inset-0 bg-black/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
+      <Link href={`/product/${product.id}`} className="relative aspect-[4/3] w-full rounded-[2rem] overflow-hidden mb-6 bg-white/5 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500 z-10 pointer-events-none"></div>
         <Image 
           src={primaryImage} 
           alt={product.name} 
           fill
-          className="object-contain p-2 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.15] group-hover:-rotate-6"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         {/* Out of stock overlay */}
@@ -32,8 +32,10 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
         
         {/* Premium Badge */}
         {product.isFeatured && (
-          <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-black/50 backdrop-blur-md border border-[var(--accent-gold)]/30 rounded-full">
-            <span className="text-[9px] uppercase tracking-widest text-[var(--accent-gold)] font-bold">Trend</span>
+          <div className="absolute top-4 left-4 z-20">
+            <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-[var(--accent-gold)]/30 to-black/40 border border-[var(--accent-gold)]/40 backdrop-blur-md shadow-lg">
+              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-[var(--accent-gold)] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]">Trend Ürün</span>
+            </div>
           </div>
         )}
       </Link>
