@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import PremiumProductCard from "@/components/product/PremiumProductCard";
 import { Product, Brand } from "@/lib/firestore-server";
 
@@ -21,59 +22,86 @@ export default function ProductsShowcase({ initialProducts = [], brands = [] }: 
   return (
     <section id="koleksiyon" className="py-16 md:py-24 bg-[#050505] relative overflow-hidden">
       {/* Background glow effects omitted for brevity, keeping simple dark theme */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[var(--accent-gold)]/5 blur-[120px] rounded-[100%] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[var(--accent-gold)]/5 blur-[150px] rounded-[100%] pointer-events-none" />
 
-      <div className="container-premium relative z-10 px-6 md:px-0">
+      <div className="container-premium relative z-10 px-4 md:px-6">
         
         {/* Header & Filter Chips */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <div>
-            <span className="text-[var(--accent-gold)] text-[10px] tracking-[0.4em] uppercase mb-4 block font-bold">
-              Elite Selection
+        <div className="flex flex-col items-center text-center mb-16 gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <span className="text-[var(--accent-gold)] text-[11px] tracking-[0.5em] uppercase mb-6 block font-bold">
+              Trend Optik Exclusive
             </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tighter">
-              Sezonun <span className="text-white/30 font-light italic">Yıldızları</span>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-light text-white tracking-tighter">
+              Vitrin <span className="font-playfair italic text-white/50">Koleksiyonu</span>
             </h2>
-          </div>
+            <p className="text-white/40 mt-6 max-w-2xl mx-auto font-light leading-relaxed">
+              En seçkin markaların özenle seçilmiş ikonik modellerini keşfedin. Trend Optik Mersin güvencesiyle stilinizi yeniden tanımlayın.
+            </p>
+          </motion.div>
         </div>
 
         {/* Brand Filter Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 scrollbar-hide">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex gap-3 overflow-x-auto pb-6 mb-12 scrollbar-hide justify-center max-w-4xl mx-auto"
+        >
           <button 
             onClick={() => setActiveBrand("all")}
-            className={`px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase whitespace-nowrap transition-all ${
+            className={`px-6 py-3 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
               activeBrand === "all" 
-                ? "bg-[var(--accent-gold)] text-black" 
-                : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]" 
+                : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5"
             }`}
           >
-            Tümü
+            Tüm Modeller
           </button>
           {brands.map(brand => (
             <button 
               key={brand.id}
               onClick={() => setActiveBrand(brand.id)}
-              className={`px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase whitespace-nowrap transition-all ${
+              className={`px-6 py-3 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
                 activeBrand === brand.id 
-                  ? "bg-[var(--accent-gold)] text-black" 
-                  : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                  ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]" 
+                  : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5"
               }`}
             >
               {brand.name}
             </button>
           ))}
-        </div>
+        </motion.div>
 
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <PremiumProductCard 
-                key={product.id} 
-                product={product} 
-                brandName={getBrandName(product.brandId)} 
-              />
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, staggerChildren: 0.1 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
+          >
+            {filteredProducts.map((product, idx) => (
+              <motion.div 
+                key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+              >
+                <PremiumProductCard 
+                  product={product} 
+                  brandName={getBrandName(product.brandId)} 
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="text-center py-24 border border-dashed border-white/10 rounded-[2.5rem] mx-6">
             <p className="text-white/20 italic font-light tracking-widest text-xs uppercase">

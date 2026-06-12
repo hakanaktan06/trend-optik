@@ -42,7 +42,7 @@ export async function getProductServer(id: string): Promise<Product | null> {
   const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${id}`;
 
   try {
-    const res = await fetch(firebaseUrl, { next: { revalidate: 3600 } });
+    const res = await fetch(firebaseUrl, { next: { revalidate: 60 } });
     if (!res.ok) return null;
 
     const data = await res.json();
@@ -86,7 +86,7 @@ export async function getAllProductsServer(): Promise<Product[]> {
   const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products?pageSize=1000`;
 
   try {
-    const res = await fetch(firebaseUrl, { next: { revalidate: 3600 } });
+    const res = await fetch(firebaseUrl, { next: { revalidate: 60 } });
     if (!res.ok) return [];
 
     const data = await res.json();
@@ -129,7 +129,7 @@ export async function getAllBrandsServer(): Promise<Brand[]> {
   const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/brands?pageSize=1000`;
 
   try {
-    const res = await fetch(firebaseUrl, { next: { revalidate: 3600 } });
+    const res = await fetch(firebaseUrl, { next: { revalidate: 60 } });
     if (!res.ok) return [];
 
     const data = await res.json();

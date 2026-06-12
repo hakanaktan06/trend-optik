@@ -10,44 +10,52 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
   const waLink = `https://wa.me/905312075818?text=${waMessage}`;
 
   return (
-    <div className="group flex flex-col glass p-4 rounded-[2rem] border border-white/5 hover:border-white/10 transition-all duration-500 hover:bg-white/[0.02]">
+    <div className="group flex flex-col glass p-3 rounded-[2.5rem] border border-white/5 hover:border-[var(--accent-gold)]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] transition-all duration-700 hover:bg-white/[0.04]">
       {/* Image Wrapper */}
-      <Link href={`/product/${product.id}`} className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden mb-5 bg-white/5 flex items-center justify-center">
+      <Link href={`/product/${product.id}`} className="relative aspect-square w-full rounded-[2rem] overflow-hidden mb-6 bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center p-8">
+        <div className="absolute inset-0 bg-black/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
         <Image 
           src={primaryImage} 
           alt={product.name} 
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          className="object-contain p-6 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.15] group-hover:-rotate-6"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         {/* Out of stock overlay */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
-            <span className="px-4 py-2 bg-black/80 text-white/90 text-xs font-bold tracking-widest uppercase rounded-full border border-white/10 shadow-xl">
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-10">
+            <span className="px-5 py-2 bg-black text-white/90 text-xs font-bold tracking-[0.3em] uppercase rounded-full border border-white/20 shadow-2xl">
               Stokta Yok
             </span>
+          </div>
+        )}
+        
+        {/* Premium Badge */}
+        {product.isFeatured && (
+          <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-black/50 backdrop-blur-md border border-[var(--accent-gold)]/30 rounded-full">
+            <span className="text-[9px] uppercase tracking-widest text-[var(--accent-gold)] font-bold">Trend</span>
           </div>
         )}
       </Link>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 px-2">
-        <div className="text-[10px] uppercase tracking-[0.2em] text-[var(--accent-gold)] font-semibold mb-2">
+      <div className="flex flex-col flex-1 px-4 pb-2">
+        <div className="text-[10px] uppercase tracking-[0.3em] text-white/40 group-hover:text-[var(--accent-gold)] transition-colors duration-500 font-bold mb-3">
           {brandName}
         </div>
         
-        <Link href={`/product/${product.id}`} className="block mb-4">
-          <h3 className="text-xl font-playfair leading-tight text-white/90 group-hover:text-white transition-colors">
+        <Link href={`/product/${product.id}`} className="block mb-6 flex-1">
+          <h3 className="text-2xl font-light tracking-tight text-white group-hover:text-[var(--accent-gold)] transition-colors duration-500">
             {product.name}
-            {product.model && <span className="block text-sm font-sans text-white/40 mt-1">{product.model}</span>}
           </h3>
+          {product.model && <p className="text-sm font-light text-white/30 mt-2">{product.model}</p>}
         </Link>
 
         {/* Footer / Actions */}
-        <div className="mt-auto flex items-center gap-2">
+        <div className="mt-auto flex items-center gap-3">
           <Link 
             href={`/product/${product.id}`}
-            className="flex-1 py-2.5 text-center text-xs font-semibold tracking-wider uppercase text-white/80 bg-white/5 hover:bg-white/10 rounded-xl transition-colors border border-white/5"
+            className="flex-1 py-3.5 text-center text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors border border-white/5"
           >
             İncele
           </Link>
@@ -55,7 +63,7 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-2.5 text-center text-xs font-bold tracking-wider uppercase text-black bg-[var(--accent-gold)] hover:bg-[var(--accent-gold-light)] shadow-[0_0_15px_rgba(212,175,55,0.2)] rounded-xl transition-all hover:scale-[1.02]"
+            className="flex-1 py-3.5 text-center text-[11px] font-extrabold tracking-[0.2em] uppercase text-black bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] shadow-[0_0_20px_rgba(212,175,55,0.3)] rounded-2xl transition-all hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)]"
           >
             Bilgi Al
           </a>
