@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 // Instagram icon — Lucide React'te trademark nedeniyle yok, inline SVG
 function InstagramIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
@@ -21,15 +22,10 @@ const socialLinks = [
   { icon: MessageCircle, href: "https://wa.me/905312075818", label: "WhatsApp" },
 ];
 
-const LOGO_KEY = "trend-optik-logo";
-
 export default function Footer() {
   const pathname = usePathname();
+  const { logoUrl } = useTheme();
   const [brands, setBrands] = useState<{name: string, slug: string}[]>([]);
-  const [logoUrl, setLogoUrl] = useState(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(LOGO_KEY) || "";
-    return "";
-  });
 
   useEffect(() => {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -38,10 +34,7 @@ export default function Footer() {
     const fetchData = async () => {
       try {
         const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
-        const [brandsRes, logoRes] = await Promise.all([
-          fetch(`${base}/brands?pageSize=100`),
-          fetch(`${base}/settings/site`),
-        ]);
+        const brandsRes = await fetch(`${base}/brands?pageSize=100`);
 
         if (brandsRes.ok) {
           const d = await brandsRes.json();
@@ -55,14 +48,6 @@ export default function Footer() {
             .sort((a: any, b: any) => a.order - b.order)
             .slice(0, 6);
           setBrands(data);
-        }
-
-        if (logoRes.ok) {
-          const ld = await logoRes.json();
-          const url = ld.fields?.logoUrl?.stringValue || "";
-          setLogoUrl(url);
-          if (url) localStorage.setItem(LOGO_KEY, url);
-          else localStorage.removeItem(LOGO_KEY);
         }
       } catch(e) {}
     };

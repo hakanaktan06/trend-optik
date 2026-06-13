@@ -85,7 +85,7 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
 
   const loadLogo = async () => {
     try {
-      const snap = await getDoc(doc(db, "settings", "site"));
+      const snap = await getDoc(doc(db, "settings", "theme"));
       if (snap.exists() && snap.data().logoUrl) setLogoUrl(snap.data().logoUrl);
     } catch(e) {}
   };
@@ -129,7 +129,7 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
       const uploadData = await uploadRes.json();
       if (!uploadData.secure_url) throw new Error(uploadData.error?.message || "Cloudinary yanıt vermedi");
 
-      await setDoc(doc(db, "settings", "site"), { logoUrl: uploadData.secure_url }, { merge: true });
+      await setDoc(doc(db, "settings", "theme"), { logoUrl: uploadData.secure_url }, { merge: true });
       setLogoUrl(uploadData.secure_url);
       toast.success("Logo başarıyla güncellendi. Sitenin tamamında yayınlandı.");
     } catch (e: any) {
@@ -142,7 +142,7 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
 
   const handleRemoveLogo = async () => {
     try {
-      await setDoc(doc(db, "settings", "site"), { logoUrl: "" }, { merge: true });
+      await setDoc(doc(db, "settings", "theme"), { logoUrl: "" }, { merge: true });
       setLogoUrl("");
       toast.success("Logo kaldırıldı, yazılı logo geri geldi.");
     } catch (e: any) {

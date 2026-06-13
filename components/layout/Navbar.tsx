@@ -6,8 +6,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone, MapPin, MessageCircle, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const LOGO_KEY = "trend-optik-logo";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 const staticLinks = [
   { label: "Ana Sayfa", href: "/" },
@@ -22,15 +21,11 @@ const afterBrands = staticLinks.slice(3);
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { logoUrl } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isBrandsOpen, setIsBrandsOpen] = useState(false);
   const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
-  // Initialize from localStorage so no flash on page load
-  const [logoUrl, setLogoUrl] = useState(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(LOGO_KEY) || "";
-    return "";
-  });
 
   useEffect(() => {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -38,13 +33,8 @@ export default function Navbar() {
 
     const fetchData = async () => {
       try {
-        // Use Firestore REST API — no auth required, works for all visitors
         const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
-
-        const [brandsRes, logoRes] = await Promise.all([
-          fetch(`${base}/brands?pageSize=100`),
-          fetch(`${base}/settings/site`),
-        ]);
+        const brandsRes = await fetch(`${base}/brands?pageSize=100`);
 
         if (brandsRes.ok) {
           const brandsData = await brandsRes.json();
@@ -59,14 +49,6 @@ export default function Navbar() {
             .filter((b: any) => b.name && b.slug)
             .sort((a: any, b: any) => a.order - b.order);
           setBrands(data);
-        }
-
-        if (logoRes.ok) {
-          const logoData = await logoRes.json();
-          const url = logoData.fields?.logoUrl?.stringValue || "";
-          setLogoUrl(url);
-          if (url) localStorage.setItem(LOGO_KEY, url);
-          else localStorage.removeItem(LOGO_KEY);
         }
       } catch (e) {}
     };

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const LOGO_KEY = "trend-optik-logo";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 interface SidebarProps {
   activeTab: string;
@@ -14,24 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState(() => {
-    if (typeof window !== "undefined") return localStorage.getItem(LOGO_KEY) || "";
-    return "";
-  });
-
-  useEffect(() => {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    if (!projectId) return;
-    fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/settings/site`)
-      .then(r => r.json())
-      .then(d => {
-        const url = d.fields?.logoUrl?.stringValue || "";
-        setLogoUrl(url);
-        if (url) localStorage.setItem(LOGO_KEY, url);
-        else localStorage.removeItem(LOGO_KEY);
-      })
-      .catch(() => {});
-  }, []);
+  const { logoUrl } = useTheme();
 
   const navItems = [
     { id: "home", label: "Ana Ekran", icon: LayoutGrid },
