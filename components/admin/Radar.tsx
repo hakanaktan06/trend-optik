@@ -65,7 +65,7 @@ export default function Radar() {
     <div>
       <div className="flex items-center gap-3 mb-4">
         <Target className="w-8 h-8 text-red-500" />
-        <h2 className="text-3xl font-bold text-white">Akıllı Müşteri Radarı</h2>
+        <h2 className="text-xl md:text-3xl font-bold text-white">Akıllı Müşteri Radarı</h2>
       </div>
       <p className="text-white/50 mb-10 max-w-2xl">
         Sistem son 1 yılı analiz eder ve göz muayenesi zamanı gelenleri sana listeler. Müşterilerine WhatsApp üzerinden profesyonelce hatırlatma yap.

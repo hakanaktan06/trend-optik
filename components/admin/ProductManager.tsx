@@ -404,25 +404,25 @@ export default function ProductManager() {
     <div>
       <div className="flex items-center gap-3 mb-8">
         <Glasses className="w-8 h-8 text-[var(--accent-gold)]" />
-        <h2 className="text-3xl font-bold">Ürün Vitrini</h2>
+        <h2 className="text-xl md:text-3xl font-bold">Ürün Vitrini</h2>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
           <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Toplam Ürün</span>
-          <span className="text-3xl font-light text-white">{totalProducts}</span>
+          <span className="text-2xl md:text-3xl font-light text-white">{totalProducts}</span>
         </div>
         <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
           <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Toplam Stok</span>
-          <span className="text-3xl font-light text-white">{totalStock}</span>
+          <span className="text-2xl md:text-3xl font-light text-white">{totalStock}</span>
         </div>
         <div className="glass p-5 rounded-2xl border border-[var(--accent-gold)]/20 flex flex-col bg-[var(--accent-gold)]/5">
           <span className="text-[10px] text-[var(--accent-gold)]/80 uppercase tracking-widest font-bold mb-1">Vitrindeki Ürün</span>
-          <span className="text-3xl font-light text-[var(--accent-gold)]">{featuredCount}</span>
+          <span className="text-2xl md:text-3xl font-light text-[var(--accent-gold)]">{featuredCount}</span>
         </div>
         <div className="glass p-5 rounded-2xl border border-red-500/20 flex flex-col bg-red-500/5">
           <span className="text-[10px] text-red-400 uppercase tracking-widest font-bold mb-1">Tükenen Ürün</span>
-          <span className="text-3xl font-light text-red-400">{outOfStockCount}</span>
+          <span className="text-2xl md:text-3xl font-light text-red-400">{outOfStockCount}</span>
         </div>
       </div>
 
@@ -430,7 +430,7 @@ export default function ProductManager() {
         
         {/* FORM */}
         <div className="xl:col-span-1">
-          <div className="glass p-6 sm:p-8 rounded-3xl sticky top-6">
+          <div className="glass p-5 sm:p-6 md:p-8 rounded-3xl lg:sticky lg:top-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-[var(--accent-gold)] flex items-center gap-2">
                 {editId ? <Pencil className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
