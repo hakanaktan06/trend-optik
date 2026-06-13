@@ -21,28 +21,49 @@ const socialLinks = [
   { icon: MessageCircle, href: "https://wa.me/905312075818", label: "WhatsApp" },
 ];
 
+const LOGO_KEY = "trend-optik-logo";
+
 export default function Footer() {
   const pathname = usePathname();
   const [brands, setBrands] = useState<{name: string, slug: string}[]>([]);
-  const [logoUrl, setLogoUrl] = useState("");
+  const [logoUrl, setLogoUrl] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem(LOGO_KEY) || "";
+    return "";
+  });
 
   useEffect(() => {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) return;
+
     const fetchData = async () => {
       try {
-        const { collection, getDocs, query, orderBy, limit, doc, getDoc } = await import("firebase/firestore");
-        const { db } = await import("@/lib/firebase");
-
-        const [brandsSnap, logoSnap] = await Promise.all([
-          getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(6))),
-          getDoc(doc(db, "settings", "site")),
+        const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
+        const [brandsRes, logoRes] = await Promise.all([
+          fetch(`${base}/brands?pageSize=100`),
+          fetch(`${base}/settings/site`),
         ]);
 
-        const data: any[] = [];
-        brandsSnap.forEach(d => data.push(d.data()));
-        setBrands(data);
+        if (brandsRes.ok) {
+          const d = await brandsRes.json();
+          const data = (d.documents || [])
+            .map((doc: any) => ({
+              name: doc.fields?.name?.stringValue || "",
+              slug: doc.fields?.slug?.stringValue || "",
+              order: doc.fields?.order?.integerValue ? parseInt(doc.fields.order.integerValue) : 999,
+            }))
+            .filter((b: any) => b.name && b.slug)
+            .sort((a: any, b: any) => a.order - b.order)
+            .slice(0, 6);
+          setBrands(data);
+        }
 
-        const url = logoSnap.exists() ? logoSnap.data().logoUrl : "";
-        if (url) setLogoUrl(url);
+        if (logoRes.ok) {
+          const ld = await logoRes.json();
+          const url = ld.fields?.logoUrl?.stringValue || "";
+          setLogoUrl(url);
+          if (url) localStorage.setItem(LOGO_KEY, url);
+          else localStorage.removeItem(LOGO_KEY);
+        }
       } catch(e) {}
     };
     fetchData();
@@ -64,17 +85,13 @@ export default function Footer() {
                 <img
                   src={logoUrl}
                   alt="Trend Optik Mersin"
-                  className="h-10 w-auto object-contain object-left max-w-[160px]"
+                  className="h-14 w-auto object-contain object-left max-w-[200px]"
                   style={{ mixBlendMode: "screen" }}
                 />
               ) : (
                 <>
-                  <span className="text-base font-semibold tracking-tight text-white leading-none">
-                    TREND OPTİK
-                  </span>
-                  <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">
-                    MERSİN
-                  </span>
+                  <span className="text-base font-semibold tracking-tight text-white leading-none">TREND OPTİK</span>
+                  <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">MERSİN</span>
                 </>
               )}
             </div>

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const LOGO_KEY = "trend-optik-logo";
 
 interface SidebarProps {
   activeTab: string;
@@ -12,6 +14,24 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem(LOGO_KEY) || "";
+    return "";
+  });
+
+  useEffect(() => {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) return;
+    fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/settings/site`)
+      .then(r => r.json())
+      .then(d => {
+        const url = d.fields?.logoUrl?.stringValue || "";
+        setLogoUrl(url);
+        if (url) localStorage.setItem(LOGO_KEY, url);
+        else localStorage.removeItem(LOGO_KEY);
+      })
+      .catch(() => {});
+  }, []);
 
   const navItems = [
     { id: "home", label: "Ana Ekran", icon: LayoutGrid },
@@ -34,10 +54,15 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
       {/* --- DESKTOP SIDEBAR --- */}
       <aside className="hidden lg:flex w-64 bg-[#0a0a0a] fixed h-screen top-0 left-0 border-r border-white/5 z-50 flex-col p-6 overflow-y-auto">
         <div className="flex flex-col items-center mb-10 mt-4">
-          <div className="flex flex-col items-start leading-tight select-none">
-            <span className="text-xl font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
-            <span className="text-[10px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-1">mersin</span>
-          </div>
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Trend Optik" className="h-12 w-auto object-contain" style={{ mixBlendMode: "screen" }} />
+          ) : (
+            <div className="flex flex-col items-start leading-tight select-none">
+              <span className="text-xl font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
+              <span className="text-[10px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-1">mersin</span>
+            </div>
+          )}
         </div>
 
         <nav className="flex flex-col gap-2 w-full">
@@ -75,10 +100,15 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
       {/* --- MOBILE HEADER & MENU --- */}
       {/* Mobile Sticky Top Bar */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[#0a0a0a]/85 backdrop-blur-md border-b border-white/5 z-50 flex items-center justify-between px-6">
-        <div className="flex flex-col items-start leading-tight select-none">
-          <span className="text-base font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
-          <span className="text-[8px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-0.5">mersin</span>
-        </div>
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Trend Optik" className="h-9 w-auto object-contain" style={{ mixBlendMode: "screen" }} />
+        ) : (
+          <div className="flex flex-col items-start leading-tight select-none">
+            <span className="text-base font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
+            <span className="text-[8px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-0.5">mersin</span>
+          </div>
+        )}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="p-2 rounded-xl text-white/75 hover:bg-white/5 transition-colors focus:outline-none"

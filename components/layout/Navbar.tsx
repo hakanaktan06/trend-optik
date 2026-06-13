@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone, MapPin, MessageCircle, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const LOGO_KEY = "trend-optik-logo";
+
 const staticLinks = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Katalog", href: "/katalog" },
@@ -15,9 +17,7 @@ const staticLinks = [
   { label: "İletişim", href: "/#iletisim" },
 ];
 
-// 01-03 appear before the Markalarımız accordion
 const beforeBrands = staticLinks.slice(0, 3);
-// 05-06 appear after
 const afterBrands = staticLinks.slice(3);
 
 export default function Navbar() {
@@ -26,30 +26,51 @@ export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isBrandsOpen, setIsBrandsOpen] = useState(false);
   const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
-  const [logoUrl, setLogoUrl] = useState("");
+  // Initialize from localStorage so no flash on page load
+  const [logoUrl, setLogoUrl] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem(LOGO_KEY) || "";
+    return "";
+  });
 
   useEffect(() => {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) return;
+
     const fetchData = async () => {
       try {
-        const { collection, getDocs, query, orderBy, doc, getDoc } = await import("firebase/firestore");
-        const { db } = await import("@/lib/firebase");
+        // Use Firestore REST API — no auth required, works for all visitors
+        const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
 
-        const [brandsSnap, logoSnap] = await Promise.all([
-          getDocs(query(collection(db, "brands"), orderBy("order", "asc"))),
-          getDoc(doc(db, "settings", "site")),
+        const [brandsRes, logoRes] = await Promise.all([
+          fetch(`${base}/brands?pageSize=100`),
+          fetch(`${base}/settings/site`),
         ]);
 
-        const data: { name: string; slug: string }[] = [];
-        brandsSnap.forEach(d => {
-          const b = d.data();
-          if (b.name && b.slug) data.push({ name: b.name, slug: b.slug });
-        });
-        setBrands(data);
+        if (brandsRes.ok) {
+          const brandsData = await brandsRes.json();
+          const data = (brandsData.documents || [])
+            .map((doc: any) => ({
+              name: doc.fields?.name?.stringValue || "",
+              slug: doc.fields?.slug?.stringValue || "",
+              order: doc.fields?.order?.integerValue
+                ? parseInt(doc.fields.order.integerValue)
+                : 999,
+            }))
+            .filter((b: any) => b.name && b.slug)
+            .sort((a: any, b: any) => a.order - b.order);
+          setBrands(data);
+        }
 
-        const url = logoSnap.exists() ? logoSnap.data().logoUrl : "";
-        if (url) setLogoUrl(url);
+        if (logoRes.ok) {
+          const logoData = await logoRes.json();
+          const url = logoData.fields?.logoUrl?.stringValue || "";
+          setLogoUrl(url);
+          if (url) localStorage.setItem(LOGO_KEY, url);
+          else localStorage.removeItem(LOGO_KEY);
+        }
       } catch (e) {}
     };
+
     fetchData();
   }, []);
 
@@ -88,7 +109,7 @@ export default function Navbar() {
               <img
                 src={logoUrl}
                 alt="Trend Optik Mersin"
-                className="h-10 md:h-12 w-auto object-contain"
+                className="h-14 md:h-16 w-auto object-contain"
                 style={{ mixBlendMode: "screen" }}
               />
             ) : (
@@ -173,7 +194,7 @@ export default function Navbar() {
             <div className="flex-1 flex flex-col items-center justify-center p-10">
               <div className="w-full max-w-xs space-y-6">
 
-                {/* 01–03: Ana Sayfa, Katalog, Hakkımızda */}
+                {/* 01–03 */}
                 {beforeBrands.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -249,7 +270,7 @@ export default function Navbar() {
                   </AnimatePresence>
                 </motion.div>
 
-                {/* 05–06: Sipariş Takibi, İletişim */}
+                {/* 05–06 */}
                 {afterBrands.map((link, i) => (
                   <motion.div
                     key={link.href}
