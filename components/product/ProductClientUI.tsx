@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, ChevronLeft, ShieldCheck, Truck, RotateCcw, Star, PackageX } from "lucide-react";
+import { MessageCircle, ChevronLeft, ChevronRight, ShieldCheck, Truck, RotateCcw, PackageX, X, ZoomIn } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/lib/firestore-server";
@@ -16,16 +16,131 @@ interface ProductClientUIProps {
 
 export default function ProductClientUI({ product, related, brandName }: ProductClientUIProps) {
   const [activeImage, setActiveImage] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [zoomed, setZoomed] = useState(false);
+  const touchStartX = useRef<number>(0);
   const images = product.images?.length > 0 ? product.images : ["/placeholder.png"];
-  
+
   const isOutOfStock = product.stock <= 0;
   const whatsappLink = `https://wa.me/905312075818?text=${encodeURIComponent(`Merhaba, "${product.name} ${product.model}" ürünü hakkında bilgi almak istiyorum.\n\nÜrün Linki: https://trendoptikmersin.com/product/${product.id}`)}`;
 
+  const openLightbox = (idx: number) => {
+    setLightboxIdx(idx);
+    setZoomed(false);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+    setZoomed(false);
+  }, []);
+
+  const prevLightbox = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setLightboxIdx(i => (i - 1 + images.length) % images.length);
+    setZoomed(false);
+  }, [images.length]);
+
+  const nextLightbox = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setLightboxIdx(i => (i + 1) % images.length);
+    setZoomed(false);
+  }, [images.length]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") prevLightbox();
+      if (e.key === "ArrowRight") nextLightbox();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxOpen, closeLightbox, prevLightbox, nextLightbox]);
+
   return (
     <div className="container-premium relative">
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] bg-black/96 flex items-center justify-center"
+            onClick={closeLightbox}
+            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              const delta = e.changedTouches[0].clientX - touchStartX.current;
+              if (Math.abs(delta) > 50) delta < 0 ? nextLightbox() : prevLightbox();
+            }}
+          >
+            {/* Close */}
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Counter */}
+            {images.length > 1 && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/40 text-xs font-mono tracking-widest">
+                {lightboxIdx + 1} / {images.length}
+              </div>
+            )}
+
+            {/* Prev */}
+            {images.length > 1 && (
+              <button
+                onClick={prevLightbox}
+                className="absolute left-3 sm:left-6 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <ChevronLeft size={22} />
+              </button>
+            )}
+
+            {/* Next */}
+            {images.length > 1 && (
+              <button
+                onClick={nextLightbox}
+                className="absolute right-3 sm:right-6 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <ChevronRight size={22} />
+              </button>
+            )}
+
+            {/* Image */}
+            <motion.div
+              key={lightboxIdx}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+              className={`relative flex items-center justify-center w-full h-full px-16 py-12 ${zoomed ? "cursor-zoom-out" : "cursor-zoom-in"}`}
+              onClick={(e) => { e.stopPropagation(); setZoomed(z => !z); }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={images[lightboxIdx]}
+                alt={`${product.name} ${lightboxIdx + 1}`}
+                draggable={false}
+                className={`max-w-full max-h-full object-contain transition-transform duration-300 select-none ${zoomed ? "scale-[2]" : "scale-100"}`}
+                style={{ maxHeight: "calc(100vh - 6rem)" }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Back Button */}
-      <button 
-        onClick={() => window.history.back()} 
+      <button
+        onClick={() => window.history.back()}
         className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-8 group"
       >
         <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-[var(--accent-gold)] group-hover:text-[var(--accent-gold)] transition-all bg-white/5">
@@ -36,13 +151,16 @@ export default function ProductClientUI({ product, related, brandName }: Product
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-20">
         {/* Left: Product Image Gallery */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="lg:col-span-6 relative flex flex-col gap-4"
         >
           {/* Main Image */}
-          <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
+          <div
+            className="relative aspect-[4/3] rounded-[2rem] overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center cursor-zoom-in group/img"
+            onClick={() => openLightbox(activeImage)}
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeImage}
@@ -52,20 +170,25 @@ export default function ProductClientUI({ product, related, brandName }: Product
                 transition={{ duration: 0.3 }}
                 className="w-full h-full relative"
               >
-                <Image 
-                  src={images[activeImage]} 
+                <Image
+                  src={images[activeImage]}
                   alt={`${brandName} ${product.name}`}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-500 group-hover/img:scale-[1.03]"
                   priority
                 />
               </motion.div>
             </AnimatePresence>
-            
+
+            {/* Zoom hint */}
+            <div className="absolute bottom-3 right-3 z-20 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300">
+              <ZoomIn size={14} className="text-white/70" />
+            </div>
+
             {product.isFeatured && (
-              <div className="absolute top-6 left-6 z-20">
-                <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[var(--accent-gold)]/30 to-black/40 border border-[var(--accent-gold)]/40 backdrop-blur-md shadow-2xl">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--accent-gold)] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]">Trend Ürün</span>
+              <div className="absolute top-3 left-3 z-20">
+                <div className="px-2.5 py-1 rounded-full bg-black/70 border border-[var(--accent-gold)]/50 backdrop-blur-sm">
+                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-[var(--accent-gold)]">Trend Ürün</span>
                 </div>
               </div>
             )}
@@ -78,7 +201,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
-                  className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border transition-all duration-300 ${activeImage === idx ? 'border-[var(--accent-gold)] opacity-100 scale-105' : 'border-white/10 opacity-50 hover:opacity-100'}`}
+                  className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border transition-all duration-300 ${activeImage === idx ? "border-[var(--accent-gold)] opacity-100 scale-105" : "border-white/10 opacity-50 hover:opacity-100"}`}
                 >
                   <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
                 </button>

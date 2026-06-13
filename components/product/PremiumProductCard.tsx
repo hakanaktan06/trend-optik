@@ -25,9 +25,9 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
         />
         {/* Premium Badge */}
         {product.isFeatured && (
-          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 scale-[0.8] sm:scale-100 origin-top-left">
-            <div className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-r from-[var(--accent-gold)]/40 to-black/60 border border-[var(--accent-gold)]/50 backdrop-blur-md shadow-lg">
-              <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-[var(--accent-gold)] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]">Trend Ürün</span>
+          <div className="absolute top-2 left-2 z-20">
+            <div className="px-2 py-0.5 rounded-full bg-black/70 border border-[var(--accent-gold)]/50 backdrop-blur-sm">
+              <span className="text-[7px] font-bold uppercase tracking-[0.18em] text-[var(--accent-gold)]">Trend</span>
             </div>
           </div>
         )}
