@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { db, auth } from "@/lib/firebase";
 import { Package, Truck, Target, Award, Eye, Settings2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 // Actually, to be safe, I'll use simple inline states or native alerts if Sonner is not installed. 
@@ -30,8 +31,13 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     else if (hour >= 18 && hour < 22) setGreeting("İyi Akşamlar");
     else setGreeting("İyi Geceler");
 
-    loadStats();
-    loadTheme();
+    // Firebase Auth state geri yüklenene kadar bekle, sonra Firestore'u çağır
+    const unsub = onAuthStateChanged(auth, () => {
+      loadStats();
+      loadTheme();
+      unsub(); // bir kere yeterli
+    });
+    return () => unsub();
   }, []);
 
   const loadStats = async () => {
@@ -67,8 +73,9 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
         lenses: lSnap.size,
         radar: radarCount
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Stats load error", e);
+      toast.error(`İstatistik yüklenemedi: ${e?.message || JSON.stringify(e)}`, { id: "stats-err" });
     }
   };
 
@@ -78,13 +85,15 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
       if (snap.exists()) {
         setTheme(snap.data().activeTheme);
       }
-    } catch(e) {}
+    } catch(e: any) {
+      console.error("Theme load error", e);
+    }
   };
 
   const handleUpdateTheme = async () => {
     setIsUpdating(true);
     try {
-      await setDoc(doc(db, "settings", "theme"), { activeTheme: theme });
+      await setDoc(doc(db, "settings", "theme"), { activeTheme: theme }, { merge: true });
       toast.success("Site teması başarıyla güncellendi.");
     } catch(e: any) {
       toast.error(`Tema hatası: ${e?.message || JSON.stringify(e)}`);

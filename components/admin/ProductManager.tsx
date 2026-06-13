@@ -333,11 +333,11 @@ export default function ProductManager() {
             <span>Stok -1 düşüldü.</span>
             <button 
               onClick={async () => {
-                toast.dismiss(t.id);
+                toast.remove(t.id);
                 // Undo
                 await updateDoc(doc(db, "products", p.id), { stock: p.stock });
-                await deleteDoc(salesRef);
-                setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: p.stock } : prod));
+                try { await deleteDoc(salesRef); } catch (_) {}
+                setProducts(prev => prev.map(prod => prod.id === p.id ? { ...prod, stock: p.stock } : prod));
                 toast.success("İşlem geri alındı.", { id: `undo-${p.id}` });
               }}
               className="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors"
@@ -362,11 +362,11 @@ export default function ProductManager() {
         const fd = new FormData(e.currentTarget);
         const qty = parseInt(fd.get('qty') as string, 10);
         if (isNaN(qty) || qty <= 0) return;
-        toast.dismiss(t.id);
+        toast.remove(t.id);
         const newStock = p.stock + qty;
         try {
           await updateDoc(doc(db, "products", p.id), { stock: newStock });
-          setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
+          setProducts(prev => prev.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
           toast.success(`${qty} adet stok eklendi.`);
         } catch (e: any) { toast.error(`Stok ekleme hatası: ${e?.message || JSON.stringify(e)}`); }
       }} className="flex flex-col gap-3">
