@@ -557,18 +557,20 @@ export default function ProductManager() {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt="preview" className="w-full h-full object-cover" />
 
-                        {/* Sil + Sürükle ikonları */}
-                        <div className="absolute top-0 left-0 w-full p-1 bg-gradient-to-b from-black/70 to-transparent flex justify-between items-start pointer-events-none">
-                          <GripVertical className="w-4 h-4 text-white/40 mt-0.5" />
+                        {/* Sürükle ikonu */}
+                        <div className="absolute top-1 left-1 pointer-events-none z-10">
+                          <GripVertical className="w-4 h-4 text-white/40 drop-shadow" />
                         </div>
+
+                        {/* Sil butonu — her zaman üstte */}
                         <button
                           onClick={(e) => { e.stopPropagation(); removeImage(i); }}
-                          className="absolute top-1 right-1 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1 shadow z-10"
+                          className="absolute top-1 right-1 bg-red-500/90 hover:bg-red-500 active:bg-red-600 text-white rounded-full p-1.5 shadow z-30"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
 
-                        {/* Tam görüntü butonu */}
+                        {/* Tam görüntü butonu — sadece merkez alan, köşelere dokunmaz */}
                         <button
                           onClick={(e) => { e.stopPropagation(); setPreviewImg(img); }}
                           className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 active:opacity-100 bg-black/50 transition-opacity z-10"
