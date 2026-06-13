@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, MessageCircle } from "lucide-react";
 import Link from "next/link";
@@ -25,34 +24,6 @@ const socialLinks = [
 export default function Footer() {
   const pathname = usePathname();
   const { logoUrl } = useTheme();
-  const [brands, setBrands] = useState<{name: string, slug: string}[]>([]);
-
-  useEffect(() => {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    if (!projectId) return;
-
-    const fetchData = async () => {
-      try {
-        const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
-        const brandsRes = await fetch(`${base}/brands?pageSize=100`);
-
-        if (brandsRes.ok) {
-          const d = await brandsRes.json();
-          const data = (d.documents || [])
-            .map((doc: any) => ({
-              name: doc.fields?.name?.stringValue || "",
-              slug: doc.fields?.slug?.stringValue || "",
-              order: doc.fields?.order?.integerValue ? parseInt(doc.fields.order.integerValue) : 999,
-            }))
-            .filter((b: any) => b.name && b.slug)
-            .sort((a: any, b: any) => a.order - b.order)
-            .slice(0, 6);
-          setBrands(data);
-        }
-      } catch(e) {}
-    };
-    fetchData();
-  }, []);
 
   if (pathname?.startsWith("/panel")) return null;
   return (
@@ -103,7 +74,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-3 md:gap-8">
+          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2 md:gap-8">
             {/* Quick Links */}
             <div className="space-y-4">
               <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
@@ -123,24 +94,6 @@ export default function Footer() {
                     className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
                   >
                     {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            {/* Brands */}
-            <div className="space-y-4">
-              <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
-                Markalar
-              </h4>
-              <nav className="flex flex-col gap-2.5">
-                {brands.map((b) => (
-                  <Link
-                    key={b.slug}
-                    href={`/marka/${b.slug}`}
-                    className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
-                  >
-                    {b.name}
                   </Link>
                 ))}
               </nav>
