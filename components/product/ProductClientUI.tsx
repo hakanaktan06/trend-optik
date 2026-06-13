@@ -43,9 +43,12 @@ export default function ProductClientUI({ product, related, brandName }: Product
   const [lbDir, setLbDir] = useState(0);
 
   /* pinch-to-zoom */
-  const [scale, setScale] = useState(1);
+  const [scale, setScaleState] = useState(1);
+  const scaleRef = useRef(1); /* always holds latest scale — avoids stale closures */
   const pinchRef = useRef({ active: false, startDist: 0, startScale: 1 });
   const swipeStartX = useRef(0);
+
+  const setScale = (v: number) => { scaleRef.current = v; setScaleState(v); };
 
   const images = product.images?.length > 0 ? product.images : ["/placeholder.png"];
   const isOutOfStock = product.stock <= 0;
@@ -83,7 +86,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
   /* ── touch handlers for lightbox ── */
   const onTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
-      pinchRef.current = { active: true, startDist: getTouchDist(e.touches), startScale: scale };
+      pinchRef.current = { active: true, startDist: getTouchDist(e.touches), startScale: scaleRef.current };
       return;
     }
     pinchRef.current.active = false;
@@ -100,10 +103,12 @@ export default function ProductClientUI({ product, related, brandName }: Product
   const onTouchEnd = (e: React.TouchEvent) => {
     if (pinchRef.current.active) {
       pinchRef.current.active = false;
-      if (scale < 1.15) setScale(1);
+      /* Küçük pinch'i tam boyuta snap et */
+      if (scaleRef.current < 1.15) setScale(1);
       return;
     }
-    if (scale > 1.1) return; /* don't swipe while zoomed */
+    /* Scale tam 1 değilse kaydırma tamamen kapalı */
+    if (scaleRef.current > 1) return;
     const dx = e.changedTouches[0].clientX - swipeStartX.current;
     if (Math.abs(dx) > 55) dx < 0 ? nextLb() : prevLb();
   };
@@ -173,7 +178,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
                   exit="exit"
                   transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-0 flex items-center justify-center"
-                  onClick={(e) => { e.stopPropagation(); setScale(s => s > 1 ? 1 : 2.2); }}
+                  onClick={(e) => { e.stopPropagation(); setScale(scaleRef.current > 1 ? 1 : 2.2); }}
                   style={{ cursor: scale > 1 ? "zoom-out" : "zoom-in" }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
