@@ -46,9 +46,8 @@ export default function Navbar() {
         });
         setBrands(data);
 
-        if (logoSnap.exists() && logoSnap.data().logoUrl) {
-          setLogoUrl(logoSnap.data().logoUrl);
-        }
+        const url = logoSnap.exists() ? logoSnap.data().logoUrl : "";
+        if (url) setLogoUrl(url);
       } catch (e) {}
     };
     fetchData();

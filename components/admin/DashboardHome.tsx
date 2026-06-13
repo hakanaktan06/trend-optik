@@ -107,8 +107,13 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     if (!file) return;
     setIsUploadingLogo(true);
     try {
-      const signRes = await fetch("/api/cloudinary-sign");
+      const signRes = await fetch("/api/cloudinary-sign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder: "trendoptik/site" }),
+      });
       const { cloudName, apiKey, timestamp, signature, folder } = await signRes.json();
+      if (!cloudName) throw new Error("Cloudinary yapılandırması eksik — Vercel'de env var kontrol edin");
 
       const formData = new FormData();
       formData.append("file", file);
@@ -122,7 +127,7 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
         body: formData,
       });
       const uploadData = await uploadRes.json();
-      if (!uploadData.secure_url) throw new Error("Cloudinary yanıt vermedi");
+      if (!uploadData.secure_url) throw new Error(uploadData.error?.message || "Cloudinary yanıt vermedi");
 
       await setDoc(doc(db, "settings", "site"), { logoUrl: uploadData.secure_url }, { merge: true });
       setLogoUrl(uploadData.secure_url);
@@ -132,6 +137,16 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     } finally {
       setIsUploadingLogo(false);
       if (logoInputRef.current) logoInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    try {
+      await setDoc(doc(db, "settings", "site"), { logoUrl: "" }, { merge: true });
+      setLogoUrl("");
+      toast.success("Logo kaldırıldı, yazılı logo geri geldi.");
+    } catch (e: any) {
+      toast.error(`Kaldırma hatası: ${e?.message}`);
     }
   };
 
@@ -290,6 +305,14 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
                   <Upload className="w-4 h-4" />
                   {isUploadingLogo ? "Yükleniyor..." : logoUrl ? "Logoyu Değiştir" : "Logo Yükle"}
                 </button>
+                {logoUrl && (
+                  <button
+                    onClick={handleRemoveLogo}
+                    className="flex items-center gap-2 px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl font-bold text-sm transition-all border border-red-500/20"
+                  >
+                    Yazılı Logoya Dön
+                  </button>
+                )}
                 <p className="text-white/25 text-xs">PNG, JPG veya WebP · Siyah arka planlı logolar idealdir</p>
               </div>
             </div>
