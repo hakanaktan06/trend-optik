@@ -14,12 +14,20 @@ interface ProductClientUIProps {
   brandName: string;
 }
 
+const slideVariants = {
+  enter: (d: number) => ({ x: d * 80, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (d: number) => ({ x: d * -80, opacity: 0 }),
+};
+
 export default function ProductClientUI({ product, related, brandName }: ProductClientUIProps) {
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
   const [zoomed, setZoomed] = useState(false);
+  const [direction, setDirection] = useState(0);
   const touchStartX = useRef<number>(0);
+  const isPinching = useRef(false);
   const images = product.images?.length > 0 ? product.images : ["/placeholder.png"];
 
   const isOutOfStock = product.stock <= 0;
@@ -28,6 +36,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
   const openLightbox = (idx: number) => {
     setLightboxIdx(idx);
     setZoomed(false);
+    setDirection(0);
     setLightboxOpen(true);
   };
 
@@ -36,16 +45,16 @@ export default function ProductClientUI({ product, related, brandName }: Product
     setZoomed(false);
   }, []);
 
-  const prevLightbox = useCallback((e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setLightboxIdx(i => (i - 1 + images.length) % images.length);
+  const prevLightbox = useCallback(() => {
+    setDirection(-1);
     setZoomed(false);
+    setLightboxIdx(i => (i - 1 + images.length) % images.length);
   }, [images.length]);
 
-  const nextLightbox = useCallback((e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setLightboxIdx(i => (i + 1) % images.length);
+  const nextLightbox = useCallback(() => {
+    setDirection(1);
     setZoomed(false);
+    setLightboxIdx(i => (i + 1) % images.length);
   }, [images.length]);
 
   useEffect(() => {
@@ -63,77 +72,95 @@ export default function ProductClientUI({ product, related, brandName }: Product
     };
   }, [lightboxOpen, closeLightbox, prevLightbox, nextLightbox]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length > 1) { isPinching.current = true; return; }
+    isPinching.current = false;
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isPinching.current || zoomed) { isPinching.current = false; return; }
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 55) dx < 0 ? nextLightbox() : prevLightbox();
+  };
+
   return (
     <div className="container-premium relative">
-      {/* Lightbox */}
+
+      {/* ── LIGHTBOX ── */}
       <AnimatePresence>
         {lightboxOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9999] bg-black/96 flex items-center justify-center"
-            onClick={closeLightbox}
-            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
-            onTouchEnd={(e) => {
-              const delta = e.changedTouches[0].clientX - touchStartX.current;
-              if (Math.abs(delta) > 50) delta < 0 ? nextLightbox() : prevLightbox();
-            }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-[9999] bg-black/97 flex flex-col"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            {/* Close */}
-            <button
-              onClick={closeLightbox}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-            >
-              <X size={20} />
-            </button>
-
-            {/* Counter */}
-            {images.length > 1 && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/40 text-xs font-mono tracking-widest">
-                {lightboxIdx + 1} / {images.length}
-              </div>
-            )}
-
-            {/* Prev */}
-            {images.length > 1 && (
+            {/* Header bar */}
+            <div className="flex-shrink-0 h-14 flex items-center justify-between px-4 z-20">
+              <span className="text-white/35 text-[11px] font-mono tracking-[0.2em]">
+                {images.length > 1 ? `${lightboxIdx + 1} / ${images.length}` : ""}
+              </span>
               <button
-                onClick={prevLightbox}
-                className="absolute left-3 sm:left-6 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                onClick={closeLightbox}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
               >
-                <ChevronLeft size={22} />
+                <X size={17} />
               </button>
-            )}
+            </div>
 
-            {/* Next */}
-            {images.length > 1 && (
-              <button
-                onClick={nextLightbox}
-                className="absolute right-3 sm:right-6 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-              >
-                <ChevronRight size={22} />
-              </button>
-            )}
+            {/* Image area */}
+            <div className="flex-1 relative">
+              {/* Prev / Next arrows */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); prevLightbox(); }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); nextLightbox(); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
 
-            {/* Image */}
-            <motion.div
-              key={lightboxIdx}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.2 }}
-              className={`relative flex items-center justify-center w-full h-full px-16 py-12 ${zoomed ? "cursor-zoom-out" : "cursor-zoom-in"}`}
-              onClick={(e) => { e.stopPropagation(); setZoomed(z => !z); }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={images[lightboxIdx]}
-                alt={`${product.name} ${lightboxIdx + 1}`}
-                draggable={false}
-                className={`max-w-full max-h-full object-contain transition-transform duration-300 select-none ${zoomed ? "scale-[2]" : "scale-100"}`}
-                style={{ maxHeight: "calc(100vh - 6rem)" }}
-              />
-            </motion.div>
+              {/* Slide + zoom container */}
+              <AnimatePresence mode="wait" custom={direction}>
+                <motion.div
+                  key={lightboxIdx}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  className={`absolute inset-0 flex items-center justify-center ${zoomed ? "overflow-auto cursor-zoom-out" : "overflow-hidden cursor-zoom-in"}`}
+                  onClick={() => { if (!zoomed) setZoomed(true); }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={images[lightboxIdx]}
+                    alt={`${product.name} ${lightboxIdx + 1}`}
+                    draggable={false}
+                    onClick={(e) => { e.stopPropagation(); setZoomed(z => !z); }}
+                    className="select-none transition-all duration-300"
+                    style={
+                      zoomed
+                        ? { height: "160vh", width: "auto", maxWidth: "none", display: "block" }
+                        : { maxHeight: "calc(100vh - 3.5rem)", maxWidth: "100%", width: "auto", height: "auto", display: "block" }
+                    }
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -186,8 +213,8 @@ export default function ProductClientUI({ product, related, brandName }: Product
             </div>
 
             {product.isFeatured && (
-              <div className="absolute top-3 left-3 z-20">
-                <div className="px-2.5 py-1 rounded-full bg-black/70 border border-[var(--accent-gold)]/50 backdrop-blur-sm">
+              <div className="absolute top-2 left-2 z-20">
+                <div className="px-2.5 py-1 rounded-full bg-black/70 border border-[var(--accent-gold)]/30 backdrop-blur-sm">
                   <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-[var(--accent-gold)]">Trend Ürün</span>
                 </div>
               </div>
@@ -211,7 +238,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
         </motion.div>
 
         {/* Right: Product Details */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -227,7 +254,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
             <div className="text-lg text-white/50 tracking-wider mb-6 font-mono">
               Model: <span className="text-white font-medium">{product.model}</span>
             </div>
-            
+
             {isOutOfStock ? (
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">
                 <PackageX className="w-5 h-5" />
@@ -283,7 +310,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
                 Bu ürün geçici olarak temin edilemiyor, ancak ön sipariş için bilgi alabilirsiniz.
               </p>
             )}
-            <a 
+            <a
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
@@ -310,10 +337,10 @@ export default function ProductClientUI({ product, related, brandName }: Product
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {related.map((item) => (
-              <PremiumProductCard 
-                key={item.id} 
-                product={item} 
-                brandName={brandName} 
+              <PremiumProductCard
+                key={item.id}
+                product={item}
+                brandName={brandName}
               />
             ))}
           </div>

@@ -26,7 +26,7 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
         {/* Premium Badge */}
         {product.isFeatured && (
           <div className="absolute top-2 left-2 z-20">
-            <div className="px-2 py-0.5 rounded-full bg-black/70 border border-[var(--accent-gold)]/50 backdrop-blur-sm">
+            <div className="px-2 py-0.5 rounded-full bg-black/70 border border-[var(--accent-gold)]/25 backdrop-blur-sm">
               <span className="text-[7px] font-bold uppercase tracking-[0.18em] text-[var(--accent-gold)]">Trend</span>
             </div>
           </div>
