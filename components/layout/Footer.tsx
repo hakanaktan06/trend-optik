@@ -90,6 +90,7 @@ export default function Footer() {
                 {[
                   { label: "Ana Sayfa", href: "/" },
                   { label: "Tüm Katalog", href: "/katalog" },
+                  { label: "Hakkımızda", href: "/hakkimizda" },
                   { label: "Sipariş Takibi", href: "/#takip" },
                   { label: "İletişim", href: "/#iletisim" },
                 ].map((link) => (
@@ -174,12 +175,22 @@ export default function Footer() {
             © {new Date().getFullYear()} Trend Optik. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-[11px] text-white/10 font-light">
-              Gizlilik Politikası
-            </span>
-            <span className="text-[11px] text-white/10 font-light">
-              Kullanım Koşulları
-            </span>
+            <a
+              href="https://wa.me/905312075818?text=Merhaba"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-white/10 hover:text-white/30 transition-colors font-light"
+            >
+              WhatsApp
+            </a>
+            <a
+              href="https://instagram.com/trendoptikmersin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-white/10 hover:text-white/30 transition-colors font-light"
+            >
+              Instagram
+            </a>
           </div>
         </div>
       </div>
