@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { getProductServer, getRelatedProductsServer, getAllProductsServer, getAllBrandsServer } from "@/lib/firestore-server";
 import ProductClientUI from "@/components/product/ProductClientUI";
 
-// ISR: Cache refresh every hour
-export const revalidate = 3600;
+// ISR: Cache refresh every minute (stock changes must reflect quickly)
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   const products = await getAllProductsServer();
