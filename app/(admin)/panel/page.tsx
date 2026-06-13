@@ -57,7 +57,7 @@ export default function AdminPanel() {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-6 pt-20 lg:p-10 lg:pt-16 max-w-7xl">
+      <main className="flex-1 w-full lg:ml-64 p-4 pt-20 sm:p-6 sm:pt-20 lg:p-10 lg:pt-16 max-w-7xl overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

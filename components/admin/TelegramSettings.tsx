@@ -95,12 +95,12 @@ export default function TelegramSettings() {
     <div>
       <div className="flex items-center gap-3 mb-8">
         <Send className="w-8 h-8 text-[var(--accent-gold)]" />
-        <h2 className="text-3xl font-bold text-white">Telegram Ayarları</h2>
+        <h2 className="text-xl md:text-3xl font-bold text-white">Telegram Ayarları</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form */}
-        <div className="glass p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
+        <div className="glass p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-white/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-gold)] opacity-[0.03] blur-[80px] rounded-full pointer-events-none" />
           
           <h3 className="text-xl font-medium text-white mb-6">VIP Randevu Bildirimleri</h3>
@@ -158,7 +158,7 @@ export default function TelegramSettings() {
         </div>
 
         {/* Info */}
-        <div className="glass p-8 rounded-[2rem] border border-white/5 h-fit">
+        <div className="glass p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-white/5 h-fit">
           <div className="flex items-center gap-3 mb-6">
             <Info className="w-6 h-6 text-[var(--accent-gold)]" />
             <h3 className="text-xl font-medium text-white">Nasıl Kurulur?</h3>

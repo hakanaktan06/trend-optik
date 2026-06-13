@@ -219,14 +219,14 @@ export default function BrandManager() {
     <div>
       <div className="flex items-center gap-3 mb-8">
         <Award className="w-8 h-8 text-[var(--accent-gold)]" />
-        <h2 className="text-3xl font-bold">Markalar</h2>
+        <h2 className="text-xl md:text-3xl font-bold">Markalar</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* FORM */}
         <div className="lg:col-span-1">
-          <div className="glass p-6 rounded-3xl sticky top-6">
+          <div className="glass p-5 md:p-6 rounded-3xl lg:sticky lg:top-6">
             <h3 className="text-xl font-bold text-[var(--accent-gold)] mb-6 flex items-center gap-2">
               {editId ? <Pencil className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
               {editId ? "Marka Düzenle" : "Yeni Marka Ekle"}
