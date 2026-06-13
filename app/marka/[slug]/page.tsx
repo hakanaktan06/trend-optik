@@ -3,6 +3,13 @@ import { notFound } from "next/navigation";
 import { getAllBrandsServer, getProductsByBrandServer } from "@/lib/firestore-server";
 import PremiumProductCard from "@/components/product/PremiumProductCard";
 
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const brands = await getAllBrandsServer();
+  return brands.map((b) => ({ slug: b.slug }));
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
