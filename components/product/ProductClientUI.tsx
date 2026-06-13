@@ -47,8 +47,11 @@ export default function ProductClientUI({ product, related, brandName }: Product
   const scaleRef = useRef(1); /* always holds latest scale — avoids stale closures */
   const pinchRef = useRef({ active: false, startDist: 0, startScale: 1 });
   const swipeStartX = useRef(0);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [transformOrigin, setTransformOrigin] = useState("center center");
 
   const setScale = (v: number) => { scaleRef.current = v; setScaleState(v); };
+  const resetOrigin = () => setTransformOrigin("center center");
 
   const images = product.images?.length > 0 ? product.images : ["/placeholder.png"];
   const isOutOfStock = product.stock <= 0;
@@ -57,16 +60,16 @@ export default function ProductClientUI({ product, related, brandName }: Product
   )}`;
 
   /* ── lightbox helpers ── */
-  const openLb = (idx: number) => { setLbIdx(idx); setLbDir(0); setScale(1); setLbOpen(true); };
-  const closeLb = useCallback(() => { setLbOpen(false); setScale(1); }, []);
+  const openLb = (idx: number) => { setLbIdx(idx); setLbDir(0); setScale(1); resetOrigin(); setLbOpen(true); };
+  const closeLb = useCallback(() => { setLbOpen(false); setScale(1); setTransformOrigin("center center"); }, []);
 
   const prevLb = useCallback(() => {
-    setLbDir(-1); setScale(1);
+    setLbDir(-1); setScale(1); setTransformOrigin("center center");
     setLbIdx(i => (i - 1 + images.length) % images.length);
   }, [images.length]);
 
   const nextLb = useCallback(() => {
-    setLbDir(1); setScale(1);
+    setLbDir(1); setScale(1); setTransformOrigin("center center");
     setLbIdx(i => (i + 1) % images.length);
   }, [images.length]);
 
@@ -86,6 +89,15 @@ export default function ProductClientUI({ product, related, brandName }: Product
   /* ── touch handlers for lightbox ── */
   const onTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
+      /* set zoom origin to pinch midpoint */
+      if (imgRef.current) {
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const rect = imgRef.current.getBoundingClientRect();
+        const ox = ((midX - rect.left) / rect.width * 100).toFixed(1) + "%";
+        const oy = ((midY - rect.top) / rect.height * 100).toFixed(1) + "%";
+        setTransformOrigin(`${ox} ${oy}`);
+      }
       pinchRef.current = { active: true, startDist: getTouchDist(e.touches), startScale: scaleRef.current };
       return;
     }
@@ -104,7 +116,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
     if (pinchRef.current.active) {
       pinchRef.current.active = false;
       /* Küçük pinch'i tam boyuta snap et */
-      if (scaleRef.current < 1.15) setScale(1);
+      if (scaleRef.current < 1.15) { setScale(1); setTransformOrigin("center center"); }
       return;
     }
     /* Scale tam 1 değilse kaydırma tamamen kapalı */
@@ -178,11 +190,26 @@ export default function ProductClientUI({ product, related, brandName }: Product
                   exit="exit"
                   transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-0 flex items-center justify-center"
-                  onClick={(e) => { e.stopPropagation(); setScale(scaleRef.current > 1 ? 1 : 2.2); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (scaleRef.current > 1) {
+                      setScale(1);
+                      setTransformOrigin("center center");
+                    } else {
+                      if (imgRef.current) {
+                        const rect = imgRef.current.getBoundingClientRect();
+                        const ox = ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + "%";
+                        const oy = ((e.clientY - rect.top) / rect.height * 100).toFixed(1) + "%";
+                        setTransformOrigin(`${ox} ${oy}`);
+                      }
+                      setScale(2.2);
+                    }
+                  }}
                   style={{ cursor: scale > 1 ? "zoom-out" : "zoom-in" }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
+                    ref={imgRef}
                     src={images[lbIdx]}
                     alt={`${product.name} ${lbIdx + 1}`}
                     draggable={false}
@@ -193,7 +220,7 @@ export default function ProductClientUI({ product, related, brandName }: Product
                       height: "auto",
                       display: "block",
                       transform: `scale(${scale})`,
-                      transformOrigin: "center center",
+                      transformOrigin,
                       transition: pinchRef.current.active ? "none" : "transform 0.25s cubic-bezier(0.16,1,0.3,1)",
                       willChange: "transform",
                     }}
