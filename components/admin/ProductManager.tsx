@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, ListFilter, Star, Trash2, Pencil, Loader2, Glasses, Minus, PlusCircle, Copy, GripVertical, Image as ImageIcon } from "lucide-react";
+import { Plus, ListFilter, Star, Trash2, Pencil, Loader2, Glasses, Minus, PlusCircle, Copy, GripVertical, Image as ImageIcon, X, ZoomIn } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface Brand {
@@ -45,7 +45,10 @@ export default function ProductManager() {
   
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_IMAGES = 5;
 
   // Rate-limiting for toasts
   const lastActionTime = useRef<number>(0);
@@ -102,55 +105,87 @@ export default function ProductManager() {
       .replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   };
 
+  /* Canvas sıkıştırma — telefon fotoğraflarını ~200KB'a indirir, yükleme 5-10x hızlanır */
+  const compressImage = (file: File): Promise<Blob> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const MAX = 1200;
+        let { width, height } = img;
+        if (width > MAX) { height = Math.round(height * MAX / width); width = MAX; }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error("Sıkıştırma başarısız")), "image/jpeg", 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Görsel okunamadı")); };
+      img.src = url;
+    });
+
+  const setCoverImage = (idx: number) => {
+    if (idx === 0) return;
+    const next = [...pImages];
+    const [cover] = next.splice(idx, 1);
+    setPImages([cover, ...next]);
+    toast.success("Kapak görseli güncellendi.", { id: "cover-set" });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = MAX_IMAGES - pImages.length;
+    if (remaining <= 0) {
+      toast.error("En fazla 5 görsel ekleyebilirsiniz.", { id: "img-limit" });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const toUpload = files.slice(0, remaining);
+    if (files.length > remaining)
+      toast(`${files.length - remaining} görsel 5 sınırı nedeniyle atlandı.`, { id: "img-skip" });
 
     setIsUploading(true);
-    const uploadedUrls: string[] = [];
-    const loadingToastId = toast.loading("Görseller yükleniyor...");
+    const loadingToastId = toast.loading(`Sıkıştırılıp yükleniyor (${toUpload.length} görsel)...`);
 
     try {
       const signRes = await fetch("/api/cloudinary-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder: "trendoptik/products" })
+        body: JSON.stringify({ folder: "trendoptik/products" }),
       });
       const signData = await signRes.json();
       if (signData.error) throw new Error(signData.error);
 
-      const cloudName = signData.cloudName;
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("api_key", signData.apiKey);
-        formData.append("timestamp", signData.timestamp);
-        formData.append("signature", signData.signature);
-        formData.append("folder", signData.folder);
+      /* Sıkıştır + paralel yükle */
+      const uploadedUrls = await Promise.all(
+        toUpload.map(async (file) => {
+          const compressed = await compressImage(file);
+          const fd = new FormData();
+          fd.append("file", compressed, file.name.replace(/\.[^.]+$/, ".jpg"));
+          fd.append("api_key", signData.apiKey);
+          fd.append("timestamp", signData.timestamp);
+          fd.append("signature", signData.signature);
+          fd.append("folder", signData.folder);
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`, {
+            method: "POST",
+            body: fd,
+          });
+          const data = await res.json();
+          if (!data.secure_url) throw new Error(data.error?.message || "Yükleme başarısız");
+          return data.secure_url as string;
+        })
+      );
 
-        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: "POST",
-          body: formData,
-        });
-        
-        const uploadData = await uploadRes.json();
-        if (uploadData.secure_url) {
-          uploadedUrls.push(uploadData.secure_url);
-        } else {
-          throw new Error(uploadData.error?.message || "Yükleme başarısız");
-        }
-      }
-
-      setPImages((prev) => [...prev, ...uploadedUrls]);
-      toast.success("Görseller yüklendi.", { id: loadingToastId });
+      setPImages(prev => [...prev, ...uploadedUrls]);
+      toast.success(`${uploadedUrls.length} görsel yüklendi.`, { id: loadingToastId });
     } catch (error: any) {
       console.error(error);
       toast.error(`Hata: ${error.message}`, { id: loadingToastId });
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -402,6 +437,28 @@ export default function ProductManager() {
 
   return (
     <div>
+      {/* Görsel önizleme modalı */}
+      {previewImg && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setPreviewImg(null)}
+        >
+          <button
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white z-10"
+            onClick={() => setPreviewImg(null)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={previewImg}
+            alt="Önizleme"
+            className="max-w-full max-h-[90vh] object-contain rounded-xl select-none"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       <div className="flex items-center gap-3 mb-8">
         <Glasses className="w-8 h-8 text-[var(--accent-gold)]" />
         <h2 className="text-xl md:text-3xl font-bold">Ürün Vitrini</h2>
@@ -443,54 +500,94 @@ export default function ProductManager() {
             
             <div className="space-y-5">
               
-              {/* Görseller Dropzone */}
+              {/* Görseller */}
               <div>
-                <label className="block text-xs text-white/50 uppercase tracking-widest mb-2">Görseller</label>
-                <div 
-                  onClick={() => !isUploading && fileInputRef.current?.click()}
-                  className={`w-full min-h-[120px] border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center text-center p-6 cursor-pointer hover:border-[var(--accent-gold)]/50 transition-colors bg-black/20 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
-                >
-                  <ImageIcon className="w-8 h-8 text-white/30 mb-2" />
-                  <p className="text-sm font-medium text-white/70">
-                    Görsel eklemek için dokunun<br/>
-                    <span className="text-xs font-normal text-white/40">fotoğraf çekin veya galeriden seçin</span>
-                  </p>
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handleImageUpload} 
-                    ref={fileInputRef}
-                  />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs text-white/50 uppercase tracking-widest">Görseller</label>
+                  <span className={`text-xs font-mono ${pImages.length >= MAX_IMAGES ? 'text-amber-400' : 'text-white/30'}`}>
+                    {pImages.length}/{MAX_IMAGES}
+                  </span>
                 </div>
-                
-                {/* Image Thumbnails with Drag & Drop */}
+
+                {/* Dropzone — sadece < 5 görselde göster */}
+                {pImages.length < MAX_IMAGES && (
+                  <div
+                    onClick={() => !isUploading && fileInputRef.current?.click()}
+                    className={`w-full min-h-[100px] border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center text-center p-5 cursor-pointer hover:border-[var(--accent-gold)]/50 transition-colors bg-black/20 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="w-7 h-7 text-[var(--accent-gold)] animate-spin mb-1" />
+                    ) : (
+                      <ImageIcon className="w-7 h-7 text-white/30 mb-1" />
+                    )}
+                    <p className="text-sm font-medium text-white/70">
+                      {isUploading ? "Yükleniyor…" : "Görsel eklemek için dokunun"}
+                    </p>
+                    {!isUploading && (
+                      <p className="text-xs text-white/35 mt-0.5">fotoğraf çekin veya galeriden seçin · maks {MAX_IMAGES - pImages.length} adet</p>
+                    )}
+                  </div>
+                )}
+
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  ref={fileInputRef}
+                />
+
+                {/* Thumbnails */}
                 {pImages.length > 0 && (
                   <div className="flex gap-3 flex-wrap mt-4">
                     {pImages.map((img, i) => (
-                      <div 
-                        key={`${img}-${i}`} 
+                      <div
+                        key={`${img}-${i}`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, i)}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDrop(e, i)}
-                        className={`relative w-20 h-20 rounded-xl border-2 overflow-hidden bg-black/40 cursor-grab active:cursor-grabbing ${i === 0 ? 'border-[var(--accent-gold)] shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'border-white/10 hover:border-white/30'}`}
+                        className={`relative w-24 h-24 rounded-xl border-2 overflow-hidden bg-black/40 cursor-grab active:cursor-grabbing flex-shrink-0 ${
+                          i === 0
+                            ? 'border-[var(--accent-gold)] shadow-[0_0_10px_rgba(201,169,110,0.3)]'
+                            : 'border-white/10 hover:border-white/30'
+                        }`}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt="preview" className="w-full h-full object-cover" />
-                        
-                        <div className="absolute top-0 left-0 w-full p-1 bg-gradient-to-b from-black/60 to-transparent flex justify-between items-start">
-                          <GripVertical className="w-4 h-4 text-white/50" />
-                          <button onClick={(e) => { e.stopPropagation(); removeImage(i); }} className="bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1 shadow">
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </div>
 
-                        {i === 0 && (
-                          <div className="absolute bottom-0 left-0 w-full bg-[var(--accent-gold)] text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest">
+                        {/* Sil + Sürükle ikonları */}
+                        <div className="absolute top-0 left-0 w-full p-1 bg-gradient-to-b from-black/70 to-transparent flex justify-between items-start pointer-events-none">
+                          <GripVertical className="w-4 h-4 text-white/40 mt-0.5" />
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeImage(i); }}
+                          className="absolute top-1 right-1 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1 shadow z-10"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+
+                        {/* Tam görüntü butonu */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPreviewImg(img); }}
+                          className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 active:opacity-100 bg-black/50 transition-opacity z-10"
+                        >
+                          <ZoomIn className="w-7 h-7 text-white drop-shadow" />
+                        </button>
+
+                        {/* Alt bant: Kapak etiketi veya Kapak Yap butonu */}
+                        {i === 0 ? (
+                          <div className="absolute bottom-0 left-0 w-full bg-[var(--accent-gold)] text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest z-20">
                             Kapak
                           </div>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setCoverImage(i); }}
+                            className="absolute bottom-0 left-0 w-full bg-black/70 hover:bg-[var(--accent-gold)] active:bg-[var(--accent-gold)] text-white/60 hover:text-black active:text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest transition-colors z-20"
+                          >
+                            ★ Kapak Yap
+                          </button>
                         )}
                       </div>
                     ))}
