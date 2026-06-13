@@ -1,14 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
-import { Package, Truck, Target, Award, Eye, Settings2 } from "lucide-react";
+import { Package, Truck, Target, Award, Eye, Settings2, ImageIcon, Upload } from "lucide-react";
 import { toast } from "react-hot-toast";
-// Actually, to be safe, I'll use simple inline states or native alerts if Sonner is not installed. 
-// Let's use simple window.alert for now to mimic trendAlert, or build a quick toast.
-// For the sake of premium look, I'll build a quick custom Toast function or use standard browser features. Let's just use simple state for now.
 
 interface Stats {
   products: number;
@@ -23,6 +20,9 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
   const [theme, setTheme] = useState("standard");
   const [greeting, setGreeting] = useState("Hoş Geldiniz");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("");
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -31,20 +31,18 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     else if (hour >= 18 && hour < 22) setGreeting("İyi Akşamlar");
     else setGreeting("İyi Geceler");
 
-    // Firebase Auth state geri yüklenene kadar bekle, sonra Firestore'u çağır
     const unsub = onAuthStateChanged(auth, () => {
       loadStats();
       loadTheme();
-      unsub(); // bir kere yeterli
+      loadLogo();
+      unsub();
     });
     return () => unsub();
   }, []);
 
   const loadStats = async () => {
     try {
-      // Products
       const pSnap = await getDocs(collection(db, "products"));
-      // Orders
       const oSnap = await getDocs(collection(db, "orders"));
       let activeOrders = 0;
       let radarCount = 0;
@@ -53,7 +51,6 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
       oSnap.forEach((doc) => {
         const order = doc.data();
         if (order.status !== "Teslim Edildi") activeOrders++;
-        
         if (order.createdAt) {
           const date = order.createdAt.toDate();
           const diffDays = Math.ceil(Math.abs(today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
@@ -61,9 +58,7 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
         }
       });
 
-      // Certs
       const cSnap = await getDocs(collection(db, "certificates"));
-      // Lenses
       const lSnap = await getDocs(collection(db, "lenses"));
 
       setStats({
@@ -82,12 +77,17 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
   const loadTheme = async () => {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
-      if (snap.exists()) {
-        setTheme(snap.data().activeTheme);
-      }
+      if (snap.exists()) setTheme(snap.data().activeTheme);
     } catch(e: any) {
       console.error("Theme load error", e);
     }
+  };
+
+  const loadLogo = async () => {
+    try {
+      const snap = await getDoc(doc(db, "settings", "site"));
+      if (snap.exists() && snap.data().logoUrl) setLogoUrl(snap.data().logoUrl);
+    } catch(e) {}
   };
 
   const handleUpdateTheme = async () => {
@@ -99,6 +99,39 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
       toast.error(`Tema hatası: ${e?.message || JSON.stringify(e)}`);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingLogo(true);
+    try {
+      const signRes = await fetch("/api/cloudinary-sign");
+      const { cloudName, apiKey, timestamp, signature, folder } = await signRes.json();
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", apiKey);
+      formData.append("timestamp", String(timestamp));
+      formData.append("signature", signature);
+      formData.append("folder", folder);
+
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadData.secure_url) throw new Error("Cloudinary yanıt vermedi");
+
+      await setDoc(doc(db, "settings", "site"), { logoUrl: uploadData.secure_url }, { merge: true });
+      setLogoUrl(uploadData.secure_url);
+      toast.success("Logo başarıyla güncellendi. Sitenin tamamında yayınlandı.");
+    } catch (e: any) {
+      toast.error(`Logo yüklenemedi: ${e?.message}`);
+    } finally {
+      setIsUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
     }
   };
 
@@ -204,6 +237,65 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
           </div>
         </div>
       </div>
+
+        {/* Site Logosu */}
+        <div className="glass p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] relative overflow-hidden border-white/5">
+          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <ImageIcon className="w-64 h-64 text-[var(--accent-color)]" />
+          </div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-full bg-[var(--aura-color)] flex items-center justify-center">
+                <ImageIcon className="w-5 h-5 text-[var(--accent-color)]" />
+              </div>
+              <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight">Site Logosu</h3>
+            </div>
+
+            <p className="text-white/40 text-sm mb-8 max-w-lg font-light leading-relaxed">
+              Logo yüklendiğinde navbar ve footer'daki yazılı logo yerine geçer. Siyah arka planlı logolar sitemizin koyu zemininde otomatik olarak şeffaf görünür.
+            </p>
+
+            <div className="flex flex-col md:flex-row gap-6 items-start md:items-center mb-8">
+              {logoUrl ? (
+                <div className="bg-[#111] border border-white/10 rounded-2xl p-4 flex items-center justify-center min-w-[200px] min-h-[80px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={logoUrl}
+                    alt="Site Logosu"
+                    className="max-h-16 max-w-[180px] object-contain"
+                    style={{ mixBlendMode: "screen" }}
+                  />
+                </div>
+              ) : (
+                <div className="bg-white/[0.02] border border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center min-w-[200px] min-h-[80px] text-white/20 text-sm">
+                  <ImageIcon className="w-6 h-6 mb-2 opacity-40" />
+                  Henüz logo yüklenmedi
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3">
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoUpload}
+                />
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={isUploadingLogo}
+                  className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/15 text-white rounded-xl font-bold text-sm transition-all disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4" />
+                  {isUploadingLogo ? "Yükleniyor..." : logoUrl ? "Logoyu Değiştir" : "Logo Yükle"}
+                </button>
+                <p className="text-white/25 text-xs">PNG, JPG veya WebP · Siyah arka planlı logolar idealdir</p>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
   );
 }
+

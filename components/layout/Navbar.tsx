@@ -26,22 +26,32 @@ export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isBrandsOpen, setIsBrandsOpen] = useState(false);
   const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
-    const fetchBrands = async () => {
+    const fetchData = async () => {
       try {
-        const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
+        const { collection, getDocs, query, orderBy, doc, getDoc } = await import("firebase/firestore");
         const { db } = await import("@/lib/firebase");
-        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc")));
+
+        const [brandsSnap, logoSnap] = await Promise.all([
+          getDocs(query(collection(db, "brands"), orderBy("order", "asc"))),
+          getDoc(doc(db, "settings", "site")),
+        ]);
+
         const data: { name: string; slug: string }[] = [];
-        snap.forEach(d => {
+        brandsSnap.forEach(d => {
           const b = d.data();
           if (b.name && b.slug) data.push({ name: b.name, slug: b.slug });
         });
         setBrands(data);
+
+        if (logoSnap.exists() && logoSnap.data().logoUrl) {
+          setLogoUrl(logoSnap.data().logoUrl);
+        }
       } catch (e) {}
     };
-    fetchBrands();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -73,13 +83,25 @@ export default function Navbar() {
       >
         <div className="container-premium flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex flex-col items-start justify-center group relative z-50">
-            <span className="text-xl md:text-2xl font-black tracking-[0.2em] uppercase text-white drop-shadow-md transition-all duration-300 group-hover:tracking-[0.25em]">
-              TREND <span className="font-light text-white/70">OPTİK</span>
-            </span>
-            <span className="text-[0.60rem] tracking-[0.4em] uppercase text-white/40 ml-1 mt-[2px] group-hover:text-white/60 transition-colors duration-300">
-              Mersin
-            </span>
+          <Link href="/" className="flex items-center relative z-50">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt="Trend Optik Mersin"
+                className="h-10 md:h-12 w-auto object-contain"
+                style={{ mixBlendMode: "screen" }}
+              />
+            ) : (
+              <span className="flex flex-col items-start group">
+                <span className="text-xl md:text-2xl font-black tracking-[0.2em] uppercase text-white drop-shadow-md transition-all duration-300 group-hover:tracking-[0.25em]">
+                  TREND <span className="font-light text-white/70">OPTİK</span>
+                </span>
+                <span className="text-[0.60rem] tracking-[0.4em] uppercase text-white/40 ml-1 mt-[2px] group-hover:text-white/60 transition-colors duration-300">
+                  Mersin
+                </span>
+              </span>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

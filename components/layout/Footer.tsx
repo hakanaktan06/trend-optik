@@ -24,19 +24,29 @@ const socialLinks = [
 export default function Footer() {
   const pathname = usePathname();
   const [brands, setBrands] = useState<{name: string, slug: string}[]>([]);
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
-    const fetchBrands = async () => {
+    const fetchData = async () => {
       try {
-        const { collection, getDocs, query, orderBy, limit } = await import("firebase/firestore");
+        const { collection, getDocs, query, orderBy, limit, doc, getDoc } = await import("firebase/firestore");
         const { db } = await import("@/lib/firebase");
-        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(6)));
+
+        const [brandsSnap, logoSnap] = await Promise.all([
+          getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(6))),
+          getDoc(doc(db, "settings", "site")),
+        ]);
+
         const data: any[] = [];
-        snap.forEach(d => data.push(d.data()));
+        brandsSnap.forEach(d => data.push(d.data()));
         setBrands(data);
+
+        if (logoSnap.exists() && logoSnap.data().logoUrl) {
+          setLogoUrl(logoSnap.data().logoUrl);
+        }
       } catch(e) {}
     };
-    fetchBrands();
+    fetchData();
   }, []);
 
   if (pathname?.startsWith("/panel")) return null;
@@ -50,12 +60,24 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="space-y-4">
             <div className="flex flex-col">
-              <span className="text-base font-semibold tracking-tight text-white leading-none">
-                TREND OPTİK
-              </span>
-              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">
-                MERSİN
-              </span>
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoUrl}
+                  alt="Trend Optik Mersin"
+                  className="h-10 w-auto object-contain object-left max-w-[160px]"
+                  style={{ mixBlendMode: "screen" }}
+                />
+              ) : (
+                <>
+                  <span className="text-base font-semibold tracking-tight text-white leading-none">
+                    TREND OPTİK
+                  </span>
+                  <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">
+                    MERSİN
+                  </span>
+                </>
+              )}
             </div>
             <p className="text-sm text-white/25 font-light leading-relaxed max-w-xs">
               Premium gözlük koleksiyonları ve profesyonel göz sağlığı hizmetleri
