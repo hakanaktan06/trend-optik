@@ -64,8 +64,8 @@ export default function VIPCerts() {
       setCName(""); setCProduct(""); setCDiscount("15"); setCDuration("24");
       loadCerts();
       toast.success(`Sertifika başarıyla oluşturuldu. No: ${genNo}`);
-    } catch (e) {
-      toast.error("Hata oluştu.");
+    } catch (e: any) {
+      toast.error(`Sertifika hatası: ${e?.message || JSON.stringify(e)}`);
     } finally {
       setIsSaving(false);
     }
