@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const initialNavLinks = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Katalog", href: "/katalog" },
+  { label: "Hakkımızda", href: "/hakkimizda" },
   { label: "Sipariş Takibi", href: "/#takip" },
   { label: "İletişim", href: "/#iletisim" },
 ];
@@ -33,6 +34,7 @@ export default function Navbar() {
           setNavLinks([
             { label: "Ana Sayfa", href: "/" },
             { label: "Katalog", href: "/katalog" },
+            { label: "Hakkımızda", href: "/hakkimizda" },
             ...data.map(b => ({ label: b.name, href: `/marka/${b.slug}` })),
             { label: "Sipariş Takibi", href: "/#takip" },
             { label: "İletişim", href: "/#iletisim" }
@@ -190,9 +192,14 @@ export default function Navbar() {
                     <Phone size={16} className="text-[var(--accent-color)]" />
                     <span className="text-sm font-medium">0531 207 58 18</span>
                   </a>
-                  <a href="#" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors">
+                  <a
+                    href="https://maps.google.com/?q=Trend+Optik+Mersin+Yenisehir"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-white/50 hover:text-white transition-colors"
+                  >
                     <MapPin size={16} className="text-[var(--accent-color)]" />
-                    <span className="text-sm font-medium">Mersin, Türkiye</span>
+                    <span className="text-sm font-medium">Yenişehir / Mersin</span>
                   </a>
                 </div>
                 
