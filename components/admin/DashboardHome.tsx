@@ -86,8 +86,8 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     try {
       await setDoc(doc(db, "settings", "theme"), { activeTheme: theme });
       toast.success("Site teması başarıyla güncellendi.");
-    } catch(e) {
-      toast.error("Tema güncellenirken hata oluştu.");
+    } catch(e: any) {
+      toast.error(`Tema hatası: ${e?.message || JSON.stringify(e)}`);
     } finally {
       setIsUpdating(false);
     }

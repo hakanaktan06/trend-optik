@@ -61,8 +61,8 @@ export default function OrderManager() {
       setOName(""); setOPhone(""); setOProduct(""); setOStatus("Sipariş Alındı");
       loadOrders();
       toast.success("Sipariş başarıyla eklendi.");
-    } catch (e) {
-      toast.error("Sipariş eklenirken hata oluştu.");
+    } catch (e: any) {
+      toast.error(`Sipariş hatası: ${e?.message || JSON.stringify(e)}`);
     } finally {
       setIsSaving(false);
     }

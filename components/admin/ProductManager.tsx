@@ -111,7 +111,7 @@ export default function ProductManager() {
     const loadingToastId = toast.loading("Görseller yükleniyor...");
 
     try {
-      const signRes = await fetch("/api/upload-sign", {
+      const signRes = await fetch("/api/cloudinary-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folder: "trendoptik/products" })
@@ -247,8 +247,8 @@ export default function ProductManager() {
       resetForm();
       loadProducts();
       toast.success(editId ? "Ürün güncellendi." : "Yeni ürün eklendi.", { id: saveToastId });
-    } catch (e) {
-      toast.error("Hata oluştu.", { id: saveToastId });
+    } catch (e: any) {
+      toast.error(`Kayıt hatası: ${e?.message || JSON.stringify(e)}`, { id: saveToastId });
     } finally {
       setIsSaving(false);
     }
@@ -349,8 +349,8 @@ export default function ProductManager() {
         { id: `sell-${p.id}`, duration: 5000 }
       );
       
-    } catch (e) {
-      toast.error("Hata oluştu.", { id: `err-${p.id}` });
+    } catch (e: any) {
+      toast.error(`Stok hatası: ${e?.message || JSON.stringify(e)}`, { id: `err-${p.id}` });
       loadProducts(); // revert
     }
   };
@@ -368,7 +368,7 @@ export default function ProductManager() {
           await updateDoc(doc(db, "products", p.id), { stock: newStock });
           setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
           toast.success(`${qty} adet stok eklendi.`);
-        } catch (e) { toast.error("Hata oluştu."); }
+        } catch (e: any) { toast.error(`Stok ekleme hatası: ${e?.message || JSON.stringify(e)}`); }
       }} className="flex flex-col gap-3">
         <span className="font-bold text-sm text-white">Kaç adet stok eklenecek?</span>
         <div className="flex gap-2">
@@ -387,8 +387,8 @@ export default function ProductManager() {
       await updateDoc(doc(db, "products", p.id), { isFeatured: newFeatured });
       setProducts(products.map(prod => prod.id === p.id ? { ...prod, isFeatured: newFeatured } : prod));
       toast.success(newFeatured ? "Vitrine Eklendi" : "Vitrinden Çıkarıldı", { id: toastId });
-    } catch (e) {
-      toast.error("Hata oluştu.", { id: toastId });
+    } catch (e: any) {
+      toast.error(`Güncelleme hatası: ${e?.message || JSON.stringify(e)}`, { id: toastId });
     }
   };
 

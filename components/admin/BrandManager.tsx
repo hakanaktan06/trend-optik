@@ -74,26 +74,38 @@ export default function BrandManager() {
     if (!file) return;
 
     setIsUploading(true);
+    const loadingId = toast.loading("Logo yükleniyor...");
     try {
-      const signRes = await fetch("/api/upload-sign", {
+      const signRes = await fetch("/api/cloudinary-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folder: "trendoptik/brands" })
       });
       const signData = await signRes.json();
-
       if (signData.error) throw new Error(signData.error);
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("api_key", "736528775432578"); // Needs to be public, but usually we just upload to the endpoint. Wait, the prompt says use CLOUDINARY_API_KEY from env, but we can't expose it safely unless it's NEXT_PUBLIC. Let's use unsigned upload for now or assume NEXT_PUBLIC_CLOUDINARY_API_KEY. Actually, the Cloudinary REST API needs `api_key` for signed uploads. Let's fetch it from server or assume unsigned. 
-      // Instead of signed from client, since we need api_key, we can pass it from the sign route.
-      toast.error("Görsel yükleme mantığı tamamlanacak");
-      setIsUploading(false);
-    } catch (error) {
+      formData.append("api_key", signData.apiKey);
+      formData.append("timestamp", signData.timestamp);
+      formData.append("signature", signData.signature);
+      formData.append("folder", signData.folder);
+
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const uploadData = await uploadRes.json();
+      if (!uploadData.secure_url) throw new Error(uploadData.error?.message || "Yükleme başarısız");
+
+      setBLogoUrl(uploadData.secure_url);
+      toast.success("Logo yüklendi.", { id: loadingId });
+    } catch (error: any) {
       console.error(error);
-      toast.error("Görsel yüklenirken hata oluştu.");
+      toast.error(`Logo yükleme hatası: ${error.message}`, { id: loadingId });
+    } finally {
       setIsUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -131,8 +143,8 @@ export default function BrandManager() {
       resetForm();
       loadBrands();
       toast.success(editId ? "Marka güncellendi." : "Yeni marka eklendi.");
-    } catch (e) {
-      toast.error("Hata oluştu.");
+    } catch (e: any) {
+      toast.error(`Kayıt hatası: ${e?.message || JSON.stringify(e)}`);
     } finally {
       setIsSaving(false);
     }
@@ -248,8 +260,20 @@ export default function BrandManager() {
               </div>
 
               <div>
-                <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Logo URL (İsteğe Bağlı)</label>
-                <input type="text" value={bLogoUrl} onChange={e => setBLogoUrl(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors mb-2" placeholder="https://res.cloudinary.com/..." />
+                <label className="block text-xs text-white/50 uppercase tracking-widest mb-1">Logo (İsteğe Bağlı)</label>
+                <label className={`flex items-center justify-center gap-2 w-full p-3 rounded-xl border border-dashed border-white/20 text-sm text-white/50 cursor-pointer hover:border-[var(--accent-gold)]/40 transition-colors ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                  {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {isUploading ? "Yükleniyor..." : "Logo Yükle"}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
+                </label>
+                {bLogoUrl && (
+                  <div className="mt-2 flex items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={bLogoUrl} alt="logo" className="h-8 rounded bg-white/5 object-contain" />
+                    <button onClick={() => setBLogoUrl("")} className="text-xs text-red-400 hover:text-red-300">Kaldır</button>
+                  </div>
+                )}
+                <input type="text" value={bLogoUrl} onChange={e => setBLogoUrl(e.target.value)} className="w-full mt-2 bg-black/40 border border-white/10 rounded-xl p-2.5 text-white/60 text-xs focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors" placeholder="veya URL girin: https://..." />
               </div>
 
               <div className="pt-2">
