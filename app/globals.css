@@ -161,6 +161,11 @@ html, body, .glass, .divider-gold, .hero-gradient, .text-gradient-gold {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Flash önleme: logo localStorage'da varsa metin logoyu gizle */
+html[data-logo] .logo-text-fallback {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;

@@ -74,10 +74,10 @@ export default function Footer() {
                   style={{ mixBlendMode: "screen" }}
                 />
               ) : (
-                <>
+                <div className="logo-text-fallback flex flex-col">
                   <span className="text-base font-semibold tracking-tight text-white leading-none">TREND OPTİK</span>
                   <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">MERSİN</span>
-                </>
+                </div>
               )}
             </div>
             <p className="text-sm text-white/25 font-light leading-relaxed max-w-xs">

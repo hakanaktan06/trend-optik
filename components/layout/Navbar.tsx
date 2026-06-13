@@ -95,7 +95,7 @@ export default function Navbar() {
                 style={{ mixBlendMode: "screen" }}
               />
             ) : (
-              <span className="flex flex-col items-start group">
+              <span className="logo-text-fallback flex flex-col items-start group">
                 <span className="text-xl md:text-2xl font-black tracking-[0.2em] uppercase text-white drop-shadow-md transition-all duration-300 group-hover:tracking-[0.25em]">
                   TREND <span className="font-light text-white/70">OPTİK</span>
                 </span>

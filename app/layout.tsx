@@ -121,6 +121,8 @@ export default function RootLayout({
           try {
             var t = localStorage.getItem('trend-optik-theme');
             if (t) document.documentElement.setAttribute('data-theme', t);
+            var l = localStorage.getItem('trend-optik-logo');
+            if (l) document.documentElement.setAttribute('data-logo', '1');
           } catch(e) {}
         `}} />
       </head>

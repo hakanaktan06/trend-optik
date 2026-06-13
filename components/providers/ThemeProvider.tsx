@@ -39,8 +39,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const url = data.logoUrl || "";
         setLogoUrl(url);
         try {
-          if (url) localStorage.setItem(LOGO_KEY, url);
-          else localStorage.removeItem(LOGO_KEY);
+          if (url) {
+            localStorage.setItem(LOGO_KEY, url);
+            document.documentElement.setAttribute('data-logo', '1');
+          } else {
+            localStorage.removeItem(LOGO_KEY);
+            document.documentElement.removeAttribute('data-logo');
+          }
         } catch (_) {}
       }
     });
