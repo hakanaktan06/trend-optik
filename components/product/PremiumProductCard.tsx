@@ -21,15 +21,6 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
           className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        {/* Out of stock overlay */}
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-10">
-            <span className="px-5 py-2 bg-black text-white/90 text-xs font-bold tracking-[0.3em] uppercase rounded-full border border-white/20 shadow-2xl">
-              Stokta Yok
-            </span>
-          </div>
-        )}
-        
         {/* Premium Badge */}
         {product.isFeatured && (
           <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 scale-[0.8] sm:scale-100 origin-top-left">
@@ -44,8 +35,13 @@ export default function PremiumProductCard({ product, brandName }: { product: Pr
       <div className="px-1 sm:px-4 pb-2 sm:pb-4 flex flex-col flex-grow">
         <span className="text-[var(--accent-gold)] text-[9px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-1 sm:mb-2 font-mono font-bold block">{brandName}</span>
         <h3 className="text-sm sm:text-xl font-display font-bold text-white mb-0.5 sm:mb-1 leading-tight group-hover:text-[var(--accent-gold)] transition-colors line-clamp-1">{product.name}</h3>
-        <p className="text-[10px] sm:text-xs text-[#9AA7AE] font-mono mb-3 sm:mb-4 line-clamp-1 tracking-wider">{product.model}</p>
-        
+        <p className="text-[10px] sm:text-xs text-[#9AA7AE] font-mono line-clamp-1 tracking-wider">{product.model}</p>
+        {isOutOfStock && (
+          <span className="mt-1.5 sm:mt-2 inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-red-400/80">
+            Stokta Yok
+          </span>
+        )}
+
         <div className="mt-auto flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5">
           <Link 
             href={`/product/${product.id}`}

@@ -4,10 +4,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Menu, X, Phone, MapPin, MessageCircle, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const initialNavLinks = [
+const staticLinks = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Katalog", href: "/katalog" },
   { label: "Hakkımızda", href: "/hakkimizda" },
@@ -15,57 +15,50 @@ const initialNavLinks = [
   { label: "İletişim", href: "/#iletisim" },
 ];
 
+// 01-03 appear before the Markalarımız accordion
+const beforeBrands = staticLinks.slice(0, 3);
+// 05-06 appear after
+const afterBrands = staticLinks.slice(3);
+
 export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [navLinks, setNavLinks] = useState(initialNavLinks);
+  const [isBrandsOpen, setIsBrandsOpen] = useState(false);
+  const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
 
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const { collection, getDocs, query, orderBy, limit } = await import("firebase/firestore");
+        const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
         const { db } = await import("@/lib/firebase");
-        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(4)));
-        const data: any[] = [];
-        snap.forEach(d => data.push(d.data()));
-        
-        if (data.length > 0) {
-          setNavLinks([
-            { label: "Ana Sayfa", href: "/" },
-            { label: "Katalog", href: "/katalog" },
-            { label: "Hakkımızda", href: "/hakkimizda" },
-            ...data.map(b => ({ label: b.name, href: `/marka/${b.slug}` })),
-            { label: "Sipariş Takibi", href: "/#takip" },
-            { label: "İletişim", href: "/#iletisim" }
-          ]);
-        }
+        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc")));
+        const data: { name: string; slug: string }[] = [];
+        snap.forEach(d => {
+          const b = d.data();
+          if (b.name && b.slug) data.push({ name: b.name, slug: b.slug });
+        });
+        setBrands(data);
       } catch (e) {}
     };
     fetchBrands();
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (isMobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = isMobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isMobileOpen]);
 
-  // Don't show navbar in admin panel
+  useEffect(() => {
+    if (!isMobileOpen) setIsBrandsOpen(false);
+  }, [isMobileOpen]);
+
   if (pathname?.startsWith("/panel")) return null;
 
   return (
@@ -91,7 +84,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {staticLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -154,11 +147,13 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-40 bg-[#050505]/98 backdrop-blur-3xl lg:hidden flex flex-col"
+            className="fixed inset-0 z-40 bg-[#050505]/98 backdrop-blur-3xl lg:hidden flex flex-col overflow-y-auto"
           >
             <div className="flex-1 flex flex-col items-center justify-center p-10">
               <div className="w-full max-w-xs space-y-6">
-                {navLinks.map((link, i) => (
+
+                {/* 01–03: Ana Sayfa, Katalog, Hakkımızda */}
+                {beforeBrands.map((link, i) => (
                   <motion.div
                     key={link.href}
                     initial={{ opacity: 0, x: -30 }}
@@ -171,20 +166,97 @@ export default function Navbar() {
                       onClick={() => setIsMobileOpen(false)}
                       className="group flex items-end gap-4 py-2"
                     >
-                      <span className="text-[var(--accent-color)] text-[10px] font-bold mb-2">0{i+1}</span>
+                      <span className="text-[var(--accent-color)] text-[10px] font-bold mb-2">0{i + 1}</span>
                       <span className="text-4xl font-bold text-white tracking-tighter group-hover:text-[var(--accent-color)] transition-colors">
                         {link.label}
                       </span>
                     </Link>
                   </motion.div>
                 ))}
+
+                {/* 04: Markalarımız accordion */}
+                <motion.div
+                  key="brands-accordion"
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <button
+                    onClick={() => setIsBrandsOpen(prev => !prev)}
+                    className="group flex items-end gap-4 py-2 w-full text-left"
+                  >
+                    <span className="text-[var(--accent-color)] text-[10px] font-bold mb-2">04</span>
+                    <span className="text-4xl font-bold text-white tracking-tighter group-hover:text-[var(--accent-color)] transition-colors flex-1">
+                      Markalarımız
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "w-5 h-5 text-white/40 mb-2 transition-transform duration-300",
+                        isBrandsOpen && "rotate-180 text-[var(--accent-color)]"
+                      )}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isBrandsOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-10 pt-2 pb-4 space-y-3 border-l border-[var(--accent-color)]/20 ml-3">
+                          {brands.length === 0 ? (
+                            <span className="text-sm text-white/30">Yükleniyor...</span>
+                          ) : (
+                            brands.map((b) => (
+                              <Link
+                                key={b.slug}
+                                href={`/marka/${b.slug}`}
+                                onClick={() => setIsMobileOpen(false)}
+                                className="block text-xl font-semibold text-white/60 hover:text-white transition-colors py-0.5"
+                              >
+                                {b.name}
+                              </Link>
+                            ))
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                {/* 05–06: Sipariş Takibi, İletişim */}
+                {afterBrands.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: (4 + i) * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsMobileOpen(false)}
+                      className="group flex items-end gap-4 py-2"
+                    >
+                      <span className="text-[var(--accent-color)] text-[10px] font-bold mb-2">0{5 + i}</span>
+                      <span className="text-4xl font-bold text-white tracking-tighter group-hover:text-[var(--accent-color)] transition-colors">
+                        {link.label}
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+
               </div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="mt-20 w-full max-w-xs grid grid-cols-1 gap-6"
+                className="mt-16 w-full max-w-xs grid grid-cols-1 gap-6"
               >
                 <div className="h-px bg-white/10 w-full" />
                 <div className="space-y-4">
@@ -202,7 +274,7 @@ export default function Navbar() {
                     <span className="text-sm font-medium">Yenişehir / Mersin</span>
                   </a>
                 </div>
-                
+
                 <Link
                   href="/#iletisim"
                   onClick={() => setIsMobileOpen(false)}
