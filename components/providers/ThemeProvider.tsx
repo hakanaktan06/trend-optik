@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+
+const STORAGE_KEY = "trend-optik-theme";
 
 interface ThemeContextType {
   activeTheme: string;
@@ -11,28 +13,24 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [activeTheme, setActiveTheme] = useState("standard");
-  const isFirstLoad = useRef(true);
+  // localStorage'dan hemen oku (inline script ile zaten data-theme set edildi)
+  const [activeTheme, setActiveTheme] = useState(() => {
+    if (typeof window === "undefined") return "standard";
+    return localStorage.getItem(STORAGE_KEY) || "standard";
+  });
 
   useEffect(() => {
-    // Real-time listener for the theme settings in Firestore
     const unsubscribe = onSnapshot(doc(db, "settings", "theme"), (docSnap) => {
       if (docSnap.exists()) {
         const theme = docSnap.data().activeTheme || "standard";
-        setActiveTheme(theme);
-        
-        if (isFirstLoad.current) {
-          isFirstLoad.current = false;
-        } else {
-          // Add a smooth transition class if needed
-          document.documentElement.style.transition = "all 1s ease";
+        if (theme !== activeTheme) {
+          document.documentElement.style.transition = "color 0.4s ease, background-color 0.4s ease";
         }
-        
-        // Update the HTML data-theme attribute
+        setActiveTheme(theme);
         document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem(STORAGE_KEY, theme); } catch (_) {}
       }
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -49,4 +47,4 @@ export const useTheme = () => {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
-}
+};

@@ -19,8 +19,8 @@ interface Stats {
 }
 
 export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
-  const [stats, setStats] = useState<Stats>({ products: 0, orders: 0, certs: 0, lenses: 0, radar: 0 });
-  const [theme, setTheme] = useState("standart");
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [theme, setTheme] = useState("standard");
   const [greeting, setGreeting] = useState("Hoş Geldiniz");
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -103,11 +103,11 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
   };
 
   const statCards = [
-    { title: "Ürün", count: stats.products, icon: Package, color: "text-[var(--accent-gold)]", border: "border-b-[var(--accent-gold)]", bg: "bg-[var(--accent-gold)]/10" },
-    { title: "Sipariş", count: stats.orders, icon: Truck, color: "text-amber-500", border: "border-b-amber-500", bg: "bg-amber-500/10" },
-    { title: "Radar", count: stats.radar, icon: Target, color: "text-red-500", border: "border-b-red-500", bg: "bg-red-500/10", action: () => setActiveTab("radar") },
-    { title: "VIP", count: stats.certs, icon: Award, color: "text-purple-500", border: "border-b-purple-500", bg: "bg-purple-500/10" },
-    { title: "Lens", count: stats.lenses, icon: Eye, color: "text-cyan-500", border: "border-b-cyan-500", bg: "bg-cyan-500/10" },
+    { title: "Ürün", count: stats?.products, icon: Package, color: "text-[var(--accent-gold)]", border: "border-b-[var(--accent-gold)]", bg: "bg-[var(--accent-gold)]/10" },
+    { title: "Sipariş", count: stats?.orders, icon: Truck, color: "text-amber-500", border: "border-b-amber-500", bg: "bg-amber-500/10" },
+    { title: "Radar", count: stats?.radar, icon: Target, color: "text-red-500", border: "border-b-red-500", bg: "bg-red-500/10", action: () => setActiveTab("radar") },
+    { title: "VIP", count: stats?.certs, icon: Award, color: "text-purple-500", border: "border-b-purple-500", bg: "bg-purple-500/10" },
+    { title: "Lens", count: stats?.lenses, icon: Eye, color: "text-cyan-500", border: "border-b-cyan-500", bg: "bg-cyan-500/10" },
   ];
 
   return (
@@ -129,7 +129,11 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
               <card.icon className={`w-5 h-5 ${card.color}`} />
             </div>
             <p className="text-white/50 text-sm mb-1">{card.title}</p>
-            <h3 className="text-2xl md:text-3xl font-bold text-white">{card.count}</h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-white">
+              {stats === null ? (
+                <span className="inline-block w-8 h-7 rounded bg-white/10 animate-pulse" />
+              ) : card.count}
+            </h3>
           </div>
         ))}
       </div>
