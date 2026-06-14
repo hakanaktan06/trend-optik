@@ -31,7 +31,8 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     else if (hour >= 18 && hour < 22) setGreeting("İyi Akşamlar");
     else setGreeting("İyi Geceler");
 
-    const unsub = onAuthStateChanged(auth, () => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (!user) return; // auth henüz çözülmedi, bekle
       loadStats();
       loadTheme();
       loadLogo();
