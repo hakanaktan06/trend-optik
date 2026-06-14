@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { Package, Truck, Target, Award, Eye, Settings2, ImageIcon, Upload } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -31,23 +30,10 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     else if (hour >= 18 && hour < 22) setGreeting("İyi Akşamlar");
     else setGreeting("İyi Geceler");
 
-    /* Zaten oturum açıksa auth.currentUser hemen hazır — beklemeden yükle */
-    if (auth.currentUser) {
-      loadStats();
-      loadTheme();
-      loadLogo();
-      return;
-    }
-
-    /* İlk yükleme: auth state çözülene kadar bekle */
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-      loadStats();
-      loadTheme();
-      loadLogo();
-      unsub();
-    });
-    return () => unsub();
+    /* Firestore okuma kuralları "allow read: if true" — auth beklemeye gerek yok */
+    loadStats();
+    loadTheme();
+    loadLogo();
   }, []);
 
   const loadStats = async () => {

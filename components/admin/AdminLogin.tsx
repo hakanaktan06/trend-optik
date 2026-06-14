@@ -12,7 +12,7 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const getTurkishErrorMessage = (errorCode: string) => {
     switch (errorCode) {
