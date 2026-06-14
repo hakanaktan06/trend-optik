@@ -56,7 +56,12 @@ export default function Radar() {
   };
 
   const openWhatsApp = (name: string, phone: string) => {
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    let cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '90' + cleanPhone.slice(1);
+    } else if (!cleanPhone.startsWith('90')) {
+      cleanPhone = '90' + cleanPhone;
+    }
     const msg = encodeURIComponent(`Merhaba ${name}, Trend Optik'ten yazıyoruz. Göz muayenenizin üzerinden 1 yıl geçmiş. Göz sağlığınız için kontrol vaktiniz gelmiş olabilir, sizi dükkanımıza bekleriz.`);
     window.open(`https://wa.me/${cleanPhone}?text=${msg}`, "_blank");
   };

@@ -87,8 +87,14 @@ export default function OrderManager() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     if (!newStatus) return;
-    await updateDoc(doc(db, "orders", id), { status: newStatus });
-    loadOrders();
+    try {
+      await updateDoc(doc(db, "orders", id), { status: newStatus });
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
+      toast.success("Sipariş durumu güncellendi.");
+    } catch (e: any) {
+      toast.error(`Güncelleme hatası: ${e?.message || "Bilinmeyen hata"}`);
+      loadOrders();
+    }
   };
 
   const getStatusBadge = (status: string) => {
