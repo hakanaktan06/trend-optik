@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, ListFilter, Star, Trash2, Pencil, Loader2, Glasses, Minus, PlusCircle, Copy, GripVertical, Image as ImageIcon } from "lucide-react";
+import { Plus, ListFilter, Star, Trash2, Pencil, Loader2, Glasses, Minus, PlusCircle, Copy, GripVertical, Image as ImageIcon, X, ZoomIn } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface Brand {
@@ -42,10 +42,16 @@ export default function ProductManager() {
   const [pIsFeatured, setPIsFeatured] = useState(false);
   const [pStatus, setPStatus] = useState<'published'|'draft'>('published');
   const [pType, setPType] = useState<Product['type']>('' as any);
+  const [pSeoTitle, setPSeoTitle] = useState("");
+  const [pSeoDesc, setPSeoDesc] = useState("");
+  const [seoOpen, setSeoOpen] = useState(false);
   
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_IMAGES = 5;
 
   // Rate-limiting for toasts
   const lastActionTime = useRef<number>(0);
@@ -102,55 +108,87 @@ export default function ProductManager() {
       .replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   };
 
+  /* Canvas sıkıştırma — telefon fotoğraflarını ~200KB'a indirir, yükleme 5-10x hızlanır */
+  const compressImage = (file: File): Promise<Blob> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const MAX = 1200;
+        let { width, height } = img;
+        if (width > MAX) { height = Math.round(height * MAX / width); width = MAX; }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error("Sıkıştırma başarısız")), "image/jpeg", 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Görsel okunamadı")); };
+      img.src = url;
+    });
+
+  const setCoverImage = (idx: number) => {
+    if (idx === 0) return;
+    const next = [...pImages];
+    const [cover] = next.splice(idx, 1);
+    setPImages([cover, ...next]);
+    toast.success("Kapak görseli güncellendi.", { id: "cover-set" });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = MAX_IMAGES - pImages.length;
+    if (remaining <= 0) {
+      toast.error("En fazla 5 görsel ekleyebilirsiniz.", { id: "img-limit" });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const toUpload = files.slice(0, remaining);
+    if (files.length > remaining)
+      toast(`${files.length - remaining} görsel 5 sınırı nedeniyle atlandı.`, { id: "img-skip" });
 
     setIsUploading(true);
-    const uploadedUrls: string[] = [];
-    const loadingToastId = toast.loading("Görseller yükleniyor...");
+    const loadingToastId = toast.loading(`Sıkıştırılıp yükleniyor (${toUpload.length} görsel)...`);
 
     try {
-      const signRes = await fetch("/api/upload-sign", {
+      const signRes = await fetch("/api/cloudinary-sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder: "trendoptik/products" })
+        body: JSON.stringify({ folder: "trendoptik/products" }),
       });
       const signData = await signRes.json();
       if (signData.error) throw new Error(signData.error);
 
-      const cloudName = signData.cloudName;
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("api_key", signData.apiKey);
-        formData.append("timestamp", signData.timestamp);
-        formData.append("signature", signData.signature);
-        formData.append("folder", signData.folder);
+      /* Sıkıştır + paralel yükle */
+      const uploadedUrls = await Promise.all(
+        toUpload.map(async (file) => {
+          const compressed = await compressImage(file);
+          const fd = new FormData();
+          fd.append("file", compressed, file.name.replace(/\.[^.]+$/, ".jpg"));
+          fd.append("api_key", signData.apiKey);
+          fd.append("timestamp", signData.timestamp);
+          fd.append("signature", signData.signature);
+          fd.append("folder", signData.folder);
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`, {
+            method: "POST",
+            body: fd,
+          });
+          const data = await res.json();
+          if (!data.secure_url) throw new Error(data.error?.message || "Yükleme başarısız");
+          return data.secure_url as string;
+        })
+      );
 
-        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: "POST",
-          body: formData,
-        });
-        
-        const uploadData = await uploadRes.json();
-        if (uploadData.secure_url) {
-          uploadedUrls.push(uploadData.secure_url);
-        } else {
-          throw new Error(uploadData.error?.message || "Yükleme başarısız");
-        }
-      }
-
-      setPImages((prev) => [...prev, ...uploadedUrls]);
-      toast.success("Görseller yüklendi.", { id: loadingToastId });
+      setPImages(prev => [...prev, ...uploadedUrls]);
+      toast.success(`${uploadedUrls.length} görsel yüklendi.`, { id: loadingToastId });
     } catch (error: any) {
       console.error(error);
       toast.error(`Hata: ${error.message}`, { id: loadingToastId });
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -188,6 +226,9 @@ export default function ProductManager() {
     setPIsFeatured(false);
     setPStatus("published");
     setPType('' as any);
+    setPSeoTitle("");
+    setPSeoDesc("");
+    setSeoOpen(false);
   };
 
   const handleSave = async () => {
@@ -236,6 +277,9 @@ export default function ProductManager() {
         payload.type = null;
       }
 
+      payload.seoTitle = pSeoTitle.trim();
+      payload.seoDesc = pSeoDesc.trim();
+
       if (editId) {
         await updateDoc(doc(db, "products", editId), payload);
       } else {
@@ -247,8 +291,8 @@ export default function ProductManager() {
       resetForm();
       loadProducts();
       toast.success(editId ? "Ürün güncellendi." : "Yeni ürün eklendi.", { id: saveToastId });
-    } catch (e) {
-      toast.error("Hata oluştu.", { id: saveToastId });
+    } catch (e: any) {
+      toast.error(`Kayıt hatası: ${e?.message || JSON.stringify(e)}`, { id: saveToastId });
     } finally {
       setIsSaving(false);
     }
@@ -283,6 +327,8 @@ export default function ProductManager() {
     setPIsFeatured(p.isFeatured || false);
     setPStatus(p.status || 'published');
     setPType(p.type || '' as any);
+    setPSeoTitle((p as any).seoTitle || "");
+    setPSeoDesc((p as any).seoDesc || "");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -333,11 +379,11 @@ export default function ProductManager() {
             <span>Stok -1 düşüldü.</span>
             <button 
               onClick={async () => {
-                toast.dismiss(t.id);
+                toast.remove(t.id);
                 // Undo
                 await updateDoc(doc(db, "products", p.id), { stock: p.stock });
-                await deleteDoc(salesRef);
-                setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: p.stock } : prod));
+                try { await deleteDoc(salesRef); } catch (_) {}
+                setProducts(prev => prev.map(prod => prod.id === p.id ? { ...prod, stock: p.stock } : prod));
                 toast.success("İşlem geri alındı.", { id: `undo-${p.id}` });
               }}
               className="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors"
@@ -349,8 +395,8 @@ export default function ProductManager() {
         { id: `sell-${p.id}`, duration: 5000 }
       );
       
-    } catch (e) {
-      toast.error("Hata oluştu.", { id: `err-${p.id}` });
+    } catch (e: any) {
+      toast.error(`Stok hatası: ${e?.message || JSON.stringify(e)}`, { id: `err-${p.id}` });
       loadProducts(); // revert
     }
   };
@@ -362,13 +408,13 @@ export default function ProductManager() {
         const fd = new FormData(e.currentTarget);
         const qty = parseInt(fd.get('qty') as string, 10);
         if (isNaN(qty) || qty <= 0) return;
-        toast.dismiss(t.id);
+        toast.remove(t.id);
         const newStock = p.stock + qty;
         try {
           await updateDoc(doc(db, "products", p.id), { stock: newStock });
-          setProducts(products.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
+          setProducts(prev => prev.map(prod => prod.id === p.id ? { ...prod, stock: newStock } : prod));
           toast.success(`${qty} adet stok eklendi.`);
-        } catch (e) { toast.error("Hata oluştu."); }
+        } catch (e: any) { toast.error(`Stok ekleme hatası: ${e?.message || JSON.stringify(e)}`); }
       }} className="flex flex-col gap-3">
         <span className="font-bold text-sm text-white">Kaç adet stok eklenecek?</span>
         <div className="flex gap-2">
@@ -387,8 +433,8 @@ export default function ProductManager() {
       await updateDoc(doc(db, "products", p.id), { isFeatured: newFeatured });
       setProducts(products.map(prod => prod.id === p.id ? { ...prod, isFeatured: newFeatured } : prod));
       toast.success(newFeatured ? "Vitrine Eklendi" : "Vitrinden Çıkarıldı", { id: toastId });
-    } catch (e) {
-      toast.error("Hata oluştu.", { id: toastId });
+    } catch (e: any) {
+      toast.error(`Güncelleme hatası: ${e?.message || JSON.stringify(e)}`, { id: toastId });
     }
   };
 
@@ -402,27 +448,49 @@ export default function ProductManager() {
 
   return (
     <div>
+      {/* Görsel önizleme modalı */}
+      {previewImg && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setPreviewImg(null)}
+        >
+          <button
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white z-10"
+            onClick={() => setPreviewImg(null)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={previewImg}
+            alt="Önizleme"
+            className="max-w-full max-h-[90vh] object-contain rounded-xl select-none"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       <div className="flex items-center gap-3 mb-8">
         <Glasses className="w-8 h-8 text-[var(--accent-gold)]" />
-        <h2 className="text-3xl font-bold">Ürün Vitrini</h2>
+        <h2 className="text-xl md:text-3xl font-bold">Ürün Vitrini</h2>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
           <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Toplam Ürün</span>
-          <span className="text-3xl font-light text-white">{totalProducts}</span>
+          <span className="text-2xl md:text-3xl font-light text-white">{totalProducts}</span>
         </div>
         <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
           <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Toplam Stok</span>
-          <span className="text-3xl font-light text-white">{totalStock}</span>
+          <span className="text-2xl md:text-3xl font-light text-white">{totalStock}</span>
         </div>
         <div className="glass p-5 rounded-2xl border border-[var(--accent-gold)]/20 flex flex-col bg-[var(--accent-gold)]/5">
           <span className="text-[10px] text-[var(--accent-gold)]/80 uppercase tracking-widest font-bold mb-1">Vitrindeki Ürün</span>
-          <span className="text-3xl font-light text-[var(--accent-gold)]">{featuredCount}</span>
+          <span className="text-2xl md:text-3xl font-light text-[var(--accent-gold)]">{featuredCount}</span>
         </div>
         <div className="glass p-5 rounded-2xl border border-red-500/20 flex flex-col bg-red-500/5">
           <span className="text-[10px] text-red-400 uppercase tracking-widest font-bold mb-1">Tükenen Ürün</span>
-          <span className="text-3xl font-light text-red-400">{outOfStockCount}</span>
+          <span className="text-2xl md:text-3xl font-light text-red-400">{outOfStockCount}</span>
         </div>
       </div>
 
@@ -430,7 +498,7 @@ export default function ProductManager() {
         
         {/* FORM */}
         <div className="xl:col-span-1">
-          <div className="glass p-6 sm:p-8 rounded-3xl sticky top-6">
+          <div className="glass p-5 sm:p-6 md:p-8 rounded-3xl lg:sticky lg:top-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-[var(--accent-gold)] flex items-center gap-2">
                 {editId ? <Pencil className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
@@ -443,54 +511,96 @@ export default function ProductManager() {
             
             <div className="space-y-5">
               
-              {/* Görseller Dropzone */}
+              {/* Görseller */}
               <div>
-                <label className="block text-xs text-white/50 uppercase tracking-widest mb-2">Görseller</label>
-                <div 
-                  onClick={() => !isUploading && fileInputRef.current?.click()}
-                  className={`w-full min-h-[120px] border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center text-center p-6 cursor-pointer hover:border-[var(--accent-gold)]/50 transition-colors bg-black/20 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
-                >
-                  <ImageIcon className="w-8 h-8 text-white/30 mb-2" />
-                  <p className="text-sm font-medium text-white/70">
-                    Görsel eklemek için dokunun<br/>
-                    <span className="text-xs font-normal text-white/40">fotoğraf çekin veya galeriden seçin</span>
-                  </p>
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handleImageUpload} 
-                    ref={fileInputRef}
-                  />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs text-white/50 uppercase tracking-widest">Görseller</label>
+                  <span className={`text-xs font-mono ${pImages.length >= MAX_IMAGES ? 'text-amber-400' : 'text-white/30'}`}>
+                    {pImages.length}/{MAX_IMAGES}
+                  </span>
                 </div>
-                
-                {/* Image Thumbnails with Drag & Drop */}
+
+                {/* Dropzone — sadece < 5 görselde göster */}
+                {pImages.length < MAX_IMAGES && (
+                  <div
+                    onClick={() => !isUploading && fileInputRef.current?.click()}
+                    className={`w-full min-h-[100px] border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center text-center p-5 cursor-pointer hover:border-[var(--accent-gold)]/50 transition-colors bg-black/20 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="w-7 h-7 text-[var(--accent-gold)] animate-spin mb-1" />
+                    ) : (
+                      <ImageIcon className="w-7 h-7 text-white/30 mb-1" />
+                    )}
+                    <p className="text-sm font-medium text-white/70">
+                      {isUploading ? "Yükleniyor…" : "Görsel eklemek için dokunun"}
+                    </p>
+                    {!isUploading && (
+                      <p className="text-xs text-white/35 mt-0.5">fotoğraf çekin veya galeriden seçin · maks {MAX_IMAGES - pImages.length} adet</p>
+                    )}
+                  </div>
+                )}
+
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  ref={fileInputRef}
+                />
+
+                {/* Thumbnails */}
                 {pImages.length > 0 && (
                   <div className="flex gap-3 flex-wrap mt-4">
                     {pImages.map((img, i) => (
-                      <div 
-                        key={`${img}-${i}`} 
+                      <div
+                        key={`${img}-${i}`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, i)}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDrop(e, i)}
-                        className={`relative w-20 h-20 rounded-xl border-2 overflow-hidden bg-black/40 cursor-grab active:cursor-grabbing ${i === 0 ? 'border-[var(--accent-gold)] shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'border-white/10 hover:border-white/30'}`}
+                        className={`relative w-24 h-24 rounded-xl border-2 overflow-hidden bg-black/40 cursor-grab active:cursor-grabbing flex-shrink-0 ${
+                          i === 0
+                            ? 'border-[var(--accent-gold)] shadow-[0_0_10px_rgba(201,169,110,0.3)]'
+                            : 'border-white/10 hover:border-white/30'
+                        }`}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img} alt="preview" className="w-full h-full object-cover" />
-                        
-                        <div className="absolute top-0 left-0 w-full p-1 bg-gradient-to-b from-black/60 to-transparent flex justify-between items-start">
-                          <GripVertical className="w-4 h-4 text-white/50" />
-                          <button onClick={(e) => { e.stopPropagation(); removeImage(i); }} className="bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1 shadow">
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+
+                        {/* Sürükle ikonu */}
+                        <div className="absolute top-1 left-1 pointer-events-none z-10">
+                          <GripVertical className="w-4 h-4 text-white/40 drop-shadow" />
                         </div>
 
-                        {i === 0 && (
-                          <div className="absolute bottom-0 left-0 w-full bg-[var(--accent-gold)] text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest">
+                        {/* Sil butonu — her zaman üstte */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeImage(i); }}
+                          className="absolute top-1 right-1 bg-red-500/90 hover:bg-red-500 active:bg-red-600 text-white rounded-full p-1.5 shadow z-30"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+
+                        {/* Tam görüntü butonu — sadece merkez alan, köşelere dokunmaz */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPreviewImg(img); }}
+                          className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 active:opacity-100 bg-black/50 transition-opacity z-10"
+                        >
+                          <ZoomIn className="w-7 h-7 text-white drop-shadow" />
+                        </button>
+
+                        {/* Alt bant: Kapak etiketi veya Kapak Yap butonu */}
+                        {i === 0 ? (
+                          <div className="absolute bottom-0 left-0 w-full bg-[var(--accent-gold)] text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest z-20">
                             Kapak
                           </div>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setCoverImage(i); }}
+                            className="absolute bottom-0 left-0 w-full bg-black/70 hover:bg-[var(--accent-gold)] active:bg-[var(--accent-gold)] text-white/60 hover:text-black active:text-black text-[9px] font-bold text-center py-0.5 uppercase tracking-widest transition-colors z-20"
+                          >
+                            ★ Kapak Yap
+                          </button>
                         )}
                       </div>
                     ))}
@@ -572,7 +682,51 @@ export default function ProductManager() {
                 </label>
               </div>
 
-              <div className="pt-4">
+              {/* SEO Bölümü (katlanabilir) */}
+              <div className="border border-white/10 rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setSeoOpen(!seoOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors text-left"
+                >
+                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest">SEO (İsteğe Bağlı)</span>
+                  <span className="text-white/30 text-xs">{seoOpen ? "▲" : "▼"}</span>
+                </button>
+                {seoOpen && (
+                  <div className="p-4 space-y-4 bg-black/20">
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <label className="text-xs text-white/50 uppercase tracking-widest">SEO Başlığı</label>
+                        <span className="text-[10px] text-white/25 normal-case tracking-normal">— boş bırakılırsa otomatik üretilir</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={pSeoTitle}
+                        onChange={e => setPSeoTitle(e.target.value)}
+                        placeholder={`${pBrandName || "Marka"} ${pModel || "Model"} — ${pName || "Ürün Adı"} | Trend Optik Mersin`}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors"
+                      />
+                      <p className="text-[10px] text-white/25 mt-0.5">Google'da gösterilecek başlık. 50–60 karakter idealdir.</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <label className="text-xs text-white/50 uppercase tracking-widest">SEO Açıklaması</label>
+                        <span className="text-[10px] text-white/25 normal-case tracking-normal">— boş bırakılırsa otomatik üretilir</span>
+                      </div>
+                      <textarea
+                        value={pSeoDesc}
+                        onChange={e => setPSeoDesc(e.target.value)}
+                        placeholder="Bu ürünün Google arama sonucundaki açıklaması. 150–160 karakter."
+                        rows={2}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors resize-none"
+                      />
+                      <p className="text-[10px] text-white/25 mt-0.5">{pSeoDesc.length}/160 karakter</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2">
                 <button onClick={handleSave} disabled={isSaving || isUploading} className="w-full py-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-all flex justify-center items-center gap-2">
                   {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
                   {editId ? "Değişiklikleri Kaydet" : "Ürünü Kaydet"}

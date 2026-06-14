@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send, Menu, X } from "lucide-react";
+import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send, Menu, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 interface SidebarProps {
   activeTab: string;
@@ -12,6 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { logoUrl } = useTheme();
 
   const navItems = [
     { id: "home", label: "Ana Ekran", icon: LayoutGrid },
@@ -22,6 +24,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
     { id: "certs", label: "Sertifikalar", icon: Award },
     { id: "lenses", label: "Lens Radarı", icon: Eye },
     { id: "telegram", label: "Telegram Ayarları", icon: Send },
+    { id: "seo", label: "SEO Yönetimi", icon: Search },
   ];
 
   const handleNavClick = (id: string) => {
@@ -33,10 +36,19 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
     <>
       {/* --- DESKTOP SIDEBAR --- */}
       <aside className="hidden lg:flex w-64 bg-[#0a0a0a] fixed h-screen top-0 left-0 border-r border-white/5 z-50 flex-col p-6 overflow-y-auto">
-        <div className="flex flex-col items-center mb-10 mt-4">
-          <div className="flex flex-col items-start leading-tight select-none">
-            <span className="text-xl font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
-            <span className="text-[10px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-1">mersin</span>
+        <div className="flex items-center gap-3 mb-10 mt-4">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Trend Optik" className="h-10 w-auto object-contain flex-shrink-0" style={{ mixBlendMode: "screen" }} />
+          ) : (
+            <div className="logo-text-fallback flex flex-col items-start leading-tight select-none">
+              <span className="text-lg font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
+              <span className="text-[9px] text-white/50 tracking-[0.22em] uppercase self-end -mt-0.5 pr-1">mersin</span>
+            </div>
+          )}
+          <div className="flex flex-col leading-tight">
+            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/25">YÖNETİM</span>
+            <span className="text-[9px] tracking-[0.15em] text-[var(--accent-gold)]/50 uppercase font-medium">Paneli</span>
           </div>
         </div>
 
@@ -75,9 +87,17 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
       {/* --- MOBILE HEADER & MENU --- */}
       {/* Mobile Sticky Top Bar */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[#0a0a0a]/85 backdrop-blur-md border-b border-white/5 z-50 flex items-center justify-between px-6">
-        <div className="flex flex-col items-start leading-tight select-none">
-          <span className="text-base font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
-          <span className="text-[8px] text-white/50 tracking-[0.22em] uppercase self-end -mt-1 pr-0.5">mersin</span>
+        <div className="flex items-center gap-2.5">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="Trend Optik" className="h-8 w-auto object-contain flex-shrink-0" style={{ mixBlendMode: "screen" }} />
+          ) : (
+            <div className="logo-text-fallback flex flex-col items-start leading-tight select-none">
+              <span className="text-sm font-extrabold tracking-wider text-[#ea580c] uppercase">Trend Optik</span>
+              <span className="text-[7px] text-white/50 tracking-[0.22em] uppercase self-end -mt-0.5 pr-0.5">mersin</span>
+            </div>
+          )}
+          <span className="text-[9px] font-bold tracking-[0.25em] uppercase text-white/25">YÖNETİM</span>
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}

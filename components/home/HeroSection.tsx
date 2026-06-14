@@ -6,22 +6,20 @@ import { ChevronDown } from "lucide-react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const desktopVideoRef = useRef<HTMLVideoElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
 
-  // Smooth parallax for the background video
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const handleVideoEnded = () => {
-    // 10 saniye bekle ve tekrar oynat
+  const makeEndedHandler = (ref: React.RefObject<HTMLVideoElement | null>) => () => {
     setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch(console.error);
-      }
+      ref.current?.play().catch(console.error);
     }, 10000);
   };
 
@@ -32,23 +30,36 @@ export default function HeroSection() {
       className="relative h-[100svh] w-full overflow-hidden bg-[var(--background)]"
     >
       {/* Parallax Video Background */}
-      <motion.div 
+      <motion.div
         style={{ y, opacity }}
         className="absolute inset-0 w-full h-full"
       >
+        {/* Masaüstü videosu — md ve üzeri (≥768px) */}
         <video
-          ref={videoRef}
+          ref={desktopVideoRef}
           autoPlay
           muted
           playsInline
-          onEnded={handleVideoEnded}
-          className="w-full h-full object-cover"
+          preload="none"
+          onEnded={makeEndedHandler(desktopVideoRef)}
+          className="hidden md:block absolute inset-0 w-full h-full object-cover"
         >
-          {/* Mobile Video (9:16 aspect ratio, cropped via FFmpeg) */}
-          <source src="/hero-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
-          {/* Desktop Video (Standard Landscape) */}
           <source src="/hero-new.mp4" type="video/mp4" />
         </video>
+
+        {/* Mobil videosu — md altı (<768px) */}
+        <video
+          ref={mobileVideoRef}
+          autoPlay
+          muted
+          playsInline
+          preload="none"
+          onEnded={makeEndedHandler(mobileVideoRef)}
+          className="block md:hidden absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/hero-mobile.mp4" type="video/mp4" />
+        </video>
+
         {/* Advanced Gradient Overlay for Premium Look */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[var(--background)]/95" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-black/40 to-black/80 pointer-events-none" />
@@ -56,7 +67,7 @@ export default function HeroSection() {
 
       {/* Content Container */}
       <div className="relative z-10 h-full w-full flex flex-col items-center justify-center px-4 sm:px-6">
-        
+
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -132,9 +143,10 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-      
+
       {/* Bottom Fade out */}
       <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-[var(--background)] to-transparent z-10 pointer-events-none" />
     </section>
   );
 }
+

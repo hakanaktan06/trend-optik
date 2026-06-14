@@ -115,6 +115,17 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} dark antialiased`}
     >
+      <head>
+        {/* Theme flash önleme: React hydrate'den önce localStorage'dan tema oku */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            var t = localStorage.getItem('trend-optik-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+            var l = localStorage.getItem('trend-optik-logo');
+            if (l) document.documentElement.setAttribute('data-logo', '1');
+          } catch(e) {}
+        `}} />
+      </head>
       <body className="min-h-screen flex flex-col bg-[#050505] text-white grain">
         {/* Optician LocalBusiness JSON-LD */}
         <script

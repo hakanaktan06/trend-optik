@@ -10,9 +10,17 @@ import { Product, Brand } from "@/lib/firestore-server";
 export default function ProductsShowcase({ initialProducts = [], brands = [] }: { initialProducts?: Product[], brands?: Brand[] }) {
   const [activeBrand, setActiveBrand] = useState<string>("all");
 
-  const filteredProducts = activeBrand === "all" 
-    ? initialProducts 
+  // Only show brands that have at least one product
+  const brandsWithProducts = brands.filter(brand =>
+    initialProducts.some(p => p.brandId === brand.id || p.brandId === brand.slug || p.brandId === brand.name)
+  );
+
+  const filtered = activeBrand === "all"
+    ? initialProducts
     : initialProducts.filter(p => p.brandId === activeBrand);
+
+  const vitrinProducts = filtered.filter(p => p.isFeatured);
+  const otherProducts = filtered.filter(p => !p.isFeatured);
 
   const getBrandName = (brandId: string) => {
     const b = brands.find(br => br.id === brandId || br.slug === brandId || br.name === brandId);
@@ -52,25 +60,25 @@ export default function ProductsShowcase({ initialProducts = [], brands = [] }: 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex gap-3 overflow-x-auto pb-6 mb-12 scrollbar-hide justify-center max-w-4xl mx-auto"
+          className="flex gap-3 overflow-x-auto pb-4 mb-12 scrollbar-hide snap-x snap-mandatory px-4 md:px-0 md:justify-center md:flex-wrap max-w-4xl mx-auto"
         >
-          <button 
+          <button
             onClick={() => setActiveBrand("all")}
-            className={`px-6 py-3 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
-              activeBrand === "all" 
-                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]" 
+            className={`snap-center flex-shrink-0 px-5 py-2.5 min-h-[44px] rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
+              activeBrand === "all"
+                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                 : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5"
             }`}
           >
             Tüm Modeller
           </button>
-          {brands.map(brand => (
-            <button 
+          {brandsWithProducts.map(brand => (
+            <button
               key={brand.id}
               onClick={() => setActiveBrand(brand.id)}
-              className={`px-6 py-3 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
-                activeBrand === brand.id 
-                  ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]" 
+              className={`snap-center flex-shrink-0 px-5 py-2.5 min-h-[44px] rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
+                activeBrand === brand.id
+                  ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                   : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5"
               }`}
             >
@@ -79,32 +87,71 @@ export default function ProductsShowcase({ initialProducts = [], brands = [] }: 
           ))}
         </motion.div>
 
-        {filteredProducts.length > 0 ? (
+        {filtered.length > 0 ? (
           <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, staggerChildren: 0.1 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8"
-            >
-              {filteredProducts.map((product, idx) => (
-                <motion.div 
-                  key={product.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+            {/* Vitrin Ürünleri */}
+            {vitrinProducts.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8"
+              >
+                {vitrinProducts.map((product, idx) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: idx * 0.08 }}
+                    className="focus-reveal"
+                  >
+                    <PremiumProductCard
+                      product={product}
+                      brandName={getBrandName(product.brandId)}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Tüm Koleksiyon — vitrin olmayan ürünler */}
+            {otherProducts.length > 0 && (
+              <>
+                <div className="mt-20 mb-10 flex items-center gap-4">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <span className="text-white/30 text-[10px] tracking-[0.4em] uppercase font-bold shrink-0">
+                    {vitrinProducts.length > 0 ? "Tüm Koleksiyon" : "Koleksiyon"}
+                  </span>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="focus-reveal"
+                  transition={{ duration: 0.8 }}
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8"
                 >
-                  <PremiumProductCard 
-                    product={product} 
-                    brandName={getBrandName(product.brandId)} 
-                  />
+                  {otherProducts.map((product, idx) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: idx * 0.08 }}
+                      className="focus-reveal"
+                    >
+                      <PremiumProductCard
+                        product={product}
+                        brandName={getBrandName(product.brandId)}
+                      />
+                    </motion.div>
+                  ))}
                 </motion.div>
-              ))}
-            </motion.div>
-            
+              </>
+            )}
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

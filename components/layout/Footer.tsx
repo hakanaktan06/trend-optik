@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 // Instagram icon — Lucide React'te trademark nedeniyle yok, inline SVG
 function InstagramIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
@@ -23,21 +23,7 @@ const socialLinks = [
 
 export default function Footer() {
   const pathname = usePathname();
-  const [brands, setBrands] = useState<{name: string, slug: string}[]>([]);
-
-  useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const { collection, getDocs, query, orderBy, limit } = await import("firebase/firestore");
-        const { db } = await import("@/lib/firebase");
-        const snap = await getDocs(query(collection(db, "brands"), orderBy("order", "asc"), limit(6)));
-        const data: any[] = [];
-        snap.forEach(d => data.push(d.data()));
-        setBrands(data);
-      } catch(e) {}
-    };
-    fetchBrands();
-  }, []);
+  const { logoUrl } = useTheme();
 
   if (pathname?.startsWith("/panel")) return null;
   return (
@@ -50,12 +36,20 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="space-y-4">
             <div className="flex flex-col">
-              <span className="text-base font-semibold tracking-tight text-white leading-none">
-                TREND OPTİK
-              </span>
-              <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">
-                MERSİN
-              </span>
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logoUrl}
+                  alt="Trend Optik Mersin"
+                  className="h-14 w-auto object-contain object-left max-w-[200px]"
+                  style={{ mixBlendMode: "screen" }}
+                />
+              ) : (
+                <div className="logo-text-fallback flex flex-col">
+                  <span className="text-base font-semibold tracking-tight text-white leading-none">TREND OPTİK</span>
+                  <span className="text-[10px] font-medium tracking-[0.35em] text-[var(--accent-gold)] uppercase leading-none mt-1">MERSİN</span>
+                </div>
+              )}
             </div>
             <p className="text-sm text-white/25 font-light leading-relaxed max-w-xs">
               Premium gözlük koleksiyonları ve profesyonel göz sağlığı hizmetleri
@@ -80,7 +74,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-3 md:gap-8">
+          <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2 md:gap-8">
             {/* Quick Links */}
             <div className="space-y-4">
               <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
@@ -90,6 +84,7 @@ export default function Footer() {
                 {[
                   { label: "Ana Sayfa", href: "/" },
                   { label: "Tüm Katalog", href: "/katalog" },
+                  { label: "Hakkımızda", href: "/hakkimizda" },
                   { label: "Sipariş Takibi", href: "/#takip" },
                   { label: "İletişim", href: "/#iletisim" },
                 ].map((link) => (
@@ -99,24 +94,6 @@ export default function Footer() {
                     className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
                   >
                     {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            {/* Brands */}
-            <div className="space-y-4">
-              <h4 className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
-                Markalar
-              </h4>
-              <nav className="flex flex-col gap-2.5">
-                {brands.map((b) => (
-                  <Link
-                    key={b.slug}
-                    href={`/marka/${b.slug}`}
-                    className="text-sm text-white/25 hover:text-[var(--accent-gold)] transition-colors duration-300 font-light"
-                  >
-                    {b.name}
                   </Link>
                 ))}
               </nav>
@@ -174,12 +151,22 @@ export default function Footer() {
             © {new Date().getFullYear()} Trend Optik. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-[11px] text-white/10 font-light">
-              Gizlilik Politikası
-            </span>
-            <span className="text-[11px] text-white/10 font-light">
-              Kullanım Koşulları
-            </span>
+            <a
+              href="https://wa.me/905312075818?text=Merhaba"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-white/10 hover:text-white/30 transition-colors font-light"
+            >
+              WhatsApp
+            </a>
+            <a
+              href="https://instagram.com/trendoptikmersin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-white/10 hover:text-white/30 transition-colors font-light"
+            >
+              Instagram
+            </a>
           </div>
         </div>
       </div>

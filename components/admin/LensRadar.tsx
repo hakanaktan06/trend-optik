@@ -150,7 +150,7 @@ export default function LensRadar() {
     <div>
       <div className="flex items-center gap-3 mb-4">
         <Eye className="w-8 h-8 text-cyan-500" />
-        <h2 className="text-3xl font-bold text-white">Akıllı Lens Takip Radarı</h2>
+        <h2 className="text-xl md:text-3xl font-bold text-white">Akıllı Lens Takip Radarı</h2>
       </div>
       <p className="text-white/50 mb-10 max-w-2xl">
         Lens alan müşterilerini buraya kaydet, süresi bitince sistem seni uyarsın. (Reçete fotoğraflarını güvenle yükleyebilirsin, veritabanında şifrelenir).
@@ -160,7 +160,7 @@ export default function LensRadar() {
         
         {/* ADD LENS FORM */}
         <div className="lg:col-span-1">
-          <div className="glass p-6 rounded-3xl sticky top-6 border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+          <div className="glass p-5 md:p-6 rounded-3xl lg:sticky lg:top-6 border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
             <h3 className="text-xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
               <UserPlus className="w-5 h-5"/> Müşteri Ekle
             </h3>
