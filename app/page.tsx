@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import VIPConcierge from "@/components/home/VIPConcierge";
-import CTASection from "@/components/home/CTASection";
 import ProductsShowcase from "@/components/home/ProductsShowcase";
 import OrderLookup from "@/components/home/OrderLookup";
 import BrandShowcase from "@/components/home/BrandShowcase";
@@ -47,12 +46,6 @@ export default async function Home() {
 
       {/* 5. Sipariş Sorgulama */}
       <OrderLookup />
-
-      {/* Gold divider */}
-      <div className="divider-gold" />
-
-      {/* 6. CTA — WhatsApp İletişim */}
-      <CTASection />
     </>
   );
 }

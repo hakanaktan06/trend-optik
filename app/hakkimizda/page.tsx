@@ -3,6 +3,7 @@ import BentoGrid from "@/components/home/BentoGrid";
 import LensTech from "@/components/home/LensTech";
 import ParallaxBanner from "@/components/home/ParallaxBanner";
 import FAQSection from "@/components/home/FAQSection";
+import CTASection from "@/components/home/CTASection";
 import { faqs } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -59,6 +60,9 @@ export default function HakkimizdaPage() {
 
       {/* SSS / FAQ */}
       <FAQSection />
+
+      {/* İletişim CTA */}
+      <CTASection />
     </>
   );
 }
