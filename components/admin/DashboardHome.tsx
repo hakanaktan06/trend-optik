@@ -31,8 +31,17 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     else if (hour >= 18 && hour < 22) setGreeting("İyi Akşamlar");
     else setGreeting("İyi Geceler");
 
+    /* Zaten oturum açıksa auth.currentUser hemen hazır — beklemeden yükle */
+    if (auth.currentUser) {
+      loadStats();
+      loadTheme();
+      loadLogo();
+      return;
+    }
+
+    /* İlk yükleme: auth state çözülene kadar bekle */
     const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user) return; // auth henüz çözülmedi, bekle
+      if (!user) return;
       loadStats();
       loadTheme();
       loadLogo();
@@ -43,14 +52,20 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
 
   const loadStats = async () => {
     try {
-      const pSnap = await getDocs(collection(db, "products"));
-      const oSnap = await getDocs(collection(db, "orders"));
+      /* Dört koleksiyon paralel okunuyor — sıralı beklemek yerine hepsi aynı anda */
+      const [pSnap, oSnap, cSnap, lSnap] = await Promise.all([
+        getDocs(collection(db, "products")),
+        getDocs(collection(db, "orders")),
+        getDocs(collection(db, "certificates")),
+        getDocs(collection(db, "lenses")),
+      ]);
+
       let activeOrders = 0;
       let radarCount = 0;
       const today = new Date();
 
-      oSnap.forEach((doc) => {
-        const order = doc.data();
+      oSnap.forEach((d) => {
+        const order = d.data();
         if (order.status !== "Teslim Edildi") activeOrders++;
         if (order.createdAt) {
           const date = order.createdAt.toDate();
@@ -59,15 +74,12 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
         }
       });
 
-      const cSnap = await getDocs(collection(db, "certificates"));
-      const lSnap = await getDocs(collection(db, "lenses"));
-
       setStats({
         products: pSnap.size,
         orders: activeOrders,
         certs: cSnap.size,
         lenses: lSnap.size,
-        radar: radarCount
+        radar: radarCount,
       });
     } catch (e: any) {
       console.error("Stats load error", e);
@@ -75,20 +87,19 @@ export default function DashboardHome({ setActiveTab }: { setActiveTab: (tab: st
     }
   };
 
+  /* Tema ve logo tek okumada — ayrı ayrı iki istek yerine bir tane */
   const loadTheme = async () => {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
       if (snap.exists()) setTheme(snap.data().activeTheme);
-    } catch(e: any) {
-      console.error("Theme load error", e);
-    }
+    } catch (e) { /* sessiz */ }
   };
 
   const loadLogo = async () => {
     try {
       const snap = await getDoc(doc(db, "settings", "theme"));
       if (snap.exists() && snap.data().logoUrl) setLogoUrl(snap.data().logoUrl);
-    } catch(e) {}
+    } catch (e) { /* sessiz */ }
   };
 
   const handleUpdateTheme = async () => {
