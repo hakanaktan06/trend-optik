@@ -1,72 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { Search, Loader2, Save, Info, ExternalLink } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { Search, Info, ExternalLink } from "lucide-react";
 
-/* ── Alan bileşeni (tooltip inline açılıyor — overflow yok) ──────── */
+/* ── Alan bileşeni (salt okunur) ────────────────────────────────── */
 function Field({
   label,
   tooltip,
   value,
-  onChange,
-  placeholder,
   textarea,
   hint,
 }: {
   label: string;
   tooltip: string;
   value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
   textarea?: boolean;
   hint?: string;
 }) {
-  const [tipOpen, setTipOpen] = useState(false);
-
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-1.5">
         <label className="text-xs text-white/50 uppercase tracking-widest font-bold">{label}</label>
-        <button
-          type="button"
-          onClick={() => setTipOpen(v => !v)}
-          onMouseEnter={() => setTipOpen(true)}
-          onMouseLeave={() => setTipOpen(false)}
-          className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 ${
-            tipOpen
-              ? "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)]"
-              : "bg-white/10 text-white/40 hover:bg-[var(--accent-gold)]/20 hover:text-[var(--accent-gold)]"
-          }`}
-          aria-label="Bilgi"
-        >
-          ?
-        </button>
+        <span className="text-[10px] text-white/20 normal-case tracking-normal italic">— salt okunur</span>
       </div>
-
-      {tipOpen && (
-        <p className="mb-2 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/8 text-[11px] text-white/50 leading-relaxed">
-          {tooltip}
-        </p>
-      )}
 
       {textarea ? (
         <textarea
           value={value}
-          onChange={e => onChange(e.target.value)}
-          placeholder={placeholder}
+          readOnly
           rows={3}
-          className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors resize-none"
+          className="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-sm text-white/60 cursor-default resize-none select-all"
         />
       ) : (
         <input
           type="text"
           value={value}
-          onChange={e => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors"
+          readOnly
+          className="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-sm text-white/60 cursor-default select-all"
         />
       )}
       {hint && <p className="text-[11px] text-white/25 mt-1">{hint}</p>}
@@ -92,63 +61,21 @@ const DEFAULTS = {
 };
 
 export default function SEOManager() {
-  const [form, setForm] = useState(DEFAULTS);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const snap = await getDoc(doc(db, "settings", "seo"));
-        if (snap.exists()) setForm(f => ({ ...f, ...snap.data() }));
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  const set = (key: keyof typeof DEFAULTS) => (v: string) =>
-    setForm(f => ({ ...f, [key]: v }));
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await setDoc(doc(db, "settings", "seo"), form, { merge: true });
-      toast.success("SEO ayarları kaydedildi.");
-    } catch (e: any) {
-      toast.error(`Kayıt hatası: ${e?.message}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--accent-gold)]" />
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="flex items-center gap-3 mb-8">
         <Search className="w-8 h-8 text-[var(--accent-gold)]" />
-        <h2 className="text-xl md:text-3xl font-bold">SEO Yönetimi</h2>
+        <h2 className="text-xl md:text-3xl font-bold">SEO Bilgileri</h2>
       </div>
 
       {/* Bilgi kartı */}
       <div className="glass border border-[var(--accent-gold)]/20 rounded-2xl p-5 mb-8 flex gap-3 bg-[var(--accent-gold)]/5">
         <Info className="w-5 h-5 text-[var(--accent-gold)] shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-bold text-white mb-1">SEO Nedir?</p>
+          <p className="text-sm font-bold text-white mb-1">Bu Bilgiler Nasıl Güncellenir?</p>
           <p className="text-xs text-white/50 leading-relaxed">
-            &ldquo;Mersin optik&rdquo;, &ldquo;mersin gözlük&rdquo; gibi aramalarda sitenizin üst sıralarda çıkması için yapılan ayarlardır.
-            Her alanın yanındaki <span className="font-bold text-white/70">(?)</span> işaretine dokunarak ne işe yaradığını görebilirsiniz.
-            Değişiklikler birkaç gün içinde Google&apos;a yansır.
+            Aşağıdaki bilgiler sitenin Google&apos;a tanıttığı resmi verilerdir. Değiştirilmesi gerekirse
+            bunu yapan ekiple iletişime geçin. Yanlış ya da eksik bilgi yerel arama sıralamasını olumsuz etkiler.
           </p>
         </div>
       </div>
@@ -158,34 +85,30 @@ export default function SEOManager() {
         {/* Google Gösterimi */}
         <div className="glass p-6 rounded-3xl border border-white/5 space-y-5">
           <h3 className="text-sm font-bold text-[var(--accent-gold)] uppercase tracking-widest mb-4">
-            Google'da Görünüm
+            Google&apos;da Görünüm
           </h3>
 
           <Field
             label="Site Başlığı (Title)"
-            tooltip="Google'da ve tarayıcı sekmesinde görünen ana başlık. 50–60 karakter idealdir; içinde 'Mersin' ve 'optik/gözlük' geçmeli. Örn: 'Trend Optik Mersin | Gözlük & Güneş Gözlüğü'."
-            value={form.siteTitle}
-            onChange={set("siteTitle")}
-            placeholder="Trend Optik Mersin | Optik, Gözlük & Güneş Gözlüğü"
-            hint={`${form.siteTitle.length}/60 karakter`}
+            tooltip="Google'da ve tarayıcı sekmesinde görünen ana başlık."
+            value={DEFAULTS.siteTitle}
+            hint={`${DEFAULTS.siteTitle.length}/60 karakter`}
           />
 
           <Field
             label="Site Açıklaması (Description)"
-            tooltip="Google sonucunda başlığın altındaki gri yazı. 150–160 karakter olmalı. Tıklamayı artıran, davet eden bir cümle yazın."
-            value={form.siteDesc}
-            onChange={set("siteDesc")}
-            placeholder="Mersin Yenişehir'in premium optik mağazası..."
+            tooltip="Google sonucunda başlığın altındaki açıklama metni."
+            value={DEFAULTS.siteDesc}
             textarea
-            hint={`${form.siteDesc.length}/160 karakter`}
+            hint={`${DEFAULTS.siteDesc.length}/160 karakter`}
           />
 
           {/* Google önizleme */}
           <div className="border border-white/10 rounded-xl p-4 bg-black/30">
             <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Google Önizleme</p>
-            <p className="text-blue-400 text-sm font-medium leading-tight line-clamp-1">{form.siteTitle || "Başlık"}</p>
+            <p className="text-blue-400 text-sm font-medium leading-tight line-clamp-1">{DEFAULTS.siteTitle}</p>
             <p className="text-green-500/70 text-[11px] mt-0.5">trendoptikmersin.com</p>
-            <p className="text-white/40 text-xs mt-1 line-clamp-2">{form.siteDesc || "Açıklama"}</p>
+            <p className="text-white/40 text-xs mt-1 line-clamp-2">{DEFAULTS.siteDesc}</p>
           </div>
         </div>
 
@@ -197,43 +120,33 @@ export default function SEOManager() {
 
           <Field
             label="İşletme Adı"
-            tooltip="Google'a bildirilen resmi ad. Google Haritalar / İşletme profilinizle birebir aynı olmalı. Farklı yazılırsa yerel aramada sıralamanızı olumsuz etkiler."
-            value={form.businessName}
-            onChange={set("businessName")}
-            placeholder="Trend Optik Mersin"
+            tooltip="Google'a bildirilen resmi işletme adı."
+            value={DEFAULTS.businessName}
           />
 
           <Field
             label="Adres"
-            tooltip="Yerel aramada ('mersin optik', 'mersin gözlük') çıkmanız için kritik. Google Haritalar'daki adresle aynı yazın; farklı olursa yerel SEO zarar görür."
-            value={form.street}
-            onChange={set("street")}
-            placeholder="Çiftlikköy Mah., Mimar Sinan Cad. ..."
+            tooltip="Google Haritalar ile eşleşmesi gereken açık adres."
+            value={DEFAULTS.street}
           />
 
           <div className="grid grid-cols-2 gap-4">
             <Field
               label="İlçe"
-              tooltip="İlçe adı — yerel aramada kritik. Google Haritalar'daki ile aynı olmalı."
-              value={form.district}
-              onChange={set("district")}
-              placeholder="Yenişehir"
+              tooltip="İlçe adı."
+              value={DEFAULTS.district}
             />
             <Field
               label="Posta Kodu"
-              tooltip="5 haneli posta kodu. PTT'nin resmi kodu ile aynı olmalı."
-              value={form.postalCode}
-              onChange={set("postalCode")}
-              placeholder="33150"
+              tooltip="5 haneli posta kodu."
+              value={DEFAULTS.postalCode}
             />
           </div>
 
           <Field
             label="Telefon"
-            tooltip="Tıklanınca arama başlatan numara. Başında +90 ile yazın. Google Haritalar'daki numara ile aynı olmalı."
-            value={form.phone}
-            onChange={set("phone")}
-            placeholder="+905312075818"
+            tooltip="Uluslararası formatta telefon numarası."
+            value={DEFAULTS.phone}
           />
         </div>
 
@@ -245,18 +158,14 @@ export default function SEOManager() {
 
           <Field
             label="Hafta İçi (Pzt–Cum)"
-            tooltip="Google'da 'Açık/Kapalı' bilgisini gösterir ve arama sonuçlarında çalışma saatleri olarak listelenir. Doğru girin; yanlışsa müşteri memnuniyeti düşer."
-            value={form.hoursWeekday}
-            onChange={set("hoursWeekday")}
-            placeholder="08:30 - 18:30"
+            tooltip="Pazartesiden Cumaya çalışma saati."
+            value={DEFAULTS.hoursWeekday}
           />
 
           <Field
             label="Cumartesi"
-            tooltip="Cumartesi çalışma saati. Pazar kapalıysa bu alanı doldurup Pazar için alan eklememeniz yeterli."
-            value={form.hoursSaturday}
-            onChange={set("hoursSaturday")}
-            placeholder="08:30 - 17:30"
+            tooltip="Cumartesi çalışma saati."
+            value={DEFAULTS.hoursSaturday}
           />
         </div>
 
@@ -268,33 +177,21 @@ export default function SEOManager() {
 
           <Field
             label="Instagram"
-            tooltip="Instagram hesabınızın tam adresi. Google'a sosyal profilinizi tanıtır; markanızın doğrulanmasına yardımcı olur. Örn: https://instagram.com/trendoptikmersin"
-            value={form.instagram}
-            onChange={set("instagram")}
-            placeholder="https://instagram.com/trendoptikmersin"
+            tooltip="Instagram hesabı linki."
+            value={DEFAULTS.instagram}
           />
 
           <Field
             label="WhatsApp"
-            tooltip="WhatsApp linki. Müşterilerin mobil cihazlardan doğrudan yazmasını sağlar. Örn: https://wa.me/905312075818"
-            value={form.whatsapp}
-            onChange={set("whatsapp")}
-            placeholder="https://wa.me/905312075818"
+            tooltip="WhatsApp direkt mesaj linki."
+            value={DEFAULTS.whatsapp}
           />
 
           <Field
             label="Google Analytics ID"
-            tooltip="G- ile başlayan ölçüm kimliği (mevcut: G-PVZTDX1VJR). Sitenizi ziyaret eden kişilerin nereden geldiğini, hangi ürünlere baktığını gösterir. Bilmiyorsanız dokunmayın."
-            value={form.gaId}
-            onChange={set("gaId")}
-            placeholder="G-PVZTDX1VJR"
+            tooltip="Site ziyaretçi istatistikleri için kullanılan ölçüm kimliği."
+            value={DEFAULTS.gaId}
           />
-
-          <div className="border border-amber-500/20 rounded-xl p-3 bg-amber-500/5">
-            <p className="text-xs text-amber-400/80 leading-relaxed">
-              <span className="font-bold">Önemli:</span> Bu sayfadaki değişiklikler referans amaçlıdır. Site kodundaki JSON-LD ve metadata değerlerinin güncellenmesi için Vercel&apos;de yeniden dağıtım (deploy) gerekir.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -302,25 +199,13 @@ export default function SEOManager() {
       <div className="glass border border-blue-500/20 rounded-2xl p-5 mt-6 flex gap-3 bg-blue-500/5">
         <ExternalLink className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-bold text-white mb-1">Google İşletme Profili — Yerel SEO&apos;nun Yarısı</p>
+          <p className="text-sm font-bold text-white mb-1">Google İşletme Profili — Yerel SEO&apos;nun Temeli</p>
           <p className="text-xs text-white/50 leading-relaxed">
             &ldquo;Mersin optik&rdquo; aramalarında haritada çıkmak için
             <a href="https://business.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 mx-1">business.google.com</a>
-            adresinden işletmenizi doğrulayın. Kategori olarak <strong className="text-white/70">Gözlükçü / Optician</strong> seçin, tam adresi ve çalışma saatlerini girin, fotoğraf ekleyin. Bu adım kod değil; yalnızca siz yapabilirsiniz.
+            adresinden işletmenizi doğrulayın. Kategori olarak <strong className="text-white/70">Gözlükçü / Optician</strong> seçin, tam adres ve çalışma saatlerini girin, fotoğraf ekleyin.
           </p>
         </div>
-      </div>
-
-      {/* Kaydet butonu */}
-      <div className="mt-8 flex justify-end">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-all disabled:opacity-50"
-        >
-          {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-          SEO Ayarlarını Kaydet
-        </button>
       </div>
     </div>
   );
