@@ -15,6 +15,7 @@ import VIPCerts from "@/components/admin/VIPCerts";
 import LensRadar from "@/components/admin/LensRadar";
 import TelegramSettings from "@/components/admin/TelegramSettings";
 import BrandManager from "@/components/admin/BrandManager";
+import SEOManager from "@/components/admin/SEOManager";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("home");
@@ -84,6 +85,7 @@ export default function AdminPanel() {
             {activeTab === "certs" && <VIPCerts />}
             {activeTab === "lenses" && <LensRadar />}
             {activeTab === "telegram" && <TelegramSettings />}
+            {activeTab === "seo" && <SEOManager />}
           </motion.div>
         </AnimatePresence>
       </main>

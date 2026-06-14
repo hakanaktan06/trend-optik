@@ -27,11 +27,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const brands = await getAllBrandsServer();
   const brandName = brands.find(b => b.id === product.brandId || b.slug === product.brandId || b.name === product.brandId)?.name || product.brandId;
 
-  const title = `${brandName} ${product.model} ${product.name} | Trend Optik Mersin`;
-  const description = `${brandName} ${product.model} modelini Trend Optik Mersin'de keşfedin. Bilgi almak için WhatsApp'tan hemen ulaşın.`;
+  const titleBase = product.seoTitle ||
+    `${brandName} ${product.model} — ${product.name}`;
+  const title = `${titleBase} | Trend Optik Mersin`;
+  const description = product.seoDesc ||
+    `${brandName} ${product.model} modelini Trend Optik Mersin'de keşfedin. Bilgi almak için WhatsApp'tan hemen ulaşın.`;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: `https://trendoptikmersin.com/product/${p.id}`,
@@ -74,10 +77,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": product.name,
-    "image": product.images?.[0] || "/placeholder.png",
+    "name": `${product.name} ${product.model}`,
+    "image": product.images?.length ? product.images : ["https://trendoptikmersin.com/placeholder.png"],
+    "sku": product.model,
     ...(brandName && { "brand": { "@type": "Brand", "name": brandName } }),
-    "description": product.description || "Trend Optik Mersin premium koleksiyonu.",
+    ...(product.description && { "description": product.description }),
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "TRY",
+      "availability": product.stock > 0
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      "url": `https://trendoptikmersin.com/product/${p.id}`,
+      "seller": { "@type": "Organization", "name": "Trend Optik Mersin" }
+    }
   };
 
   const breadcrumbSchema = {

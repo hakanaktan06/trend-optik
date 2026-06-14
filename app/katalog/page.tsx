@@ -7,8 +7,12 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Tüm Koleksiyonlar | Trend Optik Mersin",
   description: "Mersin'in en seçkin gözlük koleksiyonunu keşfedin. Güneş gözlüğü, numaralı gözlük ve kontakt lenslerde dünya markaları avantajlı fiyatlarla.",
-  alternates: {
-    canonical: "https://trendoptikmersin.com/katalog",
+  alternates: { canonical: "https://trendoptikmersin.com/katalog" },
+  openGraph: {
+    title: "Tüm Koleksiyonlar | Trend Optik Mersin",
+    description: "Mersin'in en seçkin gözlük koleksiyonunu keşfedin. Güneş gözlüğü, numaralı gözlük ve kontakt lenslerde dünya markaları.",
+    url: "https://trendoptikmersin.com/katalog",
+    type: "website",
   },
 };
 

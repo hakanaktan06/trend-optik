@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send, Menu, X } from "lucide-react";
+import { LayoutGrid, Glasses, Target, Box, Award, Eye, LogOut, Send, Menu, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
@@ -24,6 +24,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
     { id: "certs", label: "Sertifikalar", icon: Award },
     { id: "lenses", label: "Lens Radarı", icon: Eye },
     { id: "telegram", label: "Telegram Ayarları", icon: Send },
+    { id: "seo", label: "SEO Yönetimi", icon: Search },
   ];
 
   const handleNavClick = (id: string) => {

@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   description:
     "Trend Optik Mersin hakkında: 15+ yıllık deneyim, Zeiss/Leica cam teknolojisi, el işçiliği ve premium gözlük koleksiyonlarımız hakkında bilgi edinin.",
   alternates: { canonical: "https://trendoptikmersin.com/hakkimizda" },
+  openGraph: {
+    title: "Hakkımızda | Trend Optik Mersin",
+    description: "15+ yıllık tecrübe, Zeiss/Leica cam teknolojisi ve premium koleksiyonlarla Mersin'in gözde optiği.",
+    url: "https://trendoptikmersin.com/hakkimizda",
+    type: "website",
+  },
 };
 
 export default function HakkimizdaPage() {

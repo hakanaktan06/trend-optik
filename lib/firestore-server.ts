@@ -29,6 +29,8 @@ export interface Product {
   type?: 'kadin' | 'erkek' | 'cocuk' | 'gunes' | 'optik' | 'unisex' | null;
   createdAt?: any;
   updatedAt?: any;
+  seoTitle?: string;
+  seoDesc?: string;
   // Legacy fields for migration
   img?: string;
   category?: string;
@@ -70,6 +72,8 @@ export async function getProductServer(id: string): Promise<Product | null> {
       status: fields.status?.stringValue === 'draft' ? 'draft' : 'published',
       source: 'manual',
       type: fields.type?.stringValue || null,
+      seoTitle: fields.seoTitle?.stringValue || "",
+      seoDesc: fields.seoDesc?.stringValue || "",
       // legacy
       category: fields.category?.stringValue || "",
     };
@@ -113,6 +117,8 @@ export async function getAllProductsServer(): Promise<Product[]> {
         status: fields.status?.stringValue === 'draft' ? 'draft' : 'published',
         source: 'manual',
         type: fields.type?.stringValue || null,
+        seoTitle: fields.seoTitle?.stringValue || "",
+        seoDesc: fields.seoDesc?.stringValue || "",
         category: fields.category?.stringValue || "",
       };
     });

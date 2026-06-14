@@ -42,6 +42,9 @@ export default function ProductManager() {
   const [pIsFeatured, setPIsFeatured] = useState(false);
   const [pStatus, setPStatus] = useState<'published'|'draft'>('published');
   const [pType, setPType] = useState<Product['type']>('' as any);
+  const [pSeoTitle, setPSeoTitle] = useState("");
+  const [pSeoDesc, setPSeoDesc] = useState("");
+  const [seoOpen, setSeoOpen] = useState(false);
   
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -223,6 +226,9 @@ export default function ProductManager() {
     setPIsFeatured(false);
     setPStatus("published");
     setPType('' as any);
+    setPSeoTitle("");
+    setPSeoDesc("");
+    setSeoOpen(false);
   };
 
   const handleSave = async () => {
@@ -271,6 +277,9 @@ export default function ProductManager() {
         payload.type = null;
       }
 
+      payload.seoTitle = pSeoTitle.trim();
+      payload.seoDesc = pSeoDesc.trim();
+
       if (editId) {
         await updateDoc(doc(db, "products", editId), payload);
       } else {
@@ -318,6 +327,8 @@ export default function ProductManager() {
     setPIsFeatured(p.isFeatured || false);
     setPStatus(p.status || 'published');
     setPType(p.type || '' as any);
+    setPSeoTitle((p as any).seoTitle || "");
+    setPSeoDesc((p as any).seoDesc || "");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -671,7 +682,51 @@ export default function ProductManager() {
                 </label>
               </div>
 
-              <div className="pt-4">
+              {/* SEO Bölümü (katlanabilir) */}
+              <div className="border border-white/10 rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setSeoOpen(!seoOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] transition-colors text-left"
+                >
+                  <span className="text-xs font-bold text-white/50 uppercase tracking-widest">SEO (İsteğe Bağlı)</span>
+                  <span className="text-white/30 text-xs">{seoOpen ? "▲" : "▼"}</span>
+                </button>
+                {seoOpen && (
+                  <div className="p-4 space-y-4 bg-black/20">
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <label className="text-xs text-white/50 uppercase tracking-widest">SEO Başlığı</label>
+                        <span className="text-[10px] text-white/25 normal-case tracking-normal">— boş bırakılırsa otomatik üretilir</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={pSeoTitle}
+                        onChange={e => setPSeoTitle(e.target.value)}
+                        placeholder={`${pBrandName || "Marka"} ${pModel || "Model"} — ${pName || "Ürün Adı"} | Trend Optik Mersin`}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors"
+                      />
+                      <p className="text-[10px] text-white/25 mt-0.5">Google'da gösterilecek başlık. 50–60 karakter idealdir.</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <label className="text-xs text-white/50 uppercase tracking-widest">SEO Açıklaması</label>
+                        <span className="text-[10px] text-white/25 normal-case tracking-normal">— boş bırakılırsa otomatik üretilir</span>
+                      </div>
+                      <textarea
+                        value={pSeoDesc}
+                        onChange={e => setPSeoDesc(e.target.value)}
+                        placeholder="Bu ürünün Google arama sonucundaki açıklaması. 150–160 karakter."
+                        rows={2}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--accent-gold)]/50 transition-colors resize-none"
+                      />
+                      <p className="text-[10px] text-white/25 mt-0.5">{pSeoDesc.length}/160 karakter</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2">
                 <button onClick={handleSave} disabled={isSaving || isUploading} className="w-full py-4 bg-gradient-to-r from-[var(--accent-gold-light)] to-[var(--accent-gold)] text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,169,110,0.3)] transition-all flex justify-center items-center gap-2">
                   {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
                   {editId ? "Değişiklikleri Kaydet" : "Ürünü Kaydet"}
