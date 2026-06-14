@@ -9,23 +9,42 @@ import { toast } from "react-hot-toast";
 /* ── Tooltip bileşeni ─────────────────────────────────────────────── */
 function InfoTooltip({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [openLeft, setOpenLeft] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
+  const calcAndOpen = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setOpenLeft(window.innerWidth - rect.right < 300);
+    }
+    setOpen(v => !v);
+  };
+
+  const calcAndShow = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setOpenLeft(window.innerWidth - rect.right < 300);
+    }
+    setOpen(true);
+  };
+
   return (
-    <div ref={ref} className="relative inline-flex items-center">
+    <div ref={wrapRef} className="relative inline-flex items-center">
       <button
+        ref={btnRef}
         type="button"
-        onClick={() => setOpen(!open)}
-        onMouseEnter={() => setOpen(true)}
+        onClick={calcAndOpen}
+        onMouseEnter={calcAndShow}
         onMouseLeave={() => setOpen(false)}
         className="w-4 h-4 rounded-full bg-white/10 hover:bg-[var(--accent-gold)]/20 text-white/40 hover:text-[var(--accent-gold)] flex items-center justify-center text-[10px] font-bold transition-colors ml-1.5 shrink-0"
         aria-label="Bilgi"
@@ -33,7 +52,11 @@ function InfoTooltip({ text }: { text: string }) {
         ?
       </button>
       {open && (
-        <div className="absolute left-6 top-0 z-50 w-[min(288px,80vw)] bg-[#1c1a18] border border-white/10 rounded-xl p-3 text-xs text-white/60 shadow-2xl leading-relaxed pointer-events-none">
+        <div
+          className={`absolute top-0 z-50 w-[min(288px,70vw)] bg-[#1c1a18] border border-white/10 rounded-xl p-3 text-xs text-white/60 shadow-2xl leading-relaxed pointer-events-none ${
+            openLeft ? "right-6" : "left-6"
+          }`}
+        >
           {text}
         </div>
       )}
