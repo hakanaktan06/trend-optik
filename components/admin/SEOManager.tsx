@@ -1,66 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Search, Loader2, Save, Info, ExternalLink } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-/* ── Tooltip bileşeni ─────────────────────────────────────────────── */
-function InfoTooltip({ text }: { text: string }) {
-  const [open, setOpen] = useState(false);
-  const [style, setStyle] = useState<React.CSSProperties>({});
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [open]);
-
-  const calcStyle = (): React.CSSProperties => {
-    if (!btnRef.current) return {};
-    const rect = btnRef.current.getBoundingClientRect();
-    const W = Math.min(288, window.innerWidth - 16);
-    // Tooltip'i butonun altında ortala; sol/sağ kenara çarparsa içeri çek
-    const idealLeft = rect.left + rect.width / 2 - W / 2;
-    const left = Math.max(8, Math.min(idealLeft, window.innerWidth - W - 8));
-    return { position: "fixed", top: rect.bottom + 6, left, width: W };
-  };
-
-  const show = () => { setStyle(calcStyle()); setOpen(true); };
-  const toggle = () => { if (!open) { setStyle(calcStyle()); setOpen(true); } else setOpen(false); };
-
-  return (
-    <div ref={wrapRef} className="inline-flex items-center">
-      <button
-        ref={btnRef}
-        type="button"
-        onClick={toggle}
-        onMouseEnter={show}
-        onMouseLeave={() => setOpen(false)}
-        className="w-4 h-4 rounded-full bg-white/10 hover:bg-[var(--accent-gold)]/20 text-white/40 hover:text-[var(--accent-gold)] flex items-center justify-center text-[10px] font-bold transition-colors ml-1.5 shrink-0"
-        aria-label="Bilgi"
-      >
-        ?
-      </button>
-      {open && (
-        <div
-          style={style}
-          className="z-[200] bg-[#1c1a18] border border-white/10 rounded-xl p-3 text-xs text-white/60 shadow-2xl leading-relaxed pointer-events-none"
-        >
-          {text}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Alan bileşeni ────────────────────────────────────────────────── */
+/* ── Alan bileşeni (tooltip inline açılıyor — overflow yok) ──────── */
 function Field({
   label,
   tooltip,
@@ -78,12 +24,34 @@ function Field({
   textarea?: boolean;
   hint?: string;
 }) {
+  const [tipOpen, setTipOpen] = useState(false);
+
   return (
     <div>
-      <div className="flex items-center mb-1.5">
+      <div className="flex items-center gap-1.5 mb-1.5">
         <label className="text-xs text-white/50 uppercase tracking-widest font-bold">{label}</label>
-        <InfoTooltip text={tooltip} />
+        <button
+          type="button"
+          onClick={() => setTipOpen(v => !v)}
+          onMouseEnter={() => setTipOpen(true)}
+          onMouseLeave={() => setTipOpen(false)}
+          className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 ${
+            tipOpen
+              ? "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)]"
+              : "bg-white/10 text-white/40 hover:bg-[var(--accent-gold)]/20 hover:text-[var(--accent-gold)]"
+          }`}
+          aria-label="Bilgi"
+        >
+          ?
+        </button>
       </div>
+
+      {tipOpen && (
+        <p className="mb-2 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/8 text-[11px] text-white/50 leading-relaxed">
+          {tooltip}
+        </p>
+      )}
+
       {textarea ? (
         <textarea
           value={value}
